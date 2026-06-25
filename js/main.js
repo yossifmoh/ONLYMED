@@ -144,7 +144,7 @@ function productCard(p){
       <div class="prod-desc">${desc}</div>
       <div class="prod-stars">${'<i class="fa fa-star"></i>'.repeat(Math.floor(p.rating))}<span>${p.rating} (${p.reviews})</span></div>
       <div class="prod-footer">
-        <div><span class="prod-price">$${p.price.toFixed(2)}</span>${p.oldPrice?`<span class="prod-old">$${p.oldPrice.toFixed(2)}</span>`:''}</div>
+        <div><span class="prod-price">{p.price.toFixed(2)} EGP</span>${p.oldPrice?`<span class="prod-old">{p.oldPrice.toFixed(2)} EGP</span>`:''}</div>
       </div>
       <div class="prod-actions" style="display:flex;gap:6px;flex-wrap:wrap">
         <button class="btn-sm btn-view" onclick="viewProduct(${p.id})">${tr('viewDetails')}</button>
@@ -220,7 +220,7 @@ function viewProduct(id){
   document.getElementById('detailCat').textContent=catName;
   document.getElementById('detailName').textContent=name;
   document.getElementById('detailRating').innerHTML='<i class="fa fa-star" style="color:#f59e0b"></i>'.repeat(Math.floor(p.rating))+`<span>${p.rating} (${p.reviews} reviews)</span>`;
-  document.getElementById('detailPrice').innerHTML=`<span class="price">$${p.price.toFixed(2)}</span>${p.oldPrice?`<span class="old">$${p.oldPrice.toFixed(2)}</span>`:''}`;
+  document.getElementById('detailPrice').innerHTML=`<span class="price">{p.price.toFixed(2)} EGP</span>${p.oldPrice?`<span class="old">{p.oldPrice.toFixed(2)} EGP</span>`:''}`;
   document.getElementById('detailDesc').textContent=desc;
   document.getElementById('detailBenefits').innerHTML=bens.map(b=>`<li><i class="fa fa-check-circle"></i>${b}</li>`).join('');
   document.getElementById('detailQty').textContent=detailQty;
@@ -286,7 +286,7 @@ function renderCartPanel(){
       <div class="ci-img">${item.emoji}</div>
       <div class="ci-info">
         <div class="ci-name">${name}</div>
-        <div class="ci-price">$${(item.price*item.qty).toFixed(2)}</div>
+        <div class="ci-price">{(item.price*item.qty).toFixed(2)} EGP</div>
         <div class="ci-qty">
           <button class="qty-btn" onclick="changeQty(${item.id},-1)">−</button>
           <span class="qty-num">${item.qty}</span>
@@ -299,9 +299,9 @@ function renderCartPanel(){
   const subtotal=cart.reduce((s,i)=>s+i.price*i.qty,0);
   const shipping=subtotal>=50?0:5.99;
   document.getElementById('cartSummary').innerHTML=`
-    <div class="cs-row"><span>${tr('subtotal')}</span><span>$${subtotal.toFixed(2)}</span></div>
-    <div class="cs-row"><span>${tr('shipping')}</span><span>${shipping===0?tr('free'):'$'+shipping.toFixed(2)}</span></div>
-    <div class="cs-row total"><span>${tr('total')}</span><span>$${(subtotal+shipping).toFixed(2)}</span></div>`;
+    <div class="cs-row"><span>${tr('subtotal')}</span><span>{subtotal.toFixed(2)} EGP</span></div>
+    <div class="cs-row"><span>${tr('shipping')}</span><span>${shipping===0?tr('free'):shipping.toFixed(2)} EGP</span></div>
+    <div class="cs-row total"><span>${tr('total')}</span><span>{(subtotal+shipping).toFixed(2)} EGP</span></div>`;
 }
 
 function changeQty(id,d){
@@ -339,11 +339,11 @@ function renderCheckout(){
   document.getElementById('pay-title').textContent=tr('payMethod');
   document.getElementById('place-btn').textContent=tr('placeOrder');
   document.getElementById('order-sum-title').textContent=tr('orderSumTitle');
-  document.getElementById('oscItems').innerHTML=cart.map(i=>`<div class="osc-item"><span class="osc-item-name">${currentLang==='ar'?i.nameAr:i.name} × ${i.qty}</span><span class="osc-item-price">$${(i.price*i.qty).toFixed(2)}</span></div>`).join('');
+  document.getElementById('oscItems').innerHTML=cart.map(i=>`<div class="osc-item"><span class="osc-item-name">${currentLang==='ar'?i.nameAr:i.name} × ${i.qty}</span><span class="osc-item-price">{(i.price*i.qty).toFixed(2)} EGP</span></div>`).join('');
   document.getElementById('oscTotals').innerHTML=`
-    <div class="osc-row"><span>${tr('subtotal')}</span><span>$${subtotal.toFixed(2)}</span></div>
-    <div class="osc-row"><span>${tr('shipping')}</span><span>${shipping===0?tr('free'):'$'+shipping.toFixed(2)}</span></div>
-    <div class="osc-row final"><span>${tr('total')}</span><span>$${total.toFixed(2)}</span></div>`;
+    <div class="osc-row"><span>${tr('subtotal')}</span><span>{subtotal.toFixed(2)} EGP</span></div>
+    <div class="osc-row"><span>${tr('shipping')}</span><span>${shipping===0?tr('free'):shipping.toFixed(2)} EGP</span></div>
+    <div class="osc-row final"><span>${tr('total')}</span><span>{total.toFixed(2)} EGP</span></div>`;
   // update labels
   document.getElementById('fn-lbl').textContent=tr('fname');
   document.getElementById('ln-lbl').textContent=tr('lname');
@@ -363,17 +363,63 @@ function selectPay(el){
   el.querySelector('input').checked=true;
 }
 
-function placeOrder(){
+const GOOGLE_SCRIPT_URL = "YOUR_GOOGLE_SCRIPT_URL_HERE"; // We will update this later
+
+async function placeOrder(){
   const fn=document.getElementById('fn').value.trim();
+  const ln=document.getElementById('ln').value.trim();
   const phone=document.getElementById('phone').value.trim();
+  const email=document.getElementById('email').value.trim();
+  const password=document.getElementById('password').value.trim();
   const addr=document.getElementById('addr').value.trim();
-  if(!fn||!phone||!addr){showToast('Please fill in all required fields.');return;}
+  const city=document.getElementById('city').value.trim();
+  
+  if(!fn||!phone||!addr||!password){showToast('Please fill in Name, Phone, Address, and Password.');return;}
+  
+  const paymentMethod = document.querySelector('input[name="pay"]:checked').value;
+  const productsStr = cart.map(i=>`${i.name} x${i.qty}`).join(', ');
+  const totalAmount = cart.reduce((s,i)=>s+i.price*i.qty,0) + (cart.reduce((s,i)=>s+i.price*i.qty,0)>=50?0:5.99);
+
+  // Send to Google Sheets
+  const orderData = {
+    name: fn + ' ' + ln,
+    phone: phone,
+    email: email,
+    password: password, // For account creation
+    address: addr + ', ' + city,
+    payment: paymentMethod,
+    products: productsStr,
+    total: totalAmount
+  };
+
+  const placeBtn = document.getElementById('place-btn');
+  placeBtn.textContent = "Processing...";
+  placeBtn.disabled = true;
+
+  try {
+    if(GOOGLE_SCRIPT_URL !== "YOUR_GOOGLE_SCRIPT_URL_HERE") {
+        await fetch(GOOGLE_SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(orderData)
+        });
+    } else {
+        console.warn("Google Script URL not set. Simulating success.");
+    }
+  } catch(e) {
+    console.error("Error saving to Google Sheets", e);
+  }
+
   orderCount++;
   const num=`CS-${String(orderCount).padStart(6,'0')}`;
-  // add to sample orders
-  sampleOrders.unshift({id:num,customer:fn,products:cart.map(i=>`${currentLang==='ar'?i.nameAr:i.name} × ${i.qty}`).join(', '),total:cart.reduce((s,i)=>s+i.price*i.qty,0),date:new Date().toISOString().slice(0,10),status:'Processing',payment:'Pending'});
+  
   cart=[];
   renderCartBadge();
+  
+  placeBtn.textContent = tr('placeOrder');
+  placeBtn.disabled = false;
+
   document.getElementById('orderNum').textContent=tr('orderNum')+num;
   document.getElementById('succ-title').textContent=tr('orderSuccess');
   document.getElementById('succ-sub').textContent=tr('orderThank');
@@ -400,7 +446,7 @@ function showAdmin(section){
 function renderRecentOrders(){
   const el=document.getElementById('recentOrdersTable');
   el.innerHTML=`<table><thead><tr><th>#</th><th>Customer</th><th>Total</th><th>Status</th></tr></thead><tbody>${
-    sampleOrders.slice(0,5).map(o=>`<tr><td><strong>${o.id}</strong></td><td>${o.customer}</td><td>$${parseFloat(o.total).toFixed(2)}</td><td><span class="status-badge ${statusClass(o.status)}">${o.status}</span></td></tr>`).join('')
+    sampleOrders.slice(0,5).map(o=>`<tr><td><strong>${o.id}</strong></td><td>${o.customer}</td><td>{parseFloat(o.total).toFixed(2)} EGP</td><td><span class="status-badge ${statusClass(o.status)}">${o.status}</span></td></tr>`).join('')
   }</tbody></table>`;
 }
 
@@ -422,7 +468,7 @@ function renderOrdersTable(){
     <td><strong>${o.id}</strong></td>
     <td>${o.customer}</td>
     <td>${o.products.length>30?o.products.slice(0,30)+'...':o.products}</td>
-    <td>$${parseFloat(o.total).toFixed(2)}</td>
+    <td>{parseFloat(o.total).toFixed(2)} EGP</td>
     <td>${o.date}</td>
     <td><span class="status-badge ${statusClass(o.status)}">${o.status}</span></td>
     <td><span class="status-badge ${o.payment==='Paid'?'st-completed':o.payment==='Refunded'?'st-cancelled':'st-pending'}">${o.payment}</span></td>
@@ -435,7 +481,7 @@ function renderAdminProducts(){
   document.getElementById('adminProdsBody').innerHTML=products.map(p=>`<tr>
     <td><span style="font-size:20px">${p.emoji}</span> <strong>${p.name}</strong></td>
     <td><span style="background:var(--pk3);color:var(--pk);padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600">${p.cat}</span></td>
-    <td><strong>$${p.price.toFixed(2)}</strong>${p.oldPrice?` <span style="color:var(--gray2);font-size:12px;text-decoration:line-through">$${p.oldPrice.toFixed(2)}</span>`:''}</td>
+    <td><strong>{p.price.toFixed(2)} EGP</strong>${p.oldPrice?` <span style="color:var(--gray2);font-size:12px;text-decoration:line-through">{p.oldPrice.toFixed(2)} EGP</span>`:''}</td>
     <td>⭐ ${p.rating} (${p.reviews})</td>
     <td><div class="tbl-actions"><button class="tbl-btn tbl-edit" onclick="showToast('Edit product: ${p.name}')"><i class="fa fa-pen"></i> Edit</button><button class="tbl-btn tbl-del" onclick="showToast('Product deleted (demo mode)')"><i class="fa fa-trash"></i></button></div></td>
   </tr>`).join('');
@@ -462,7 +508,7 @@ function initCharts(){
   new Chart(document.getElementById('salesChart'),{
     type:'bar',
     data:{labels:months,datasets:[{label:'Revenue ($)',data:[3200,4100,3800,5200,4800,6200],backgroundColor:months.map((_,i)=>i===5?pink:pink2+'66'),borderColor:months.map((_,i)=>i===5?'#d43d6a':pink2),borderWidth:2,borderRadius:8}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{grid:{color:'#f3d6df'},ticks:{callback:v=>'$'+v}}}}
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{grid:{color:'#f3d6df'},ticks:{callback:v=>v}}}}
   });
   new Chart(document.getElementById('ordersChart'),{
     type:'line',
