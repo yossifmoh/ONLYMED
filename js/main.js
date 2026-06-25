@@ -370,7 +370,7 @@ function selectPay(el){
   el.querySelector('input').checked=true;
 }
 
-const GOOGLE_SCRIPT_URL = "YOUR_GOOGLE_SCRIPT_URL_HERE"; // We will update this later
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwv1vuPsTUNXz6BMvtxUwxSqnf9Tq1CX21KLMq0nL3aYFebslLVEe5V0i-VIHyJLhlr/exec"; // We will update this later
 
 async function placeOrder(){
   const fn=document.getElementById('fn').value.trim();
