@@ -150,7 +150,7 @@ function productCard(p){
       <div class="prod-desc">${desc}</div>
       <div class="prod-stars">${'<i class="fa fa-star"></i>'.repeat(Math.floor(p.rating))}<span>${p.rating} (${p.reviews})</span></div>
       <div class="prod-footer">
-        <div><span class="prod-price">${p.price.toFixed(2)} EGP</span>$${p.oldPrice?`<span class="prod-old">${p.oldPrice.toFixed(2)} EGP</span>`:''}</div>
+        <div><span class="prod-price">${p.price.toFixed(2)} EGP</span>${p.oldPrice?`<span class="prod-old">${p.oldPrice.toFixed(2)} EGP</span>`:''}</div>
       </div>
       <div class="prod-actions" style="display:flex;gap:6px;flex-wrap:wrap">
         <button class="btn-sm btn-view" onclick="viewProduct(${p.id})">${tr('viewDetails')}</button>
@@ -226,7 +226,7 @@ function viewProduct(id){
   document.getElementById('detailCat').textContent=catName;
   document.getElementById('detailName').textContent=name;
   document.getElementById('detailRating').innerHTML='<i class="fa fa-star" style="color:#f59e0b"></i>'.repeat(Math.floor(p.rating))+`<span>${p.rating} (${p.reviews} reviews)</span>`;
-  document.getElementById('detailPrice').innerHTML=`<span class="price">${p.price.toFixed(2)} EGP</span>$${p.oldPrice?`<span class="old">${p.oldPrice.toFixed(2)} EGP</span>`:''}`;
+  document.getElementById('detailPrice').innerHTML=`<span class="price">${p.price.toFixed(2)} EGP</span>${p.oldPrice?`<span class="old">${p.oldPrice.toFixed(2)} EGP</span>`:''}`;
   document.getElementById('detailDesc').textContent=desc;
   document.getElementById('detailBenefits').innerHTML=bens.map(b=>`<li><i class="fa fa-check-circle"></i>${b}</li>`).join('');
   document.getElementById('detailQty').textContent=detailQty;
@@ -306,9 +306,9 @@ function renderCartPanel(){
   const subtotal=cart.reduce((s,i)=>s+i.price*i.qty,0);
   const shipping=subtotal>=50?0:5.99;
   document.getElementById('cartSummary').innerHTML=`
-    <div class="cs-row"><span>${tr('subtotal')}</span><span>{subtotal.toFixed(2)} EGP</span></div>
+    <div class="cs-row"><span>${tr('subtotal')}</span><span>${subtotal.toFixed(2)} EGP</span></div>
     <div class="cs-row"><span>${tr('shipping')}</span><span>${shipping===0?tr('free'):shipping.toFixed(2)} EGP</span></div>
-    <div class="cs-row total"><span>${tr('total')}</span><span>{(subtotal+shipping).toFixed(2)} EGP</span></div>`;
+    <div class="cs-row total"><span>${tr('total')}</span><span>${(subtotal+shipping).toFixed(2)} EGP</span></div>`;
 }
 
 function changeQty(id,d){
@@ -348,9 +348,9 @@ function renderCheckout(){
   document.getElementById('order-sum-title').textContent=tr('orderSumTitle');
   document.getElementById('oscItems').innerHTML=cart.map(i=>`<div class="osc-item"><span class="osc-item-name">${currentLang==='ar'?i.nameAr:i.name} × ${i.qty}</span><span class="osc-item-price">{(i.price*i.qty).toFixed(2)} EGP</span></div>`).join('');
   document.getElementById('oscTotals').innerHTML=`
-    <div class="osc-row"><span>${tr('subtotal')}</span><span>{subtotal.toFixed(2)} EGP</span></div>
+    <div class="osc-row"><span>${tr('subtotal')}</span><span>${subtotal.toFixed(2)} EGP</span></div>
     <div class="osc-row"><span>${tr('shipping')}</span><span>${shipping===0?tr('free'):shipping.toFixed(2)} EGP</span></div>
-    <div class="osc-row final"><span>${tr('total')}</span><span>{total.toFixed(2)} EGP</span></div>`;
+    <div class="osc-row final"><span>${tr('total')}</span><span>${total.toFixed(2)} EGP</span></div>`;
   // update labels
   document.getElementById('fn-lbl').textContent=tr('fname');
   document.getElementById('ln-lbl').textContent=tr('lname');
@@ -466,7 +466,7 @@ function showAdmin(section){
 function renderRecentOrders(){
   const el=document.getElementById('recentOrdersTable');
   el.innerHTML=`<table><thead><tr><th>#</th><th>Customer</th><th>Total</th><th>Status</th></tr></thead><tbody>${
-    sampleOrders.slice(0,5).map(o=>`<tr><td><strong>${o.id}</strong></td><td>${o.customer}</td><td>{parseFloat(o.total).toFixed(2)} EGP</td><td><span class="status-badge ${statusClass(o.status)}">${o.status}</span></td></tr>`).join('')
+    sampleOrders.slice(0,5).map(o=>`<tr><td><strong>${o.id}</strong></td><td>${o.customer}</td><td>${parseFloat(o.total).toFixed(2)} EGP</td><td><span class="status-badge ${statusClass(o.status)}">${o.status}</span></td></tr>`).join('')
   }</tbody></table>`;
 }
 
@@ -488,7 +488,7 @@ function renderOrdersTable(){
     <td><strong>${o.id}</strong></td>
     <td>${o.customer}</td>
     <td>${o.products.length>30?o.products.slice(0,30)+'...':o.products}</td>
-    <td>{parseFloat(o.total).toFixed(2)} EGP</td>
+    <td>${parseFloat(o.total).toFixed(2)} EGP</td>
     <td>${o.date}</td>
     <td><span class="status-badge ${statusClass(o.status)}">${o.status}</span></td>
     <td><span class="status-badge ${o.payment==='Paid'?'st-completed':o.payment==='Refunded'?'st-cancelled':'st-pending'}">${o.payment}</span></td>
@@ -501,7 +501,7 @@ function renderAdminProducts(){
   document.getElementById('adminProdsBody').innerHTML=products.map(p=>`<tr>
     <td><span style="font-size:20px">${p.emoji}</span> <strong>${p.name}</strong></td>
     <td><span style="background:var(--pk3);color:var(--pk);padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600">${p.cat}</span></td>
-    <td><strong>${p.price.toFixed(2)} EGP</strong>$${p.oldPrice?` <span style="color:var(--gray2);font-size:12px;text-decoration:line-through">${p.oldPrice.toFixed(2)} EGP</span>`:''}</td>
+    <td><strong>${p.price.toFixed(2)} EGP</strong>${p.oldPrice?` <span style="color:var(--gray2);font-size:12px;text-decoration:line-through">${p.oldPrice.toFixed(2)} EGP</span>`:''}</td>
     <td>⭐ ${p.rating} (${p.reviews})</td>
     <td><div class="tbl-actions"><button class="tbl-btn tbl-edit" onclick="showToast('Edit product: ${p.name}')"><i class="fa fa-pen"></i> Edit</button><button class="tbl-btn tbl-del" onclick="showToast('Product deleted (demo mode)')"><i class="fa fa-trash"></i></button></div></td>
   </tr>`).join('');
