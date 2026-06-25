@@ -152,7 +152,7 @@ async function saveProduct() {
     status: document.getElementById('p-status').value
   };
   
-  const res = await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: JSON.stringify(data) });
+  const res = await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', headers: {'Content-Type': 'text/plain'}, body: JSON.stringify(data) });
   const result = await res.json();
   if(result.status === 'success') {
     document.getElementById('productModal').style.display = 'none';
@@ -163,7 +163,7 @@ async function saveProduct() {
 
 async function deleteProduct(id) {
   if(!confirm('Delete this product?')) return;
-  const res = await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: JSON.stringify({action:'adminDeleteProduct', id}) });
+  const res = await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', headers: {'Content-Type': 'text/plain'}, body: JSON.stringify({action:'adminDeleteProduct', id}) });
   loadDashboard();
 }
 
@@ -193,7 +193,7 @@ function viewOrder(id) {
 async function saveOrderStatus() {
   const st = document.getElementById('o-status').value;
   showToast('Updating order...');
-  await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: JSON.stringify({action:'adminUpdateOrderStatus', orderId: currentOrderId, status: st}) });
+  await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', headers: {'Content-Type': 'text/plain'}, body: JSON.stringify({action:'adminUpdateOrderStatus', orderId: currentOrderId, status: st}) });
   document.getElementById('orderModal').style.display = 'none';
   loadDashboard();
 }
@@ -211,14 +211,14 @@ async function saveAllContent() {
     });
   });
   
-  await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: JSON.stringify({action:'adminUpdateContent', content: newContent}) });
+  await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', headers: {'Content-Type': 'text/plain'}, body: JSON.stringify({action:'adminUpdateContent', content: newContent}) });
   showToast('Content updated successfully!');
 }
 
 // ---- USER ACTIONS ----
 async function deleteUser(email) {
   if(!confirm('Delete this user?')) return;
-  await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: JSON.stringify({action:'adminDeleteUser', email}) });
+  await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', headers: {'Content-Type': 'text/plain'}, body: JSON.stringify({action:'adminDeleteUser', email}) });
   loadDashboard();
 }
 
