@@ -35,6 +35,11 @@ const sampleOrders=[
 
 // ================== STATE ==================
 let cart=[];
+let currentUser = JSON.parse(localStorage.getItem('onlymed_user')) || null;
+// load cart from localstorage
+let savedCart = localStorage.getItem('onlymed_cart');
+if(savedCart) { try { cart = JSON.parse(savedCart); } catch(e){} }
+
 let currentLang='en';
 let currentProduct=null;
 let detailQty=1;
@@ -124,6 +129,7 @@ function showPage(page){
   if(page!=='admin'){document.getElementById('mainFooter').style.display='';document.getElementById('mainNav').style.display='';}
   else{document.getElementById('mainFooter').style.display='none';}
   if(page==='products')renderAllProducts();
+  if(page==='profile')renderProfile();
   if(page==='admin'){showAdmin(currentAdmin);document.getElementById('admin-date').textContent=new Date().toLocaleDateString();}
   if(page==='home'){renderCategories();renderFeatured();renderBest();}
   if(page==='checkout')renderCheckout();
@@ -241,7 +247,7 @@ function changeDetailQty(d){
 function addDetailToCart(){
   if(!currentProduct)return;
   for(let i=0;i<detailQty;i++)addToCart(currentProduct.id,false);
-  renderCartBadge();
+  renderCartBadge();saveCartLocally();
   showToast(tr('addCart'));
 }
 
@@ -253,10 +259,11 @@ function addToCart(id,notify=true){
   const existing=cart.find(c=>c.id===id);
   if(existing)existing.qty++;
   else cart.push({...p,qty:1});
-  renderCartBadge();
+  renderCartBadge();saveCartLocally();
   if(notify)showToast(tr('addCart'));
 }
 
+function saveCartLocally() { localStorage.setItem('onlymed_cart', JSON.stringify(cart)); }
 function renderCartBadge(){
   const total=cart.reduce((s,i)=>s+i.qty,0);
   document.getElementById('cartCount').textContent=total;
@@ -309,14 +316,14 @@ function changeQty(id,d){
   if(!item)return;
   item.qty+=d;
   if(item.qty<=0)cart=cart.filter(c=>c.id!==id);
-  renderCartBadge();
+  renderCartBadge();saveCartLocally();
   renderCartPanel();
 }
 
-function removeCartItem(id){cart=cart.filter(c=>c.id!==id);renderCartBadge();renderCartPanel();}
+function removeCartItem(id){cart=cart.filter(c=>c.id!==id);renderCartBadge();saveCartLocally();renderCartPanel();}
 
 function buyNow(){
-  if(currentProduct){addToCart(currentProduct.id,false);renderCartBadge();}
+  if(currentProduct){addToCart(currentProduct.id,false);renderCartBadge();saveCartLocally();}
   toggleCart();
   setTimeout(()=>goCheckout(),300);
 }
@@ -381,16 +388,19 @@ async function placeOrder(){
   const totalAmount = cart.reduce((s,i)=>s+i.price*i.qty,0) + (cart.reduce((s,i)=>s+i.price*i.qty,0)>=50?0:5.99);
 
   // Send to Google Sheets
+  
   const orderData = {
+    action: 'order',
     name: fn + ' ' + ln,
     phone: phone,
     email: email,
-    password: password, // For account creation
+    password: password,
     address: addr + ', ' + city,
     payment: paymentMethod,
     products: productsStr,
     total: totalAmount
   };
+
 
   const placeBtn = document.getElementById('place-btn');
   placeBtn.textContent = "Processing...";
@@ -411,11 +421,21 @@ async function placeOrder(){
     console.error("Error saving to Google Sheets", e);
   }
 
+  
+  currentUser = {
+    name: fn + ' ' + ln,
+    email: email,
+    phone: phone,
+    address: addr + ', ' + city
+  };
+  localStorage.setItem('onlymed_user', JSON.stringify(currentUser));
+  document.getElementById('navProfileBtn').style.display = 'inline-block';
+
   orderCount++;
   const num=`CS-${String(orderCount).padStart(6,'0')}`;
   
   cart=[];
-  renderCartBadge();
+  renderCartBadge();saveCartLocally();
   
   placeBtn.textContent = tr('placeOrder');
   placeBtn.disabled = false;
@@ -567,3 +587,80 @@ renderCategories();
 renderFeatured();
 renderBest();
 document.getElementById('admin-date').textContent=new Date().toLocaleDateString();
+
+// ================== PROFILE ==================
+function renderProfile() {
+  if(!currentUser) { showPage('home'); return; }
+  document.getElementById('navProfileBtn').style.display = 'inline-block';
+  document.getElementById('prof-v-name').textContent = currentUser.name;
+  document.getElementById('prof-v-email').textContent = currentUser.email;
+  document.getElementById('prof-v-phone').textContent = currentUser.phone;
+  document.getElementById('prof-v-addr').textContent = currentUser.address;
+  
+  document.getElementById('prof-e-email').value = currentUser.email;
+  document.getElementById('prof-e-phone').value = currentUser.phone;
+  document.getElementById('prof-e-addr').value = currentUser.address;
+}
+
+function toggleEditProfile() {
+  const view = document.getElementById('profile-view');
+  const edit = document.getElementById('profile-edit');
+  if(view.style.display === 'none') {
+    view.style.display = 'block';
+    edit.style.display = 'none';
+  } else {
+    view.style.display = 'none';
+    edit.style.display = 'block';
+  }
+}
+
+async function saveProfile() {
+  const newEmail = document.getElementById('prof-e-email').value.trim();
+  const newPhone = document.getElementById('prof-e-phone').value.trim();
+  const newAddr = document.getElementById('prof-e-addr').value.trim();
+  
+  if(!newEmail || !newPhone || !newAddr) { showToast('Please fill all fields'); return; }
+  
+  const saveBtn = document.getElementById('prof-save-btn');
+  saveBtn.textContent = 'Saving...';
+  saveBtn.disabled = true;
+  
+  try {
+    if(GOOGLE_SCRIPT_URL !== "YOUR_GOOGLE_SCRIPT_URL_HERE") {
+        await fetch(GOOGLE_SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+              action: 'updateProfile',
+              oldEmail: currentUser.email,
+              newEmail: newEmail,
+              newPhone: newPhone,
+              newAddress: newAddr
+            })
+        });
+    }
+    // Update local user
+    currentUser.email = newEmail;
+    currentUser.phone = newPhone;
+    currentUser.address = newAddr;
+    localStorage.setItem('onlymed_user', JSON.stringify(currentUser));
+    
+    showToast('Profile updated successfully!');
+    renderProfile();
+    toggleEditProfile();
+  } catch(e) {
+    console.error("Error updating profile", e);
+    showToast('Error updating profile');
+  }
+  
+  saveBtn.textContent = 'Save Changes';
+  saveBtn.disabled = false;
+}
+
+window.addEventListener("DOMContentLoaded", () => {
+  renderCartBadge();
+  if(currentUser) {
+    document.getElementById('navProfileBtn').style.display = 'inline-block';
+  }
+});
