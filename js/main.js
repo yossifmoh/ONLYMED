@@ -688,7 +688,7 @@ function applyDynamicContent() {
 
 function toggleLanguage() {
   currentLang = currentLang === 'en' ? 'ar' : 'en';
-  document.getElementById('nav-lang').innerText = currentLang === 'en' ? 'عربي' : 'English';
+  document.getElementById('langBtn').innerText = currentLang === 'en' ? 'عربي' : 'English';
   document.body.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
   applyDynamicContent();
   renderProducts();
