@@ -346,6 +346,18 @@ function renderCheckout(){
   document.getElementById('pay-title').textContent=tr('payMethod');
   document.getElementById('place-btn').textContent=tr('placeOrder');
   document.getElementById('order-sum-title').textContent=tr('orderSumTitle');
+  
+  const u=JSON.parse(localStorage.getItem('user'));
+  if(u) {
+    document.getElementById('co-name').value=u.name||'';
+    document.getElementById('co-phone').value=u.phone||'';
+    document.getElementById('co-email').value=u.email||'';
+    document.getElementById('co-address').value=u.address||'';
+    if(document.getElementById('co-pass-group')) {
+        document.getElementById('co-pass-group').style.display='none';
+    }
+  }
+
   document.getElementById('oscItems').innerHTML=cart.map(i=>`<div class="osc-item"><span class="osc-item-name">${currentLang==='ar'?i.nameAr:i.name} × ${i.qty}</span><span class="osc-item-price">{(i.price*i.qty).toFixed(2)} EGP</span></div>`).join('');
   document.getElementById('oscTotals').innerHTML=`
     <div class="osc-row"><span>${tr('subtotal')}</span><span>${subtotal.toFixed(2)} EGP</span></div>
