@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ONLYMED CMS - Admin Dashboard</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body { background-color: var(--light); display: flex; height: 100vh; margin: 0; overflow: hidden; }
+    .sidebar { width: 250px; background-color: var(--white); box-shadow: 2px 0 10px rgba(0,0,0,0.05); display: flex; flex-direction: column; }
+    .sidebar-header { padding: 20px; border-bottom: 1px solid #eee; text-align: center; }
+    .sidebar-nav { flex: 1; padding: 20px 0; overflow-y: auto; }
+    .nav-item { padding: 15px 20px; cursor: pointer; color: var(--gray); display: flex; align-items: center; gap: 10px; transition: 0.3s; }
+    .nav-item:hover, .nav-item.active { background-color: #fce8eb; color: var(--primary); border-right: 4px solid var(--primary); }
+    .main-content { flex: 1; overflow-y: auto; padding: 30px; }
+    .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+    .admin-card { background: var(--white); padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+    table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+    th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #eee; }
+    th { color: var(--gray); font-size: 13px; font-weight: 600; text-transform: uppercase; }
+    .action-btn { background: none; border: none; cursor: pointer; color: var(--gray); transition: 0.2s; margin-right: 10px; }
+    .action-btn:hover { color: var(--primary); }
+    .status-badge { padding: 5px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+    .status-pending { background: #fff3cd; color: #856404; }
+    .status-shipped { background: #cce5ff; color: #004085; }
+    .status-delivered { background: #d4edda; color: #155724; }
+    .hidden { display: none !important; }
+    .input-sm { padding: 8px; font-size: 13px; width: 100%; border: 1px solid #ddd; border-radius: 6px; }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <h2 style="color:var(--primary); font-family:'Playfair Display'; margin:0;">ONLYMED</h2>
+      <small style="color:var(--gray)">Admin CMS</small>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-item active" onclick="switchTab('dashboard')"><i class="fa fa-home"></i> Dashboard</div>
+      <div class="nav-item" onclick="switchTab('products')"><i class="fa fa-box"></i> Products</div>
+      <div class="nav-item" onclick="switchTab('orders')"><i class="fa fa-shopping-cart"></i> Orders</div>
+      <div class="nav-item" onclick="switchTab('users')"><i class="fa fa-users"></i> Users</div>
+      <div class="nav-item" onclick="switchTab('content')"><i class="fa fa-language"></i> Content</div>
+      <div class="nav-item" onclick="window.location.href='index.html'"><i class="fa fa-arrow-left"></i> Back to Site</div>
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    
+    <div id="loader" style="text-align:center; padding: 50px;">
+      <i class="fa fa-spinner fa-spin fa-3x" style="color:var(--primary)"></i>
+      <p>Loading Data from Google Sheets...</p>
+    </div>
+
+    <div id="app-content" class="hidden">
+      <!-- Dashboard Tab -->
+      <section id="tab-dashboard">
+        <div class="admin-header"><h2>Overview</h2></div>
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+          <div class="admin-card"><h3>Total Orders</h3><h2 id="stat-orders">0</h2></div>
+          <div class="admin-card"><h3>Total Products</h3><h2 id="stat-products">0</h2></div>
+          <div class="admin-card"><h3>Total Users</h3><h2 id="stat-users">0</h2></div>
+        </div>
+      </section>
+
+      <!-- Products Tab -->
+      <section id="tab-products" class="hidden">
+        <div class="admin-header">
+          <h2>Products Management</h2>
+          <button class="btn-primary" onclick="openProductModal()"><i class="fa fa-plus"></i> Add Product</button>
+        </div>
+        <div class="admin-card" style="overflow-x:auto;">
+          <table>
+            <thead><tr><th>Image</th><th>Name (EN)</th><th>Price</th><th>Category</th><th>Stock</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="products-tbody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Orders Tab -->
+      <section id="tab-orders" class="hidden">
+        <div class="admin-header"><h2>Orders Management</h2></div>
+        <div class="admin-card" style="overflow-x:auto;">
+          <table>
+            <thead><tr><th>Order ID</th><th>Date</th><th>Customer</th><th>Total</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="orders-tbody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Users Tab -->
+      <section id="tab-users" class="hidden">
+        <div class="admin-header"><h2>Users Management</h2></div>
+        <div class="admin-card" style="overflow-x:auto;">
+          <table>
+            <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Joined</th><th>Actions</th></tr></thead>
+            <tbody id="users-tbody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Content Tab -->
+      <section id="tab-content" class="hidden">
+        <div class="admin-header">
+          <h2>Website Content & Translations</h2>
+          <button class="btn-primary" onclick="saveAllContent()"><i class="fa fa-save"></i> Save All Changes</button>
+        </div>
+        <div class="admin-card" style="overflow-x:auto;">
+          <p style="font-size:13px; color:var(--gray); margin-bottom:15px;">Edit the English and Arabic texts for your website. Status must be "Active" to show.</p>
+          <table>
+            <thead><tr><th>Key Element</th><th>English Text (EN)</th><th>Arabic Text (AR)</th><th>Status</th></tr></thead>
+            <tbody id="content-tbody"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- Modals -->
+  <!-- Product Modal -->
+  <div class="modal" id="productModal">
+    <div class="modal-content" style="max-width:600px;">
+      <span class="modal-close" onclick="document.getElementById('productModal').style.display='none'">&times;</span>
+      <h3 id="productModalTitle" style="margin-bottom:20px;">Add/Edit Product</h3>
+      <input type="hidden" id="p-id">
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
+        <div class="form-group"><label>Image URL</label><input type="text" id="p-image"></div>
+        <div class="form-group"><label>Category</label><input type="text" id="p-category"></div>
+        <div class="form-group"><label>Name (EN)</label><input type="text" id="p-name-en"></div>
+        <div class="form-group"><label>Name (AR)</label><input type="text" id="p-name-ar"></div>
+        <div class="form-group"><label>Price (EGP)</label><input type="number" id="p-price"></div>
+        <div class="form-group"><label>Old Price (EGP)</label><input type="number" id="p-old-price"></div>
+        <div class="form-group"><label>Stock Quantity</label><input type="number" id="p-stock"></div>
+        <div class="form-group"><label>Badge (e.g. Sale, New)</label><input type="text" id="p-badge"></div>
+        <div class="form-group"><label>Status</label>
+          <select id="p-status" class="input-sm"><option value="Active">Active</option><option value="Hidden">Hidden</option></select>
+        </div>
+      </div>
+      <div class="form-group"><label>Description (EN)</label><textarea id="p-desc-en" rows="3"></textarea></div>
+      <div class="form-group"><label>Description (AR)</label><textarea id="p-desc-ar" rows="3"></textarea></div>
+      <button class="btn-primary" style="width:100%" onclick="saveProduct()">Save Product</button>
+    </div>
+  </div>
+
+  <!-- Order Modal -->
+  <div class="modal" id="orderModal">
+    <div class="modal-content" style="max-width:600px;">
+      <span class="modal-close" onclick="document.getElementById('orderModal').style.display='none'">&times;</span>
+      <h3 style="margin-bottom:20px;">Order Details: <span id="o-id"></span></h3>
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; margin-bottom:20px; font-size:14px;">
+        <div><strong>Customer:</strong> <span id="o-name"></span></div>
+        <div><strong>Email:</strong> <span id="o-email"></span></div>
+        <div style="grid-column: 1/-1;"><strong>Address:</strong> <span id="o-address"></span></div>
+        <div><strong>Payment:</strong> <span id="o-payment"></span></div>
+        <div><strong>Total:</strong> <span id="o-total"></span> EGP</div>
+      </div>
+      <h4>Items</h4>
+      <div id="o-items" style="background:#f9f9f9; padding:10px; border-radius:8px; margin-bottom:20px; font-size:13px;"></div>
+      <div class="form-group">
+        <label>Update Status</label>
+        <select id="o-status" class="input-sm" style="margin-bottom:15px;">
+          <option value="Pending">Pending</option>
+          <option value="Processing">Processing</option>
+          <option value="Shipped">Shipped</option>
+          <option value="Delivered">Delivered</option>
+          <option value="Cancelled">Cancelled</option>
+        </select>
+      </div>
+      <button class="btn-primary" style="width:100%" onclick="saveOrderStatus()">Update Order</button>
+    </div>
+  </div>
+
+  <div id="toast" class="toast"></div>
+  <script src="js/admin.js"></script>
+</body>
+</html>
