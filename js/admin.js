@@ -110,38 +110,38 @@ function renderAll() {
 
 // ---- PRODUCT ACTIONS ----
 function openProductModal() {
-  document.getElementById('p-id').value = '';
+  document.getElementById('pId').value = '';
   document.getElementById('pImage').value = '';
   document.getElementById('pNameEn').value = '';
   document.getElementById('pNameAr').value = '';
   document.getElementById('pDescEn').value = '';
   document.getElementById('pDescAr').value = '';
-  document.getElementById('p-category').value = '';
+  document.getElementById('pCat').value = '';
   document.getElementById('pPrice').value = '';
   document.getElementById('pOldPrice').value = '';
   document.getElementById('pBadge').value = '';
   document.getElementById('pStock').value = '10';
   document.getElementById('pStatus').value = 'Active';
-  document.getElementById('productModalTitle').innerText = 'Add New Product';
+  document.getElementById('pmTitle').innerText = 'Add New Product';
   document.getElementById('productModal').style.display = 'flex';
 }
 
 function editProduct(id) {
   const p = db.products.find(x => x.id === id);
   if(!p) return;
-  document.getElementById('p-id').value = p.id;
+  document.getElementById('pId').value = p.id;
   document.getElementById('pImage').value = p.image;
   document.getElementById('pNameEn').value = p.name_en;
   document.getElementById('pNameAr').value = p.name_ar;
   document.getElementById('pDescEn').value = p.desc_en;
   document.getElementById('pDescAr').value = p.desc_ar;
-  document.getElementById('p-category').value = p.category;
+  document.getElementById('pCat').value = p.category;
   document.getElementById('pPrice').value = p.price;
   document.getElementById('pOldPrice').value = p.oldPrice;
   document.getElementById('pBadge').value = p.badge;
   document.getElementById('pStock').value = p.stock;
   document.getElementById('pStatus').value = p.status;
-  document.getElementById('productModalTitle').innerText = 'Edit Product';
+  document.getElementById('pmTitle').innerText = 'Edit Product';
   document.getElementById('productModal').style.display = 'flex';
 }
 
@@ -149,13 +149,13 @@ async function saveProduct() {
   showToast('Saving product...');
   const data = {
     action: 'adminSaveProduct',
-    id: document.getElementById('p-id').value,
+    id: document.getElementById('pId').value,
     image: document.getElementById('pImage').value,
     name_en: document.getElementById('pNameEn').value,
     name_ar: document.getElementById('pNameAr').value,
     desc_en: document.getElementById('pDescEn').value,
     desc_ar: document.getElementById('pDescAr').value,
-    category: document.getElementById('p-category').value,
+    category: document.getElementById('pCat').value,
     price: document.getElementById('pPrice').value,
     oldPrice: document.getElementById('pOldPrice').value,
     badge: document.getElementById('pBadge').value,
@@ -294,38 +294,38 @@ window.onload = loadDashboard;
 
 // ---- PRODUCT ACTIONS ----
 function openProductModal() {
-  document.getElementById('p-id').value = '';
+  document.getElementById('pId').value = '';
   document.getElementById('pImage').value = '';
   document.getElementById('pNameEn').value = '';
   document.getElementById('pNameAr').value = '';
   document.getElementById('pDescEn').value = '';
   document.getElementById('pDescAr').value = '';
-  document.getElementById('p-category').value = '';
+  document.getElementById('pCat').value = '';
   document.getElementById('pPrice').value = '';
   document.getElementById('pOldPrice').value = '';
   document.getElementById('pBadge').value = '';
   document.getElementById('pStock').value = '10';
   document.getElementById('pStatus').value = 'Active';
-  document.getElementById('productModalTitle').innerText = 'Add New Product';
+  document.getElementById('pmTitle').innerText = 'Add New Product';
   document.getElementById('productModal').style.display = 'flex';
 }
 
 function editProduct(id) {
   const p = db.products.find(x => x.id === id);
   if(!p) return;
-  document.getElementById('p-id').value = p.id;
+  document.getElementById('pId').value = p.id;
   document.getElementById('pImage').value = p.image;
   document.getElementById('pNameEn').value = p.name_en;
   document.getElementById('pNameAr').value = p.name_ar;
   document.getElementById('pDescEn').value = p.desc_en;
   document.getElementById('pDescAr').value = p.desc_ar;
-  document.getElementById('p-category').value = p.category;
+  document.getElementById('pCat').value = p.category;
   document.getElementById('pPrice').value = p.price;
   document.getElementById('pOldPrice').value = p.oldPrice;
   document.getElementById('pBadge').value = p.badge;
   document.getElementById('pStock').value = p.stock;
   document.getElementById('pStatus').value = p.status;
-  document.getElementById('productModalTitle').innerText = 'Edit Product';
+  document.getElementById('pmTitle').innerText = 'Edit Product';
   document.getElementById('productModal').style.display = 'flex';
 }
 
@@ -333,13 +333,13 @@ async function saveProduct() {
   showToast('Saving product...');
   const data = {
     action: 'adminSaveProduct',
-    id: document.getElementById('p-id').value,
+    id: document.getElementById('pId').value,
     image: document.getElementById('pImage').value,
     name_en: document.getElementById('pNameEn').value,
     name_ar: document.getElementById('pNameAr').value,
     desc_en: document.getElementById('pDescEn').value,
     desc_ar: document.getElementById('pDescAr').value,
-    category: document.getElementById('p-category').value,
+    category: document.getElementById('pCat').value,
     price: document.getElementById('pPrice').value,
     oldPrice: document.getElementById('pOldPrice').value,
     badge: document.getElementById('pBadge').value,
