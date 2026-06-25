@@ -684,23 +684,7 @@ function applyDynamicContent() {
     }
   }
 }
-    if(content.heroSub) {
-      const heroSubEl = document.querySelector('.hero-content p');
-      if(heroSubEl) heroSubEl.innerHTML = content.heroSub;
-    }
-    
-    // For other generic elements, if they have an ID matching the key
-    for (const [key, value] of Object.entries(content)) {
-      const el = document.getElementById(key);
-      if (el && value) {
-        el.innerHTML = value;
-      }
-    }
-    console.log("Website content loaded from Google Sheets");
-  } catch(e) {
-    console.error("Error fetching content from Google Sheets:", e);
-  }
-}
+
 
 function toggleLanguage() {
   currentLang = currentLang === 'en' ? 'ar' : 'en';
