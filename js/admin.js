@@ -155,7 +155,7 @@ async function saveProduct() {
   const res = await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', headers: {'Content-Type': 'text/plain'}, body: JSON.stringify(data) });
   const result = await res.json();
   if(result.status === 'success') {
-    document.getElementById('productModal').style.display = 'none';
+    closeModal('productModal');
     showToast('Product saved!');
     loadDashboard(); // Refresh
   }
@@ -194,7 +194,7 @@ async function saveOrderStatus() {
   const st = document.getElementById('o-status').value;
   showToast('Updating order...');
   await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', headers: {'Content-Type': 'text/plain'}, body: JSON.stringify({action:'adminUpdateOrderStatus', orderId: currentOrderId, status: st}) });
-  document.getElementById('orderModal').style.display = 'none';
+  closeModal('orderModal');
   loadDashboard();
 }
 

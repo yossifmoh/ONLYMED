@@ -1,4 +1,16 @@
-<!DOCTYPE html>
+const fs = require('fs');
+
+// 1. CLEAN INDEX.HTML
+let html = fs.readFileSync('e:/Downloads/ONLYMED/index.html', 'utf8');
+// Remove forgotModal
+html = html.replace(/<!-- FORGOT PASSWORD MODAL -->[\s\S]*?<\/div>\s*<\/div>\s*/, '');
+// Remove any stray <!-- LOGIN MODAL -->
+html = html.replace(/<!-- LOGIN MODAL -->[\s\S]*?(?=<\/body>)/, '');
+fs.writeFileSync('e:/Downloads/ONLYMED/index.html', html);
+
+
+// 2. REWRITE ADMIN.HTML (Beautiful Dark UI + CMS Modals fixed)
+const adminHtml = `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -336,4 +348,16 @@
     }
   </script>
 </body>
-</html>
+</html>`;
+fs.writeFileSync('e:/Downloads/ONLYMED/admin.html', adminHtml);
+
+// 3. FIX ADMIN.JS DOM SELECTORS
+let js = fs.readFileSync('e:/Downloads/ONLYMED/js/admin.js', 'utf8');
+// Fix functions in admin.js to use the new modal classes
+js = js.replace(/document\.getElementById\('productModal'\)\.style\.display = 'block';/g, "openProductModal();");
+js = js.replace(/document\.getElementById\('productModal'\)\.style\.display = 'none';/g, "closeModal('productModal');");
+js = js.replace(/document\.getElementById\('orderModal'\)\.style\.display = 'block';/g, "openOrderModal();");
+js = js.replace(/document\.getElementById\('orderModal'\)\.style\.display = 'none';/g, "closeModal('orderModal');");
+fs.writeFileSync('e:/Downloads/ONLYMED/js/admin.js', js);
+
+console.log("Restored beautiful dashboard and cleaned index.html completely");
