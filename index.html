@@ -35,15 +35,15 @@
       <img src="assets/ONLYMED Logo RGB AI.png" alt="ONLYMED Logo" style="height: 48px; object-fit: contain;">
     </a>
     <div class="nav-links" id="navLinks">
-      <a onclick="showPage('home')" class="active" data-key="home">Home</a>
-      <a onclick="showPage('products')" data-key="products">Products</a>
-      <a onclick="showPage('about')" data-key="about">About</a>
-      <a onclick="showPage('contact')" data-key="contact">Contact</a>
+      <a onclick="showPage('home')" class="active" data-key="home" id="nav-home">Home</a>
+      <a onclick="showPage('products')" data-key="products" id="nav-products">Products</a>
+      <a onclick="showPage('about')" data-key="about" id="nav-about">About</a>
+      <a onclick="showPage('contact')" data-key="contact" id="nav-contact" id="footer-link-6">Contact</a>
     </div>
     <div class="nav-right">
       <div class="search-wrap">
         <i class="fa fa-search"></i>
-        <input type="text" id="searchInput" placeholder="Search products..." oninput="handleSearch(this.value)">
+        <input type="text" id="searchInput" id="search-placeholder" placeholder="Search products..." oninput="handleSearch(this.value)">
       </div>
       <button class="btn-cart" onclick="toggleCart()" title="Cart">
         <i class="fa fa-shopping-bag"></i>
@@ -63,31 +63,31 @@
     <div class="hero-inner">
       <div class="hero-text">
         <div class="hero-badge"><i class="fa fa-shield-halved"></i><span id="hero-badge-text">Trusted Healthcare Products</span></div>
-        <h1 class="hero-title" id="hero-title">Your Health, <span>Our Priority</span></h1>
+        <h1 class="hero-title" id="hero-title"><span id="hero-title-1">Your Health, </span><span id="hero-title-2">Our Priority</span></h1>
         <p class="hero-sub" id="hero-sub">Premium quality healthcare products for you and your family. Sourced from certified medical suppliers.</p>
         <div class="hero-cta">
           <button class="btn-primary" onclick="showPage('products')" id="hero-btn1"><i class="fa fa-shopping-bag"></i> Shop Now</button>
-          <button class="btn-outline" onclick="showPage('about')" id="hero-btn2">Learn More</button>
+          <button class="btn-outline" onclick="showPage('about')" id="hero-btn2" id="hero-btn-learn">Learn More</button>
         </div>
         <div class="hero-stats">
-          <div class="stat-item"><div class="stat-num">50K+</div><div class="stat-lbl" id="stat1">Happy Customers</div></div>
-          <div class="stat-item"><div class="stat-num">200+</div><div class="stat-lbl" id="stat2">Products</div></div>
-          <div class="stat-item"><div class="stat-num">99%</div><div class="stat-lbl" id="stat3">Satisfaction Rate</div></div>
+          <div class="stat-item"><div class="stat-num">50K+</div><div class="stat-lbl" id="stat1" id="hero-stat-1">Happy Customers</div></div>
+          <div class="stat-item"><div class="stat-num">200+</div><div class="stat-lbl" id="stat2" id="hero-stat-2">Products</div></div>
+          <div class="stat-item"><div class="stat-num">99%</div><div class="stat-lbl" id="stat3" id="hero-stat-3">Satisfaction Rate</div></div>
         </div>
       </div>
       <div class="hero-visual">
         <div class="hero-cards-float">
           <div class="float-card fc1">
             <div class="fc-icon" style="background:#fce8ee;color:var(--pk)">💊</div>
-            <div class="fc-text"><p>Premium Vitamins</p><span>Certified Quality</span></div>
+            <div class="fc-text"><p id="hero-badge-1-title">Premium Vitamins</p><span id="hero-badge-1-desc">Certified Quality</span></div>
           </div>
           <div class="float-card fc2">
             <div class="fc-icon" style="background:#d1fae5;color:#059669">🛡️</div>
-            <div class="fc-text"><p>Immune Support</p><span>Natural Formula</span></div>
+            <div class="fc-text"><p>Immune Support</p><span id="hero-badge-3-title">Natural Formula</span></div>
           </div>
           <div class="float-card fc3">
             <div class="fc-icon" style="background:#ede9fe;color:#7c3aed">🩺</div>
-            <div class="fc-text"><p>Medical Grade</p><span>Trusted Brands</span></div>
+            <div class="fc-text"><p id="hero-badge-2-title">Medical Grade</p><span id="hero-badge-2-desc">Trusted Brands</span></div>
           </div>
         </div>
       </div>
@@ -441,11 +441,11 @@
     <div class="footer-grid">
       <div class="footer-brand">
         <div class="logo"><div class="logo-icon"><i class="fa fa-heart-pulse"></i></div><div><div class="logo-text">ONLYMED</div></div></div>
-        <p id="foot-desc">Your trusted online destination for premium healthcare products. Quality, certified, delivered.</p>
+        <p id="foot-desc" id="footer-desc">Your trusted online destination for premium healthcare products. Quality, certified, delivered.</p>
       </div>
-      <div class="footer-col"><h4 id="foot-shop">Shop</h4><a onclick="showPage('products')">All Products</a><a onclick="showPage('products')">Vitamins</a><a onclick="showPage('products')">Supplements</a><a onclick="showPage('products')">First Aid</a></div>
-      <div class="footer-col"><h4 id="foot-company">Company</h4><a onclick="showPage('about')">About Us</a><a onclick="showPage('contact')">Contact</a><a>Careers</a><a>Blog</a></div>
-      <div class="footer-col"><h4 id="foot-support">Support</h4><a>FAQ</a><a>Shipping Info</a><a>Returns</a><a>Track Order</a></div>
+      <div class="footer-col"><h4 id="foot-shop">Shop</h4><a onclick="showPage('products')" id="footer-link-1">All Products</a><a onclick="showPage('products')" id="footer-link-2">Vitamins</a><a onclick="showPage('products')" id="footer-link-3">Supplements</a><a onclick="showPage('products')" id="footer-link-4">First Aid</a></div>
+      <div class="footer-col"><h4 id="foot-company">Company</h4><a onclick="showPage('about')" id="footer-link-5">About Us</a><a onclick="showPage('contact')">Contact</a><a id="footer-link-7">Careers</a><a id="footer-link-8">Blog</a></div>
+      <div class="footer-col"><h4 id="foot-support">Support</h4><a id="footer-link-9">FAQ</a><a id="footer-link-10">Shipping Info</a><a id="footer-link-11">Returns</a><a id="footer-link-12">Track Order</a></div>
     </div>
     <div class="footer-bottom">
       <span id="foot-copy">© 2025 ONLYMED. All rights reserved.</span>
