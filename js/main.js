@@ -659,8 +659,43 @@ async function saveProfile() {
 }
 
 window.addEventListener("DOMContentLoaded", () => {
+  fetchWebsiteContent();
   renderCartBadge();
   if(currentUser) {
     document.getElementById('navProfileBtn').style.display = 'inline-block';
   }
 });
+
+
+// ================== WEBSITE CONTENT MANAGEMENT ==================
+async function fetchWebsiteContent() {
+  try {
+    if(GOOGLE_SCRIPT_URL === "YOUR_GOOGLE_SCRIPT_URL_HERE") return;
+    
+    // Fetch JSON from Google Apps Script (GET request)
+    const res = await fetch(GOOGLE_SCRIPT_URL);
+    const content = await res.json();
+    
+    // Replace text in HTML based on Keys from Google Sheet
+    // Expected keys in sheet: heroTitle, heroSub, aboutUs, etc.
+    if(content.heroTitle) {
+      const heroTitleEl = document.querySelector('.hero-content h1');
+      if(heroTitleEl) heroTitleEl.innerHTML = content.heroTitle;
+    }
+    if(content.heroSub) {
+      const heroSubEl = document.querySelector('.hero-content p');
+      if(heroSubEl) heroSubEl.innerHTML = content.heroSub;
+    }
+    
+    // For other generic elements, if they have an ID matching the key
+    for (const [key, value] of Object.entries(content)) {
+      const el = document.getElementById(key);
+      if (el && value) {
+        el.innerHTML = value;
+      }
+    }
+    console.log("Website content loaded from Google Sheets");
+  } catch(e) {
+    console.error("Error fetching content from Google Sheets:", e);
+  }
+}
