@@ -1,38 +1,8 @@
 // ================== DATA ==================
-const products = [
-  {id:1,name:'Vitamin C 1000mg',nameAr:'فيتامين سي 1000مج',cat:'Vitamins',catAr:'الفيتامينات',emoji:'💊',price:24.99,oldPrice:34.99,rating:4.8,reviews:342,desc:'High-potency Vitamin C supplement for immune support, antioxidant protection, and collagen synthesis. Made from natural rosehip extract.',descAr:'مكمل فيتامين سي عالي الفعالية لدعم المناعة وحماية مضادات الأكسدة وتكوين الكولاجين. مصنوع من مستخلص ثمر الورد الطبيعي.',benefits:['Boosts immune system function','Powerful antioxidant protection','Supports collagen production','Enhances iron absorption'],benefitsAr:['تعزيز وظيفة الجهاز المناعي','حماية قوية بمضادات الأكسدة','دعم إنتاج الكولاجين','تعزيز امتصاص الحديد'],badge:'Best Seller',featured:true,bestSeller:true},
-  {id:2,name:'Omega-3 Fish Oil',nameAr:'أوميغا-3 زيت السمك',cat:'Supplements',catAr:'المكملات',emoji:'🐟',price:29.99,oldPrice:39.99,rating:4.7,reviews:218,desc:'Premium triple-strength Omega-3 with EPA & DHA for heart, brain, and joint health. Molecularly distilled for purity.',descAr:'أوميغا-3 ثلاثي القوة مع EPA و DHA لصحة القلب والدماغ والمفاصل.',benefits:['Supports cardiovascular health','Improves brain function','Reduces inflammation','Promotes joint mobility'],benefitsAr:['دعم صحة القلب','تحسين وظائف المخ','تقليل الالتهابات','تعزيز حركة المفاصل'],badge:'New',featured:true,bestSeller:false},
-  {id:3,name:'First Aid Kit Pro',nameAr:'حقيبة الإسعافات الأولية',cat:'First Aid',catAr:'الإسعافات الأولية',emoji:'🩹',price:49.99,oldPrice:null,rating:4.9,reviews:567,desc:'Comprehensive 120-piece first aid kit for home, travel, and outdoor use. Includes bandages, antiseptics, gloves, and emergency tools.',descAr:'حقيبة إسعافات أولية شاملة من 120 قطعة للمنزل والسفر والاستخدام الخارجي.',benefits:['120 essential items','Compact waterproof case','Meets OSHA standards','Clear labeling & guide'],benefitsAr:['120 عنصراً أساسياً','حافظة مضادة للماء','يلبي معايير السلامة','تسمية واضحة ودليل'],badge:null,featured:true,bestSeller:true},
-  {id:4,name:'Digital Blood Pressure Monitor',nameAr:'جهاز قياس ضغط الدم',cat:'Equipment',catAr:'الأجهزة الطبية',emoji:'🩺',price:79.99,oldPrice:99.99,rating:4.6,reviews:189,desc:'Clinically validated automatic blood pressure monitor with large display, memory for 2 users (60 readings each), and irregular heartbeat detection.',descAr:'جهاز قياس ضغط الدم الأوتوماتيكي المعتمد سريرياً مع شاشة كبيرة وذاكرة لمستخدمين.',benefits:['Clinically validated accuracy','2-user 120 reading memory','Irregular heartbeat alert','Easy-fit cuff design'],benefitsAr:['دقة معتمدة سريرياً','ذاكرة لمستخدمين','تنبيه اضطراب ضربات القلب','تصميم سهل الاستخدام'],badge:'Popular',featured:false,bestSeller:true},
-  {id:5,name:'Vitamin D3 + K2',nameAr:'فيتامين د3 + ك2',cat:'Vitamins',catAr:'الفيتامينات',emoji:'☀️',price:19.99,oldPrice:26.99,rating:4.7,reviews:431,desc:'Essential vitamin D3 paired with K2 for optimal calcium absorption and bone strength. 5000 IU per softgel, easy daily use.',descAr:'فيتامين د3 الأساسي مقترن بـ ك2 لامتصاص الكالسيوم الأمثل وقوة العظام.',benefits:['Strengthens bones & teeth','Supports immune defense','Improves mood & energy','Heart health support'],benefitsAr:['تقوية العظام والأسنان','دعم المناعة','تحسين المزاج والطاقة','دعم صحة القلب'],badge:'Sale',featured:true,bestSeller:true},
-  {id:6,name:'Collagen Peptides Powder',nameAr:'مسحوق ببتيدات الكولاجين',cat:'Supplements',catAr:'المكملات',emoji:'✨',price:39.99,oldPrice:52.99,rating:4.5,reviews:276,desc:'Hydrolyzed collagen peptides for skin elasticity, hair strength, and nail growth. Unflavored, mixes easily into any drink.',descAr:'ببتيدات الكولاجين المتحللة لمرونة البشرة وقوة الشعر ونمو الأظافر.',benefits:['Reduces wrinkles & fine lines','Strengthens hair & nails','Improves skin hydration','Supports joint health'],benefitsAr:['تقليل التجاعيد','تقوية الشعر والأظافر','تحسين ترطيب البشرة','دعم صحة المفاصل'],badge:'New',featured:false,bestSeller:true},
-  {id:7,name:'Thermometer Digital Pro',nameAr:'ميزان الحرارة الرقمي',cat:'Equipment',catAr:'الأجهزة الطبية',emoji:'🌡️',price:34.99,oldPrice:44.99,rating:4.8,reviews:612,desc:'Fast 1-second infrared forehead thermometer with fever alert, dual-mode (forehead/ear), and 35-reading memory.',descAr:'ميزان حرارة بالأشعة تحت الحمراء للجبهة مع تنبيه الحمى وذاكرة 35 قراءة.',benefits:['1-second fast reading','Fever alert at 38°C/100.4°F','35-reading memory','No-contact hygiene safe'],benefitsAr:['قراءة سريعة خلال ثانية','تنبيه الحمى','ذاكرة 35 قراءة','آمن بدون تلامس'],badge:null,featured:false,bestSeller:true},
-  {id:8,name:'Probiotic 50 Billion CFU',nameAr:'البروبيوتيك 50 مليار',cat:'Supplements',catAr:'المكملات',emoji:'🦠',price:44.99,oldPrice:59.99,rating:4.6,reviews:198,desc:'Advanced probiotic with 50 billion CFUs and 16 strains for gut health, digestion, and immune balance. Shelf-stable formula.',descAr:'بروبيوتيك متقدم مع 50 مليار CFU و16 سلالة لصحة الأمعاء والهضم.',benefits:['50 billion CFUs / 16 strains','Improves digestion','Boosts gut immunity','Bloating & gas relief'],benefitsAr:['50 مليار CFU، 16 سلالة','تحسين الهضم','تعزيز مناعة الأمعاء','تخفيف الانتفاخ'],badge:null,featured:false,bestSeller:false},
-  {id:9,name:'Hyaluronic Acid Serum',nameAr:'سيروم حمض الهيالورونيك',cat:'Skincare',catAr:'العناية بالبشرة',emoji:'💧',price:27.99,oldPrice:36.99,rating:4.7,reviews:389,desc:'Medical-grade 2% pure hyaluronic acid serum for deep hydration, plumping, and anti-aging. Suitable for all skin types.',descAr:'سيروم حمض الهيالورونيك 2% للترطيب العميق ومكافحة الشيخوخة. مناسب لجميع أنواع البشرة.',benefits:['Deep 72-hour hydration','Reduces fine lines','Plumps & firms skin','Medical-grade purity'],benefitsAr:['ترطيب عميق 72 ساعة','تقليل الخطوط الدقيقة','شد وتنعيم البشرة','نقاء درجة طبية'],badge:'Best Seller',featured:false,bestSeller:false},
-  {id:10,name:'Melatonin Sleep Aid 5mg',nameAr:'ميلاتونين للنوم 5مج',cat:'Supplements',catAr:'المكملات',emoji:'🌙',price:15.99,oldPrice:20.99,rating:4.4,reviews:521,desc:'Pharmaceutical-grade melatonin for natural sleep support. Fast-dissolve formula for quick onset. Non-habit forming.',descAr:'ميلاتونين بجودة صيدلانية لدعم النوم الطبيعي. صيغة سريعة الذوبان غير مسببة للإدمان.',benefits:['Regulates sleep cycles','Fast-dissolve formula','Non-habit forming','Reduces jet lag'],benefitsAr:['تنظيم دورات النوم','صيغة سريعة الذوبان','غير مسبب للإدمان','يقلل التعب من السفر'],badge:'Sale',featured:false,bestSeller:false},
-  {id:11,name:'Magnesium Glycinate 400mg',nameAr:'مغنيسيوم غليسينات 400مج',cat:'Vitamins',catAr:'الفيتامينات',emoji:'⚡',price:22.99,oldPrice:29.99,rating:4.6,reviews:287,desc:'Highly bioavailable magnesium glycinate for muscle relaxation, sleep quality, stress relief, and nervous system support.',descAr:'مغنيسيوم غليسينات عالي التوافر البيولوجي لاسترخاء العضلات وتخفيف التوتر.',benefits:['Muscle relaxation','Reduces stress & anxiety','Improves sleep quality','Supports nervous system'],benefitsAr:['استرخاء العضلات','تقليل التوتر والقلق','تحسين جودة النوم','دعم الجهاز العصبي'],badge:null,featured:true,bestSeller:false},
-  {id:12,name:'Pulse Oximeter',nameAr:'جهاز قياس الأكسجين',cat:'Equipment',catAr:'الأجهزة الطبية',emoji:'💓',price:39.99,oldPrice:54.99,rating:4.8,reviews:744,desc:'Medical-grade fingertip pulse oximeter with OLED display. Measures SpO2, pulse rate, and perfusion index. FDA cleared.',descAr:'جهاز قياس الأكسجين الطبي بشاشة OLED. يقيس نسبة الأكسجين وسرعة النبض.',benefits:['SpO2 & pulse rate','OLED large display','FDA cleared accuracy','2 AAA batteries included'],benefitsAr:['قياس الأكسجين والنبض','شاشة OLED كبيرة','دقة معتمدة FDA','بطاريتان مشمولتان'],badge:'Popular',featured:true,bestSeller:true},
-];
-
-const categories=[
-  {name:'Vitamins',nameAr:'الفيتامينات',emoji:'💊',count:3},
-  {name:'Supplements',nameAr:'المكملات',emoji:'🌿',count:4},
-  {name:'First Aid',nameAr:'إسعافات أولية',emoji:'🩹',count:1},
-  {name:'Equipment',nameAr:'أجهزة طبية',emoji:'🩺',count:3},
-  {name:'Skincare',nameAr:'العناية بالبشرة',emoji:'💧',count:1},
-];
-
-const sampleOrders=[
-  {id:'CS-001',customer:'Sarah Johnson',products:'Vitamin C 1000mg × 2',total:49.98,date:'2025-05-28',status:'Completed',payment:'Paid'},
-  {id:'CS-002',customer:'Ahmed Al-Rashid',products:'Omega-3 Fish Oil × 1',total:29.99,date:'2025-05-27',status:'Processing',payment:'Paid'},
-  {id:'CS-003',customer:'Emily Chen',products:'Blood Pressure Monitor × 1',total:79.99,date:'2025-05-26',status:'Completed',payment:'Paid'},
-  {id:'CS-004',customer:'Mohamed Hassan',products:'First Aid Kit Pro × 1',total:49.99,date:'2025-05-25',status:'Pending',payment:'COD'},
-  {id:'CS-005',customer:'Lisa Martinez',products:'Vitamin D3+K2 × 2, Collagen × 1',total:79.97,date:'2025-05-24',status:'Completed',payment:'Paid'},
-  {id:'CS-006',customer:'James Wilson',products:'Thermometer Pro × 1',total:34.99,date:'2025-05-23',status:'Processing',payment:'Paid'},
-  {id:'CS-007',customer:'Fatima Al-Said',products:'Probiotic 50B × 2',total:89.98,date:'2025-05-22',status:'Cancelled',payment:'Refunded'},
-  {id:'CS-008',customer:'David Park',products:'Pulse Oximeter × 1',total:39.99,date:'2025-05-21',status:'Completed',payment:'Paid'},
-];
-
+// ================== DYNAMIC DATA ==================
+let products = [];
+let categories = [];
+let dynamicContent = {}; // Stores {key: {en, ar}}
 // ================== STATE ==================
 let cart=[];
 let currentUser = JSON.parse(localStorage.getItem('onlymed_user')) || null;
@@ -680,20 +650,40 @@ window.addEventListener("DOMContentLoaded", () => {
 
 
 // ================== WEBSITE CONTENT MANAGEMENT ==================
+
 async function fetchWebsiteContent() {
   try {
-    if(GOOGLE_SCRIPT_URL === "YOUR_GOOGLE_SCRIPT_URL_HERE") return;
+    // Fetch Content
+    const cRes = await fetch(GOOGLE_SCRIPT_URL + '?type=content');
+    dynamicContent = await cRes.json();
+    applyDynamicContent();
     
-    // Fetch JSON from Google Apps Script (GET request)
-    const res = await fetch(GOOGLE_SCRIPT_URL);
-    const content = await res.json();
+    // Fetch Products
+    const pRes = await fetch(GOOGLE_SCRIPT_URL + '?type=products');
+    products = await pRes.json();
     
-    // Replace text in HTML based on Keys from Google Sheet
-    // Expected keys in sheet: heroTitle, heroSub, aboutUs, etc.
-    if(content.heroTitle) {
-      const heroTitleEl = document.querySelector('.hero-content h1');
-      if(heroTitleEl) heroTitleEl.innerHTML = content.heroTitle;
+    // Auto-generate categories based on products
+    let catMap = {};
+    products.forEach(p => {
+      if(!catMap[p.category]) catMap[p.category] = { name: p.category, nameAr: p.category, count: 0, emoji: '📦' };
+      catMap[p.category].count++;
+    });
+    categories = Object.values(catMap);
+    
+    renderProducts();
+  } catch (e) {
+    console.error("Error fetching dynamic data:", e);
+  }
+}
+
+function applyDynamicContent() {
+  for (const key in dynamicContent) {
+    const el = document.getElementById(key);
+    if (el) {
+      el.innerHTML = dynamicContent[key][currentLang];
     }
+  }
+}
     if(content.heroSub) {
       const heroSubEl = document.querySelector('.hero-content p');
       if(heroSubEl) heroSubEl.innerHTML = content.heroSub;
@@ -710,4 +700,12 @@ async function fetchWebsiteContent() {
   } catch(e) {
     console.error("Error fetching content from Google Sheets:", e);
   }
+}
+
+function toggleLanguage() {
+  currentLang = currentLang === 'en' ? 'ar' : 'en';
+  document.getElementById('nav-lang').innerText = currentLang === 'en' ? 'عربي' : 'English';
+  document.body.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+  applyDynamicContent();
+  renderProducts();
 }
