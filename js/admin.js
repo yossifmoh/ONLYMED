@@ -162,6 +162,12 @@ function renderAll() {
       </tr>
     `).join('');
   }
+  
+  // Re-initialize analytics if tab is currently open
+  const isAnalyticsActive = document.getElementById('tab-analytics')?.classList.contains('active');
+  if (isAnalyticsActive && typeof window.initAnalytics === 'function') {
+    window.initAnalytics();
+  }
 }
 
 // ---- PRODUCT ACTIONS ----
@@ -417,3 +423,127 @@ async function deleteUser(email) {
 
 // Init
 window.onload = loadDashboard;
+
+// ---- ANALYTICS CHARTS ----
+let revenueChartInstance = null;
+let categoryChartInstance = null;
+
+function initAnalytics() {
+  if (typeof Chart === 'undefined') {
+    console.warn("Chart.js is not loaded.");
+    return;
+  }
+  
+  // Destroy old instances to prevent redraw glitch on hover
+  if (revenueChartInstance) revenueChartInstance.destroy();
+  if (categoryChartInstance) categoryChartInstance.destroy();
+
+  // 1. Group completed orders by date for Revenue Trend
+  const salesByDate = {};
+  const completedOrders = (db.orders || []).filter(o => o.status === 'Completed' || o.status === 'Delivered');
+  
+  // Sort by date ascending
+  const sortedOrders = [...completedOrders].sort((a,b) => new Date(a.date) - new Date(b.date));
+  
+  sortedOrders.forEach(o => {
+    if (!o.date) return;
+    const d = new Date(o.date);
+    if (isNaN(d)) return;
+    const dateStr = d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+    salesByDate[dateStr] = (salesByDate[dateStr] || 0) + (parseFloat(o.total) || 0);
+  });
+
+  const dates = Object.keys(salesByDate);
+  const revenues = Object.values(salesByDate);
+
+  const displayDates = dates.length ? dates : ['No Data'];
+  const displayRevenues = revenues.length ? revenues : [0];
+
+  const ctxRev = document.getElementById('revenueChart');
+  if (ctxRev) {
+    revenueChartInstance = new Chart(ctxRev, {
+      type: 'line',
+      data: {
+        labels: displayDates,
+        datasets: [{
+          label: 'Revenue (EGP)',
+          data: displayRevenues,
+          borderColor: '#d0112b',
+          backgroundColor: 'rgba(208, 17, 43, 0.1)',
+          fill: true,
+          tension: 0.3,
+          borderWidth: 2,
+          pointRadius: 4,
+          pointBackgroundColor: '#d0112b'
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: { color: 'rgba(0,0,0,0.05)' }
+          },
+          x: {
+            grid: { display: false }
+          }
+        }
+      }
+    });
+  }
+
+  // 2. Category Sales Breakdown
+  const catSales = {};
+  const categoriesList = ['Vitamins', 'Supplements', 'First Aid', 'Equipment', 'Skincare'];
+  categoriesList.forEach(c => catSales[c] = 0);
+
+  completedOrders.forEach(o => {
+    if (!o.products) return;
+    let items = [];
+    try {
+      items = JSON.parse(o.products);
+    } catch(e) {
+      // If products field is not JSON array (e.g. plain text string), skip or parse
+    }
+    
+    if (Array.isArray(items)) {
+      items.forEach(item => {
+        const p = db.products.find(x => x.name_en === item.name || x.id === item.id);
+        const cat = p ? p.category : 'Vitamins';
+        catSales[cat] = (catSales[cat] || 0) + (parseFloat(item.price || 0) * (parseInt(item.qty || 1)));
+      });
+    }
+  });
+
+  const catLabels = Object.keys(catSales);
+  const catValues = Object.values(catSales);
+
+  const ctxCat = document.getElementById('categoryChart');
+  if (ctxCat) {
+    categoryChartInstance = new Chart(ctxCat, {
+      type: 'doughnut',
+      data: {
+        labels: catLabels,
+        datasets: [{
+          data: catValues,
+          backgroundColor: ['#e8547a', '#f07fa0', '#14b8a6', '#f59e0b', '#8b5cf6'],
+          borderWidth: 0
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'bottom' }
+        }
+      }
+    });
+  }
+}
+
+// Make initAnalytics available globally
+window.initAnalytics = initAnalytics;
