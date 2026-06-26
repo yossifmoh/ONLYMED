@@ -694,6 +694,16 @@ function toggleLanguage() {
   renderProducts();
 }
 
+function renderProducts() {
+  renderCategories();
+  renderFeatured();
+  renderBest();
+  const activePage = document.querySelector('.page.active')?.id?.replace('page-', '');
+  if (activePage === 'products') {
+    renderAllProducts();
+  }
+}
+
 
 // --- ANIMATION OBSERVER ---
 const observerOptions = {

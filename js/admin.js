@@ -1,19 +1,25 @@
-
 const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwv1vuPsTUNXz6BMvtxUwxSqnf9Tq1CX21KLMq0nL3aYFebslLVEe5V0i-VIHyJLhlr/exec";
 let db = { products: [], orders: [], users: [], content: [] };
 
 function showToast(msg) {
   const toast = document.getElementById('toast');
-  toast.innerText = msg;
-  toast.classList.add('show');
-  setTimeout(() => toast.classList.remove('show'), 3000);
+  if (toast) {
+    toast.innerText = msg;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 3000);
+  } else {
+    console.log("Toast message:", msg);
+  }
 }
 
 function switchTab(tabId) {
   document.querySelectorAll('.sidebar-nav .nav-item').forEach(el => el.classList.remove('active'));
-  event.currentTarget.classList.add('active');
+  if (event && event.currentTarget) {
+    event.currentTarget.classList.add('active');
+  }
   document.querySelectorAll('.main-content section').forEach(el => el.classList.add('hidden'));
-  document.getElementById('tab-' + tabId).classList.remove('hidden');
+  const target = document.getElementById('tab-' + tabId);
+  if (target) target.classList.remove('hidden');
 }
 
 async function loadDashboard() {
@@ -27,122 +33,178 @@ async function loadDashboard() {
     if(result.status === 'success') {
       db = result.data;
       renderAll();
-      document.getElementById('loader').classList.add('hidden');
-      document.getElementById('app-content').classList.remove('hidden');
+      const loader = document.getElementById('loader');
+      if (loader) loader.classList.add('hidden');
+      const appContent = document.getElementById('app-content');
+      if (appContent) appContent.classList.remove('hidden');
     } else {
-      showToast('Error loading data');
+      showToast('Error loading data: ' + (result.message || 'Unknown error'));
     }
   } catch(e) {
     showToast('Network error loading data');
+    console.error(e);
   }
 }
 
 function renderAll() {
   // Stats
+  const statOrders = document.getElementById('statOrders');
+  if (statOrders) statOrders.innerText = db.orders.length;
   
-  document.getElementById('statOrders').innerText = db.orders.length;
-  document.getElementById('statProducts').innerText = db.products.length;
-  document.getElementById('statUsers').innerText = db.users.length;
+  const statProducts = document.getElementById('statProducts');
+  if (statProducts) statProducts.innerText = db.products.length;
+  
+  const statUsers = document.getElementById('statUsers');
+  if (statUsers) statUsers.innerText = db.users.length;
   
   // Calculate Revenue
   let rev = 0;
   db.orders.forEach(o => {
-    if(o.status === 'Completed' && o.total) {
+    if((o.status === 'Completed' || o.status === 'Delivered') && o.total) {
       rev += parseFloat(o.total) || 0;
     }
   });
   const statRev = document.getElementById('statRevenue');
-  if(statRev) statRev.innerText = '
+  if(statRev) statRev.innerText = 'EGP ' + rev.toFixed(2);
   
   // Products
   const pBody = document.getElementById('productsTbody');
-  pBody.innerHTML = db.products.map(p => `
-    <tr>
-      <td><img src="${p.image}" width="40" style="border-radius:6px"></td>
-      <td>${p.name_en}</td>
-      <td>${p.price} EGP</td>
-      <td>${p.category}</td>
-      <td>${p.stock}</td>
-      <td><span class="status-badge ${p.status==='Active'?'status-delivered':'status-pending'}">${p.status}</span></td>
-      <td>
-        <button class="action-btn" onclick="editProduct('${p.id}')"><i class="fa fa-edit"></i></button>
-        <button class="action-btn" onclick="deleteProduct('${p.id}')" style="color:var(--primary)"><i class="fa fa-trash"></i></button>
-      </td>
-    </tr>
-  `).join('');
+  if (pBody) {
+    pBody.innerHTML = db.products.map(p => `
+      <tr>
+        <td><img src="${p.image}" width="40" style="border-radius:6px"></td>
+        <td>${p.name_en}</td>
+        <td>${p.price} EGP</td>
+        <td>${p.category}</td>
+        <td>${p.stock}</td>
+        <td><span class="status-badge ${p.status==='Active'?'status-delivered':'status-pending'}">${p.status}</span></td>
+        <td>
+          <button class="action-btn" onclick="editProduct('${p.id}')"><i class="fa fa-edit"></i></button>
+          <button class="action-btn" onclick="deleteProduct('${p.id}')" style="color:var(--primary)"><i class="fa fa-trash"></i></button>
+        </td>
+      </tr>
+    `).join('');
+  }
 
   // Orders
   const oBody = document.getElementById('ordersTbody');
-  oBody.innerHTML = db.orders.map(o => `
-    <tr>
-      <td>${o.id}</td>
-      <td>${new Date(o.date).toLocaleDateString()}</td>
-      <td>${o.name} <br><small>${o.email}</small></td>
-      <td>${o.total} EGP</td>
-      <td><span class="status-badge status-${o.status.toLowerCase()}">${o.status}</span></td>
-      <td><button class="btn-outline" style="padding:5px 10px; font-size:11px" onclick="viewOrder('${o.id}')">View</button></td>
-    </tr>
-  `).join('');
+  if (oBody) {
+    oBody.innerHTML = db.orders.map(o => `
+      <tr>
+        <td>${o.id}</td>
+        <td>${new Date(o.date).toLocaleDateString()}</td>
+        <td>${o.name} <br><small>${o.email}</small></td>
+        <td>${o.total} EGP</td>
+        <td><span class="status-badge status-${(o.status || 'Pending').toLowerCase()}">${o.status}</span></td>
+        <td><button class="btn-outline" style="padding:5px 10px; font-size:11px" onclick="viewOrder('${o.id}')">View</button></td>
+      </tr>
+    `).join('');
+  }
 
   // Users
   const uBody = document.getElementById('usersTbody');
-  uBody.innerHTML = db.users.map(u => `
-    <tr>
-      <td>${u.name}</td>
-      <td>${u.email}</td>
-      <td>${u.phone}</td>
-      <td>${new Date(u.created).toLocaleDateString()}</td>
-      <td><button class="action-btn" onclick="deleteUser('${u.email}')" style="color:var(--primary)"><i class="fa fa-trash"></i></button></td>
-    </tr>
-  `).join('');
+  if (uBody) {
+    uBody.innerHTML = db.users.map(u => `
+      <tr>
+        <td>${u.name}</td>
+        <td>${u.email}</td>
+        <td>${u.phone}</td>
+        <td>${new Date(u.created).toLocaleDateString()}</td>
+        <td><button class="action-btn" onclick="deleteUser('${u.email}')" style="color:var(--primary)"><i class="fa fa-trash"></i></button></td>
+      </tr>
+    `).join('');
+  }
 
   // Content
   const cBody = document.getElementById('contentTbody');
-  cBody.innerHTML = db.content.map((c, i) => `
-    <tr>
-      <td><code style="background:#eee;padding:3px 6px;border-radius:4px">${c.key}</code></td>
-      <td><input type="text" class="input-sm" id="c-en-${i}" value="${c.en}"></td>
-      <td><input type="text" class="input-sm" id="c-ar-${i}" value="${c.ar}" dir="rtl"></td>
-      <td><select class="input-sm" id="c-st-${i}"><option ${c.status==='Active'?'selected':''}>Active</option><option ${c.status!=='Active'?'selected':''}>Inactive</option></select></td>
-    </tr>
-  `).join('');
+  if (cBody) {
+    cBody.innerHTML = db.content.map((c, i) => `
+      <tr>
+        <td><code style="background:#eee;padding:3px 6px;border-radius:4px">${c.key}</code></td>
+        <td><input type="text" class="input-sm" id="c-en-${i}" value="${c.en}"></td>
+        <td><input type="text" class="input-sm" id="c-ar-${i}" value="${c.ar}" dir="rtl"></td>
+        <td><select class="input-sm" id="c-st-${i}"><option ${c.status==='Active'?'selected':''}>Active</option><option ${c.status!=='Active'?'selected':''}>Inactive</option></select></td>
+      </tr>
+    `).join('');
+  }
 }
 
 // ---- PRODUCT ACTIONS ----
 function openProductModal() {
-  document.getElementById('pId').value = '';
-  document.getElementById('pImage').value = '';
-  document.getElementById('pNameEn').value = '';
-  document.getElementById('pNameAr').value = '';
-  document.getElementById('pDescEn').value = '';
-  document.getElementById('pDescAr').value = '';
-  document.getElementById('pCat').value = '';
-  document.getElementById('pPrice').value = '';
-  document.getElementById('pOldPrice').value = '';
-  document.getElementById('pBadge').value = '';
-  document.getElementById('pStock').value = '10';
-  document.getElementById('pStatus').value = 'Active';
-  document.getElementById('pmTitle').innerText = 'Add New Product';
-  document.getElementById('productModal').style.display = 'flex';
+  const pId = document.getElementById('pId');
+  if (pId) pId.value = '';
+  const pImage = document.getElementById('pImage');
+  if (pImage) pImage.value = '';
+  const pNameEn = document.getElementById('pNameEn');
+  if (pNameEn) pNameEn.value = '';
+  const pNameAr = document.getElementById('pNameAr');
+  if (pNameAr) pNameAr.value = '';
+  const pDescEn = document.getElementById('pDescEn');
+  if (pDescEn) pDescEn.value = '';
+  const pDescAr = document.getElementById('pDescAr');
+  if (pDescAr) pDescAr.value = '';
+  const pCat = document.getElementById('pCat');
+  if (pCat) pCat.value = '';
+  const pPrice = document.getElementById('pPrice');
+  if (pPrice) pPrice.value = '';
+  const pOldPrice = document.getElementById('pOldPrice');
+  if (pOldPrice) pOldPrice.value = '';
+  const pBadge = document.getElementById('pBadge');
+  if (pBadge) pBadge.value = '';
+  const pStock = document.getElementById('pStock');
+  if (pStock) pStock.value = '10';
+  const pStatus = document.getElementById('pStatus');
+  if (pStatus) pStatus.value = 'Active';
+  
+  const pmTitle = document.getElementById('pmTitle');
+  if (pmTitle) pmTitle.innerText = 'Add New Product';
+  
+  if (typeof window.openProductModal === 'function') {
+    window.openProductModal();
+  } else {
+    const modal = document.getElementById('productModal');
+    if (modal) modal.classList.add('active');
+  }
 }
 
 function editProduct(id) {
   const p = db.products.find(x => x.id === id);
   if(!p) return;
-  document.getElementById('pId').value = p.id;
-  document.getElementById('pImage').value = p.image;
-  document.getElementById('pNameEn').value = p.name_en;
-  document.getElementById('pNameAr').value = p.name_ar;
-  document.getElementById('pDescEn').value = p.desc_en;
-  document.getElementById('pDescAr').value = p.desc_ar;
-  document.getElementById('pCat').value = p.category;
-  document.getElementById('pPrice').value = p.price;
-  document.getElementById('pOldPrice').value = p.oldPrice;
-  document.getElementById('pBadge').value = p.badge;
-  document.getElementById('pStock').value = p.stock;
-  document.getElementById('pStatus').value = p.status;
-  document.getElementById('pmTitle').innerText = 'Edit Product';
-  document.getElementById('productModal').style.display = 'flex';
+  
+  const pId = document.getElementById('pId');
+  if (pId) pId.value = p.id;
+  const pImage = document.getElementById('pImage');
+  if (pImage) pImage.value = p.image;
+  const pNameEn = document.getElementById('pNameEn');
+  if (pNameEn) pNameEn.value = p.name_en;
+  const pNameAr = document.getElementById('pNameAr');
+  if (pNameAr) pNameAr.value = p.name_ar;
+  const pDescEn = document.getElementById('pDescEn');
+  if (pDescEn) pDescEn.value = p.desc_en;
+  const pDescAr = document.getElementById('pDescAr');
+  if (pDescAr) pDescAr.value = p.desc_ar;
+  const pCat = document.getElementById('pCat');
+  if (pCat) pCat.value = p.category;
+  const pPrice = document.getElementById('pPrice');
+  if (pPrice) pPrice.value = p.price;
+  const pOldPrice = document.getElementById('pOldPrice');
+  if (pOldPrice) pOldPrice.value = p.oldPrice;
+  const pBadge = document.getElementById('pBadge');
+  if (pBadge) pBadge.value = p.badge;
+  const pStock = document.getElementById('pStock');
+  if (pStock) pStock.value = p.stock;
+  const pStatus = document.getElementById('pStatus');
+  if (pStatus) pStatus.value = p.status;
+  
+  const pmTitle = document.getElementById('pmTitle');
+  if (pmTitle) pmTitle.innerText = 'Edit Product';
+  
+  if (typeof window.openProductModal === 'function') {
+    window.openProductModal();
+  } else {
+    const modal = document.getElementById('productModal');
+    if (modal) modal.classList.add('active');
+  }
 }
 
 async function saveProduct() {
@@ -163,258 +225,159 @@ async function saveProduct() {
     status: document.getElementById('pStatus').value
   };
   
-  const res = await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', headers: {'Content-Type': 'text/plain'}, body: JSON.stringify(data) });
-  const result = await res.json();
-  if(result.status === 'success') {
-    closeModal('productModal');
-    showToast('Product saved!');
-    loadDashboard(); // Refresh
+  try {
+    const res = await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', headers: {'Content-Type': 'text/plain'}, body: JSON.stringify(data) });
+    const result = await res.json();
+    if(result.status === 'success') {
+      if (typeof window.closeModal === 'function') {
+        window.closeModal('productModal');
+      } else {
+        const modal = document.getElementById('productModal');
+        if (modal) modal.classList.remove('active');
+      }
+      showToast('Product saved!');
+      loadDashboard(); // Refresh
+    } else {
+      showToast('Error saving product: ' + (result.message || 'Unknown error'));
+    }
+  } catch(e) {
+    showToast('Network error saving product');
+    console.error(e);
   }
 }
 
 async function deleteProduct(id) {
   if(!confirm('Delete this product?')) return;
-  const res = await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', headers: {'Content-Type': 'text/plain'}, body: JSON.stringify({action:'adminDeleteProduct', id}) });
-  loadDashboard();
+  showToast('Deleting product...');
+  try {
+    const res = await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', headers: {'Content-Type': 'text/plain'}, body: JSON.stringify({action:'adminDeleteProduct', id}) });
+    const result = await res.json();
+    if(result.status === 'success') {
+      showToast('Product deleted!');
+      loadDashboard();
+    } else {
+      showToast('Error deleting product: ' + (result.message || 'Unknown error'));
+    }
+  } catch(e) {
+    showToast('Network error deleting product');
+    console.error(e);
+  }
 }
 
 // ---- ORDER ACTIONS ----
 let currentOrderId = null;
 function viewOrder(id) {
   const o = db.orders.find(x => x.id === id);
+  if (!o) return;
   currentOrderId = id;
-  document.getElementById('o-id').innerText = o.id;
-  document.getElementById('o-name').innerText = o.name;
-  document.getElementById('o-email').innerText = o.email;
-  document.getElementById('o-address').innerText = o.address;
-  document.getElementById('o-payment').innerText = o.payment;
-  document.getElementById('o-total').innerText = o.total;
-  document.getElementById('oStatusUpdate').value = o.status;
+  
+  const oId = document.getElementById('o-id');
+  if (oId) oId.innerText = o.id;
+  const oName = document.getElementById('o-name');
+  if (oName) oName.innerText = o.name;
+  const oEmail = document.getElementById('o-email');
+  if (oEmail) oEmail.innerText = o.email;
+  const oAddress = document.getElementById('o-address');
+  if (oAddress) oAddress.innerText = o.address;
+  const oPayment = document.getElementById('o-payment');
+  if (oPayment) oPayment.innerText = o.payment;
+  const oTotal = document.getElementById('o-total');
+  if (oTotal) oTotal.innerText = o.total;
+  const oStatusUpdate = document.getElementById('oStatusUpdate');
+  if (oStatusUpdate) oStatusUpdate.value = o.status;
   
   let itemsHtml = '';
   try {
     const items = JSON.parse(o.products);
     items.forEach(i => { itemsHtml += `<div>${i.qty}x ${i.name}</div>`; });
   } catch(e) { itemsHtml = o.products; }
-  document.getElementById('o-items').innerHTML = itemsHtml;
   
-  document.getElementById('orderModal').style.display = 'flex';
-}
-
-async function saveOrderStatus() {
-  const st = document.getElementById('oStatusUpdate').value;
-  showToast('Updating order...');
-  await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', headers: {'Content-Type': 'text/plain'}, body: JSON.stringify({action:'adminUpdateOrderStatus', orderId: currentOrderId, status: st}) });
-  closeModal('orderModal');
-  loadDashboard();
-}
-
-// ---- CONTENT ACTIONS ----
-async function saveAllContent() {
-  showToast('Saving all content...');
-  const newContent = [];
-  db.content.forEach((c, i) => {
-    newContent.push({
-      key: c.key,
-      en: document.getElementById('c-en-'+i).value,
-      ar: document.getElementById('c-ar-'+i).value,
-      status: document.getElementById('c-st-'+i).value
-    });
-  });
+  const oItems = document.getElementById('o-items');
+  if (oItems) oItems.innerHTML = itemsHtml;
   
-  await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', headers: {'Content-Type': 'text/plain'}, body: JSON.stringify({action:'adminUpdateContent', content: newContent}) });
-  showToast('Content updated successfully!');
-}
-
-// ---- USER ACTIONS ----
-async function deleteUser(email) {
-  if(!confirm('Delete this user?')) return;
-  await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', headers: {'Content-Type': 'text/plain'}, body: JSON.stringify({action:'adminDeleteUser', email}) });
-  loadDashboard();
-}
-
-// Init
-window.onload = loadDashboard;
- + rev.toFixed(2);
-
-  
-  // Products
-  const pBody = document.getElementById('productsTbody');
-  pBody.innerHTML = db.products.map(p => `
-    <tr>
-      <td><img src="${p.image}" width="40" style="border-radius:6px"></td>
-      <td>${p.name_en}</td>
-      <td>${p.price} EGP</td>
-      <td>${p.category}</td>
-      <td>${p.stock}</td>
-      <td><span class="status-badge ${p.status==='Active'?'status-delivered':'status-pending'}">${p.status}</span></td>
-      <td>
-        <button class="action-btn" onclick="editProduct('${p.id}')"><i class="fa fa-edit"></i></button>
-        <button class="action-btn" onclick="deleteProduct('${p.id}')" style="color:var(--primary)"><i class="fa fa-trash"></i></button>
-      </td>
-    </tr>
-  `).join('');
-
-  // Orders
-  const oBody = document.getElementById('ordersTbody');
-  oBody.innerHTML = db.orders.map(o => `
-    <tr>
-      <td>${o.id}</td>
-      <td>${new Date(o.date).toLocaleDateString()}</td>
-      <td>${o.name} <br><small>${o.email}</small></td>
-      <td>${o.total} EGP</td>
-      <td><span class="status-badge status-${o.status.toLowerCase()}">${o.status}</span></td>
-      <td><button class="btn-outline" style="padding:5px 10px; font-size:11px" onclick="viewOrder('${o.id}')">View</button></td>
-    </tr>
-  `).join('');
-
-  // Users
-  const uBody = document.getElementById('usersTbody');
-  uBody.innerHTML = db.users.map(u => `
-    <tr>
-      <td>${u.name}</td>
-      <td>${u.email}</td>
-      <td>${u.phone}</td>
-      <td>${new Date(u.created).toLocaleDateString()}</td>
-      <td><button class="action-btn" onclick="deleteUser('${u.email}')" style="color:var(--primary)"><i class="fa fa-trash"></i></button></td>
-    </tr>
-  `).join('');
-
-  // Content
-  const cBody = document.getElementById('contentTbody');
-  cBody.innerHTML = db.content.map((c, i) => `
-    <tr>
-      <td><code style="background:#eee;padding:3px 6px;border-radius:4px">${c.key}</code></td>
-      <td><input type="text" class="input-sm" id="c-en-${i}" value="${c.en}"></td>
-      <td><input type="text" class="input-sm" id="c-ar-${i}" value="${c.ar}" dir="rtl"></td>
-      <td><select class="input-sm" id="c-st-${i}"><option ${c.status==='Active'?'selected':''}>Active</option><option ${c.status!=='Active'?'selected':''}>Inactive</option></select></td>
-    </tr>
-  `).join('');
-}
-
-// ---- PRODUCT ACTIONS ----
-function openProductModal() {
-  document.getElementById('pId').value = '';
-  document.getElementById('pImage').value = '';
-  document.getElementById('pNameEn').value = '';
-  document.getElementById('pNameAr').value = '';
-  document.getElementById('pDescEn').value = '';
-  document.getElementById('pDescAr').value = '';
-  document.getElementById('pCat').value = '';
-  document.getElementById('pPrice').value = '';
-  document.getElementById('pOldPrice').value = '';
-  document.getElementById('pBadge').value = '';
-  document.getElementById('pStock').value = '10';
-  document.getElementById('pStatus').value = 'Active';
-  document.getElementById('pmTitle').innerText = 'Add New Product';
-  document.getElementById('productModal').style.display = 'flex';
-}
-
-function editProduct(id) {
-  const p = db.products.find(x => x.id === id);
-  if(!p) return;
-  document.getElementById('pId').value = p.id;
-  document.getElementById('pImage').value = p.image;
-  document.getElementById('pNameEn').value = p.name_en;
-  document.getElementById('pNameAr').value = p.name_ar;
-  document.getElementById('pDescEn').value = p.desc_en;
-  document.getElementById('pDescAr').value = p.desc_ar;
-  document.getElementById('pCat').value = p.category;
-  document.getElementById('pPrice').value = p.price;
-  document.getElementById('pOldPrice').value = p.oldPrice;
-  document.getElementById('pBadge').value = p.badge;
-  document.getElementById('pStock').value = p.stock;
-  document.getElementById('pStatus').value = p.status;
-  document.getElementById('pmTitle').innerText = 'Edit Product';
-  document.getElementById('productModal').style.display = 'flex';
-}
-
-async function saveProduct() {
-  showToast('Saving product...');
-  const data = {
-    action: 'adminSaveProduct',
-    id: document.getElementById('pId').value,
-    image: document.getElementById('pImage').value,
-    name_en: document.getElementById('pNameEn').value,
-    name_ar: document.getElementById('pNameAr').value,
-    desc_en: document.getElementById('pDescEn').value,
-    desc_ar: document.getElementById('pDescAr').value,
-    category: document.getElementById('pCat').value,
-    price: document.getElementById('pPrice').value,
-    oldPrice: document.getElementById('pOldPrice').value,
-    badge: document.getElementById('pBadge').value,
-    stock: document.getElementById('pStock').value,
-    status: document.getElementById('pStatus').value
-  };
-  
-  const res = await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', headers: {'Content-Type': 'text/plain'}, body: JSON.stringify(data) });
-  const result = await res.json();
-  if(result.status === 'success') {
-    closeModal('productModal');
-    showToast('Product saved!');
-    loadDashboard(); // Refresh
+  if (typeof window.openOrderModal === 'function') {
+    window.openOrderModal();
+  } else {
+    const modal = document.getElementById('orderModal');
+    if (modal) modal.classList.add('active');
   }
 }
 
-async function deleteProduct(id) {
-  if(!confirm('Delete this product?')) return;
-  const res = await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', headers: {'Content-Type': 'text/plain'}, body: JSON.stringify({action:'adminDeleteProduct', id}) });
-  loadDashboard();
-}
-
-// ---- ORDER ACTIONS ----
-let currentOrderId = null;
-function viewOrder(id) {
-  const o = db.orders.find(x => x.id === id);
-  currentOrderId = id;
-  document.getElementById('o-id').innerText = o.id;
-  document.getElementById('o-name').innerText = o.name;
-  document.getElementById('o-email').innerText = o.email;
-  document.getElementById('o-address').innerText = o.address;
-  document.getElementById('o-payment').innerText = o.payment;
-  document.getElementById('o-total').innerText = o.total;
-  document.getElementById('oStatusUpdate').value = o.status;
-  
-  let itemsHtml = '';
-  try {
-    const items = JSON.parse(o.products);
-    items.forEach(i => { itemsHtml += `<div>${i.qty}x ${i.name}</div>`; });
-  } catch(e) { itemsHtml = o.products; }
-  document.getElementById('o-items').innerHTML = itemsHtml;
-  
-  document.getElementById('orderModal').style.display = 'flex';
-}
-
-async function saveOrderStatus() {
+async function updateOrderStatus() {
   const st = document.getElementById('oStatusUpdate').value;
   showToast('Updating order...');
-  await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', headers: {'Content-Type': 'text/plain'}, body: JSON.stringify({action:'adminUpdateOrderStatus', orderId: currentOrderId, status: st}) });
-  closeModal('orderModal');
-  loadDashboard();
+  try {
+    const res = await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', headers: {'Content-Type': 'text/plain'}, body: JSON.stringify({action:'adminUpdateOrderStatus', orderId: currentOrderId, status: st}) });
+    const result = await res.json();
+    if(result.status === 'success') {
+      if (typeof window.closeModal === 'function') {
+        window.closeModal('orderModal');
+      } else {
+        const modal = document.getElementById('orderModal');
+        if (modal) modal.classList.remove('active');
+      }
+      showToast('Order status updated!');
+      loadDashboard();
+    } else {
+      showToast('Error updating status: ' + (result.message || 'Unknown error'));
+    }
+  } catch(e) {
+    showToast('Network error updating order status');
+    console.error(e);
+  }
 }
+const saveOrderStatus = updateOrderStatus;
 
 // ---- CONTENT ACTIONS ----
 async function saveAllContent() {
   showToast('Saving all content...');
   const newContent = [];
   db.content.forEach((c, i) => {
-    newContent.push({
-      key: c.key,
-      en: document.getElementById('c-en-'+i).value,
-      ar: document.getElementById('c-ar-'+i).value,
-      status: document.getElementById('c-st-'+i).value
-    });
+    const enEl = document.getElementById('c-en-'+i);
+    const arEl = document.getElementById('c-ar-'+i);
+    const stEl = document.getElementById('c-st-'+i);
+    if (enEl && arEl && stEl) {
+      newContent.push({
+        key: c.key,
+        en: enEl.value,
+        ar: arEl.value,
+        status: stEl.value
+      });
+    }
   });
   
-  await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', headers: {'Content-Type': 'text/plain'}, body: JSON.stringify({action:'adminUpdateContent', content: newContent}) });
-  showToast('Content updated successfully!');
+  try {
+    const res = await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', headers: {'Content-Type': 'text/plain'}, body: JSON.stringify({action:'adminUpdateContent', content: newContent}) });
+    const result = await res.json();
+    if(result.status === 'success') {
+      showToast('Content updated successfully!');
+      loadDashboard();
+    } else {
+      showToast('Error updating content: ' + (result.message || 'Unknown error'));
+    }
+  } catch(e) {
+    showToast('Network error updating content');
+    console.error(e);
+  }
 }
 
 // ---- USER ACTIONS ----
 async function deleteUser(email) {
   if(!confirm('Delete this user?')) return;
-  await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', headers: {'Content-Type': 'text/plain'}, body: JSON.stringify({action:'adminDeleteUser', email}) });
-  loadDashboard();
+  showToast('Deleting user...');
+  try {
+    const res = await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', headers: {'Content-Type': 'text/plain'}, body: JSON.stringify({action:'adminDeleteUser', email}) });
+    const result = await res.json();
+    if(result.status === 'success') {
+      showToast('User deleted!');
+      loadDashboard();
+    } else {
+      showToast('Error deleting user: ' + (result.message || 'Unknown error'));
+    }
+  } catch(e) {
+    showToast('Network error deleting user');
+    console.error(e);
+  }
 }
 
 // Init
