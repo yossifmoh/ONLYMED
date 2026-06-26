@@ -337,3 +337,33 @@ footer{background:var(--dark);color:rgba(255,255,255,0.7);padding:48px 24px 24px
   .search-wrap input{width:140px}
   .footer-grid{grid-template-columns:1fr}
 }
+
+/* --- SCROLL ANIMATIONS --- */
+.animate-on-scroll {
+  opacity: 0;
+  transition: opacity 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  will-change: opacity, transform;
+}
+.slide-up { transform: translateY(40px); }
+.slide-in-left { transform: translateX(-40px); }
+.slide-in-right { transform: translateX(40px); }
+.zoom-in { transform: scale(0.95); }
+
+/* When element comes into view */
+.animate-on-scroll.is-visible {
+  opacity: 1;
+  transform: translate(0) scale(1);
+}
+
+/* Staggering delays for lists/grids */
+.delay-100 { transition-delay: 100ms; }
+.delay-200 { transition-delay: 200ms; }
+.delay-300 { transition-delay: 300ms; }
+.delay-400 { transition-delay: 400ms; }
+.delay-500 { transition-delay: 500ms; }
+
+/* Enhanced Hover States */
+.prod-card { transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease; }
+.prod-card:hover { transform: translateY(-8px) scale(1.02); box-shadow: 0 15px 35px rgba(232,84,122,0.15); }
+.btn-primary, .btn-outline, .btn-buy, .btn-auth { transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); }
+.btn-primary:active, .btn-buy:active, .btn-auth:active { transform: scale(0.96); }

@@ -111,7 +111,7 @@ function productCard(p){
   const name=currentLang==='ar'?p.nameAr:p.name;
   const desc=currentLang==='ar'?p.descAr:p.desc;
   const catName=currentLang==='ar'?p.catAr:p.cat;
-  return `<div class="prod-card">
+  return `<div class="prod-card animate-on-scroll slide-up">
     ${p.badge?`<div class="prod-badge">${currentLang==='ar'&&p.badge==='Best Seller'?'الأكثر مبيعاً':currentLang==='ar'&&p.badge==='New'?'جديد':currentLang==='ar'&&p.badge==='Sale'?'خصم':currentLang==='ar'&&p.badge==='Popular'?'شائع':p.badge}</div>`:''}
     <div class="prod-img">${p.emoji}</div>
     <div class="prod-body">
@@ -693,3 +693,31 @@ function toggleLanguage() {
   applyDynamicContent();
   renderProducts();
 }
+
+
+// --- ANIMATION OBSERVER ---
+const observerOptions = {
+  root: null,
+  rootMargin: '0px',
+  threshold: 0.15
+};
+
+const observer = new IntersectionObserver((entries, observer) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('is-visible');
+      observer.unobserve(entry.target); // Only animate once
+    }
+  });
+}, observerOptions);
+
+function initScrollAnimations() {
+  document.querySelectorAll('.animate-on-scroll').forEach((el) => {
+    observer.observe(el);
+  });
+}
+
+// Initialize on load
+document.addEventListener('DOMContentLoaded', () => {
+  setTimeout(initScrollAnimations, 100);
+});

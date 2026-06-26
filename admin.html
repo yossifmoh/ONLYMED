@@ -94,6 +94,18 @@
     .form-control { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; box-sizing: border-box; }
     
     #toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #333; color: white; padding: 12px 24px; border-radius: 8px; font-size: 14px; opacity: 0; pointer-events: none; transition: 0.3s; z-index: 2000; }
+  
+    .animate-on-scroll { opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease, transform 0.6s ease; }
+    .animate-on-scroll.is-visible { opacity: 1; transform: translateY(0); }
+    .delay-100 { transition-delay: 100ms; }
+    .delay-200 { transition-delay: 200ms; }
+    .delay-300 { transition-delay: 300ms; }
+    .card { transition: transform 0.3s ease, box-shadow 0.3s ease; }
+    .card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
+    .nav-item { transition: all 0.3s ease; }
+    .panel { opacity: 0; animation: fadeInPanel 0.8s ease forwards; }
+    @keyframes fadeInPanel { to { opacity: 1; } }
+  
   </style>
 </head>
 <body>
@@ -134,25 +146,25 @@
       <!-- OVERVIEW TAB -->
       <div id="tab-overview" class="tab-content active">
         <div class="cards-grid">
-          <div class="card">
+          <div class="card animate-on-scroll is-visible">
             <div class="card-icon icon-red"><i class="fa fa-shopping-bag"></i></div>
             <div class="card-value" id="statOrders">--</div>
             <div class="card-label">Total Orders</div>
             <div class="card-trend trend-up"><i class="fa fa-arrow-up"></i> 12% this month</div>
           </div>
-          <div class="card">
+          <div class="card animate-on-scroll is-visible">
             <div class="card-icon icon-cyan"><i class="fa fa-dollar-sign"></i></div>
             <div class="card-value" id="statRevenue">--</div>
             <div class="card-label">Total Revenue</div>
             <div class="card-trend trend-up"><i class="fa fa-arrow-up"></i> 8.5% this month</div>
           </div>
-          <div class="card">
+          <div class="card animate-on-scroll is-visible">
             <div class="card-icon icon-orange"><i class="fa fa-users"></i></div>
             <div class="card-value" id="statUsers">--</div>
             <div class="card-label">Total Customers</div>
             <div class="card-trend trend-up"><i class="fa fa-arrow-up"></i> 24 new this week</div>
           </div>
-          <div class="card">
+          <div class="card animate-on-scroll is-visible">
             <div class="card-icon icon-purple"><i class="fa fa-box"></i></div>
             <div class="card-value" id="statProducts">--</div>
             <div class="card-label">Total Products</div>
@@ -305,6 +317,13 @@
 
   <script src="js/admin.js"></script>
   <script>
+
+    document.addEventListener('DOMContentLoaded', () => {
+      setTimeout(() => {
+        document.querySelectorAll('.animate-on-scroll').forEach(el => el.classList.add('is-visible'));
+      }, 100);
+    });
+  
     function switchTab(tabId) {
       document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
       event.currentTarget.classList.add('active');
