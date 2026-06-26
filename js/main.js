@@ -3,6 +3,17 @@
 let products = [];
 let categories = [];
 let dynamicContent = {}; // Stores {key: {en, ar}}
+
+function formatDriveImageUrl(url) {
+  if (!url) return '';
+  if (url.includes('drive.google.com')) {
+    const match = url.match(/\/file\/d\/([^\/?&#]+)/) || url.match(/[?&]id=([^&]+)/);
+    if (match && match[1]) {
+      return `https://drive.google.com/uc?export=view&id=${match[1]}`;
+    }
+  }
+  return url;
+}
 // ================== STATE ==================
 let cart=[];
 let currentUser = JSON.parse(localStorage.getItem('onlymed_user')) || null;
@@ -125,7 +136,8 @@ function productCard(p){
   const name=currentLang==='ar'?p.nameAr:p.name;
   const desc=currentLang==='ar'?p.descAr:p.desc;
   const catName=currentLang==='ar'?p.catAr:p.cat;
-  const imgContent = p.image ? `<img src="${p.image}" class="prod-img-element" style="width:100%;height:100%;object-fit:cover;">` : p.emoji;
+  const formattedImg = formatDriveImageUrl(p.image);
+  const imgContent = formattedImg ? `<img src="${formattedImg}" class="prod-img-element" style="width:100%;height:100%;object-fit:cover;">` : p.emoji;
   return `<div class="prod-card animate-on-scroll slide-up">
     ${p.badge?`<div class="prod-badge">${currentLang==='ar'&&p.badge==='Best Seller'?'الأكثر مبيعاً':currentLang==='ar'&&p.badge==='New'?'جديد':currentLang==='ar'&&p.badge==='Sale'?'خصم':currentLang==='ar'&&p.badge==='Popular'?'شائع':p.badge}</div>`:''}
     <div class="prod-img">${imgContent}</div>
@@ -138,9 +150,9 @@ function productCard(p){
         <div><span class="prod-price">${p.price.toFixed(2)} EGP</span>${p.oldPrice?`<span class="prod-old">${p.oldPrice.toFixed(2)} EGP</span>`:''}</div>
       </div>
       <div class="prod-actions" style="display:flex;gap:6px;flex-wrap:wrap">
-        <button class="btn-sm btn-view" onclick="viewProduct(${p.id})">${tr('viewDetails')}</button>
-        <button class="btn-sm btn-cart-sm" onclick="addToCart(${p.id})"><i class="fa fa-bag-shopping"></i> ${tr('addToCart')}</button>
-        <button class="btn-sm btn-buy" onclick="viewProduct(${p.id});setTimeout(buyNow,200)">${tr('buyNow')}</button>
+        <button class="btn-sm btn-view" onclick="viewProduct('${p.id}')">${tr('viewDetails')}</button>
+        <button class="btn-sm btn-cart-sm" onclick="addToCart('${p.id}')"><i class="fa fa-bag-shopping"></i> ${tr('addToCart')}</button>
+        <button class="btn-sm btn-buy" onclick="viewProduct('${p.id}');setTimeout(buyNow,200)">${tr('buyNow')}</button>
       </div>
     </div>
   </div>`;
@@ -172,6 +184,7 @@ function renderAllProducts(list){
   if(cf.options.length<=1){
     categories.forEach(c=>{const o=document.createElement('option');o.value=c.name;o.textContent=currentLang==='ar'?c.nameAr:c.name;cf.appendChild(o);});
   }
+  setTimeout(initScrollAnimations, 100);
 }
 
 function filterProducts(){
@@ -208,7 +221,7 @@ function viewProduct(id){
   const catName=currentLang==='ar'?p.catAr:p.cat;
   const bens=currentLang==='ar'?p.benefitsAr:p.benefits;
   if (p.image) {
-    document.getElementById('detailImg').innerHTML = `<img src="${p.image}" style="width:100%;height:100%;object-fit:cover;border-radius:var(--r2);">`;
+    document.getElementById('detailImg').innerHTML = `<img src="${formatDriveImageUrl(p.image)}" style="width:100%;height:100%;object-fit:cover;border-radius:var(--r2);">`;
   } else {
     document.getElementById('detailImg').innerHTML = '';
     document.getElementById('detailImg').textContent = p.emoji;
@@ -285,12 +298,12 @@ function renderCartPanel(){
         <div class="ci-name">${name}</div>
         <div class="ci-price">${(item.price*item.qty).toFixed(2)} EGP</div>
         <div class="ci-qty">
-          <button class="qty-btn" onclick="changeQty(${item.id},-1)">−</button>
+          <button class="qty-btn" onclick="changeQty('${item.id}',-1)">−</button>
           <span class="qty-num">${item.qty}</span>
-          <button class="qty-btn" onclick="changeQty(${item.id},1)">+</button>
+          <button class="qty-btn" onclick="changeQty('${item.id}',1)">+</button>
         </div>
       </div>
-      <button class="ci-remove" onclick="removeCartItem(${item.id})"><i class="fa fa-trash"></i></button>
+      <button class="ci-remove" onclick="removeCartItem('${item.id}')"><i class="fa fa-trash"></i></button>
     </div>`;
   }).join('');
   const subtotal=cart.reduce((s,i)=>s+i.price*i.qty,0);
@@ -778,10 +791,14 @@ async function fetchWebsiteContent() {
 }
 
 function applyDynamicContent() {
+  if (!dynamicContent) return;
   for (const key in dynamicContent) {
     const el = document.getElementById(key);
-    if (el) {
-      el.innerHTML = dynamicContent[key][currentLang];
+    if (el && dynamicContent[key]) {
+      const val = dynamicContent[key][currentLang];
+      if (val !== undefined && val !== null) {
+        el.innerHTML = val;
+      }
     }
   }
 }
@@ -808,6 +825,7 @@ function renderProducts() {
   if (activePage === 'products') {
     renderAllProducts();
   }
+  setTimeout(initScrollAnimations, 100);
 }
 
 

@@ -1,6 +1,17 @@
 const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwv1vuPsTUNXz6BMvtxUwxSqnf9Tq1CX21KLMq0nL3aYFebslLVEe5V0i-VIHyJLhlr/exec";
 let db = { products: [], orders: [], users: [], content: [] };
 
+function formatDriveImageUrl(url) {
+  if (!url) return '';
+  if (url.includes('drive.google.com')) {
+    const match = url.match(/\/file\/d\/([^\/?&#]+)/) || url.match(/[?&]id=([^&]+)/);
+    if (match && match[1]) {
+      return `https://drive.google.com/uc?export=view&id=${match[1]}`;
+    }
+  }
+  return url;
+}
+
 function showToast(msg) {
   const toast = document.getElementById('toast');
   if (toast) {
@@ -72,10 +83,10 @@ function renderAll() {
   if (pBody) {
     pBody.innerHTML = db.products.map(p => `
       <tr>
-        <td><img src="${p.image}" width="40" style="border-radius:6px"></td>
+        <td><img src="${formatDriveImageUrl(p.image)}" width="40" style="border-radius:6px"></td>
         <td>${p.name_en}</td>
-        <td>${p.price} EGP</td>
         <td>${p.category}</td>
+        <td>${p.price} EGP</td>
         <td>${p.stock}</td>
         <td><span class="status-badge ${p.status==='Active'?'status-delivered':'status-pending'}">${p.status}</span></td>
         <td>
