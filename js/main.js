@@ -664,11 +664,20 @@ function updateAuthNav() {
 }
 
 function doLogout() {
-  localStorage.removeItem('onlymed_user');
-  currentUser = null;
-  updateAuthNav();
-  showPage('home');
-  showToast('Logged out successfully.');
+  showCustomConfirm({
+    title: 'Logout?',
+    message: 'Are you sure you want to log out of your account?',
+    confirmText: 'Logout',
+    danger: true,
+    icon: 'fa fa-sign-out-alt',
+    onConfirm: async () => {
+      localStorage.removeItem('onlymed_user');
+      currentUser = null;
+      updateAuthNav();
+      showPage('home');
+      showToast('Logged out successfully.');
+    }
+  });
 }
 
 // ================== PROFILE ==================
@@ -933,3 +942,117 @@ function toggleMobileMenu(){
   }
 }
 
+// ================== GLOBAL CONFIRM MODAL ==================
+function showCustomConfirm(options) {
+  return new Promise((resolve) => {
+    if (!document.getElementById('customConfirmStyles')) {
+      const style = document.createElement('style');
+      style.id = 'customConfirmStyles';
+      style.innerHTML = `
+        .custom-confirm-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 99999; backdrop-filter: blur(3px); opacity: 0; transition: opacity 0.3s ease; }
+        .custom-confirm-overlay.active { display: flex; opacity: 1; }
+        .custom-confirm-box { background: white; padding: 40px 30px; border-radius: 12px; width: 90%; max-width: 400px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2); transform: scale(0.9); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .custom-confirm-overlay.active .custom-confirm-box { transform: scale(1); }
+      `;
+      document.head.appendChild(style);
+    }
+
+    let modal = document.getElementById('globalConfirmModal');
+    if (!modal) {
+      modal = document.createElement('div');
+      modal.id = 'globalConfirmModal';
+      modal.className = 'custom-confirm-overlay';
+      modal.innerHTML = `
+        <div class="custom-confirm-box">
+          <div id="confirmModalIcon" style="font-size: 48px; margin-bottom: 20px;">
+            <i class="fa fa-exclamation-triangle"></i>
+          </div>
+          <h3 id="confirmModalTitle" style="margin: 0 0 10px 0; font-size: 22px; font-family: 'Playfair Display', serif;">Are you sure?</h3>
+          <p id="confirmModalMessage" style="color: var(--light-text, #888); margin-bottom: 30px; font-size: 15px; line-height: 1.5;">This action cannot be undone.</p>
+          <div style="display: flex; gap: 15px; justify-content: center;">
+            <button class="btn-outline" style="flex:1; padding: 10px;" id="confirmModalCancelBtn">Cancel</button>
+            <button class="btn-primary" style="flex:1; padding: 10px;" id="confirmModalActionBtn">Confirm</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+    }
+    
+    document.getElementById('confirmModalTitle').innerText = options.title || 'Are you sure?';
+    document.getElementById('confirmModalMessage').innerText = options.message || 'This action cannot be undone.';
+    
+    const iconEl = document.getElementById('confirmModalIcon');
+    iconEl.innerHTML = `<i class="${options.icon || 'fa fa-exclamation-triangle'}"></i>`;
+    iconEl.style.color = options.danger === false ? '#00b4d8' : 'var(--primary, #d0112b)';
+    
+    const actionBtn = document.getElementById('confirmModalActionBtn');
+    actionBtn.innerText = options.confirmText || 'Confirm';
+    actionBtn.style.background = options.danger === false ? '#00b4d8' : 'var(--primary, #d0112b)';
+    actionBtn.style.borderColor = options.danger === false ? '#00b4d8' : 'var(--primary, #d0112b)';
+    
+    const cancelBtn = document.getElementById('confirmModalCancelBtn');
+    cancelBtn.innerText = options.cancelText || 'Cancel';
+    
+    const newActionBtn = actionBtn.cloneNode(true);
+    actionBtn.parentNode.replaceChild(newActionBtn, actionBtn);
+    const newCancelBtn = cancelBtn.cloneNode(true);
+    cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
+    
+    let isClosed = false;
+    
+    const closeModal = () => {
+      if (isClosed) return;
+      isClosed = true;
+      const box = modal.querySelector('.custom-confirm-box');
+      if (box) box.style.transform = 'scale(0.9)';
+      modal.classList.remove('active');
+      document.removeEventListener('keydown', handleEsc);
+    };
+    
+    const handleEsc = (e) => {
+      if (e.key === 'Escape') {
+        closeModal();
+        resolve(false);
+      }
+    };
+    
+    newActionBtn.addEventListener('click', async () => {
+      const originalText = newActionBtn.innerHTML;
+      newActionBtn.disabled = true;
+      newCancelBtn.disabled = true;
+      newActionBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Processing...';
+      
+      try {
+        if (options.onConfirm) {
+          await options.onConfirm();
+        }
+        closeModal();
+        resolve(true);
+      } catch(e) {
+        console.error(e);
+        newActionBtn.disabled = false;
+        newCancelBtn.disabled = false;
+        newActionBtn.innerHTML = originalText;
+      }
+    });
+    
+    newCancelBtn.addEventListener('click', () => {
+      closeModal();
+      resolve(false);
+    });
+    
+    modal.addEventListener('mousedown', (e) => {
+      if (e.target === modal) {
+        closeModal();
+        resolve(false);
+      }
+    });
+    
+    document.addEventListener('keydown', handleEsc);
+    
+    modal.classList.add('active');
+    setTimeout(() => {
+      newCancelBtn.focus();
+    }, 50);
+  });
+}
