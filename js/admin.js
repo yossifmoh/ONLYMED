@@ -78,6 +78,97 @@ function renderAll() {
   const statRev = document.getElementById('statRevenue');
   if(statRev) statRev.innerText = 'EGP ' + rev.toFixed(2);
   
+  // Dynamic Trends
+  const now = new Date();
+  
+  // 1. Orders Trend
+  const thisMonthOrders = db.orders.filter(o => {
+    const d = new Date(o.date);
+    return !isNaN(d) && (now - d) <= 30 * 24 * 60 * 60 * 1000;
+  }).length;
+  const lastMonthOrders = db.orders.filter(o => {
+    const d = new Date(o.date);
+    const diff = now - d;
+    return !isNaN(d) && diff > 30 * 24 * 60 * 60 * 1000 && diff <= 60 * 24 * 60 * 60 * 1000;
+  }).length;
+  
+  const trendOrdersEl = document.getElementById('trendOrders');
+  if (trendOrdersEl) {
+    if (lastMonthOrders === 0) {
+      trendOrdersEl.innerHTML = `<i class="fa fa-arrow-up"></i> +${thisMonthOrders} new this month`;
+      trendOrdersEl.className = "card-trend trend-up";
+    } else {
+      const pct = ((thisMonthOrders - lastMonthOrders) / lastMonthOrders) * 100;
+      if (pct >= 0) {
+        trendOrdersEl.innerHTML = `<i class="fa fa-arrow-up"></i> ${pct.toFixed(1)}% this month`;
+        trendOrdersEl.className = "card-trend trend-up";
+      } else {
+        trendOrdersEl.innerHTML = `<i class="fa fa-arrow-down"></i> ${Math.abs(pct).toFixed(1)}% this month`;
+        trendOrdersEl.className = "card-trend trend-down";
+      }
+    }
+  }
+
+  // 2. Revenue Trend
+  const getRevenueForRange = (filterFn) => {
+    return db.orders.filter(filterFn).reduce((sum, o) => {
+      if ((o.status === 'Completed' || o.status === 'Delivered') && o.total) {
+        return sum + (parseFloat(o.total) || 0);
+      }
+      return sum;
+    }, 0);
+  };
+  const thisMonthRev = getRevenueForRange(o => {
+    const d = new Date(o.date);
+    return !isNaN(d) && (now - d) <= 30 * 24 * 60 * 60 * 1000;
+  });
+  const lastMonthRev = getRevenueForRange(o => {
+    const d = new Date(o.date);
+    const diff = now - d;
+    return !isNaN(d) && diff > 30 * 24 * 60 * 60 * 1000 && diff <= 60 * 24 * 60 * 60 * 1000;
+  });
+  
+  const trendRevenueEl = document.getElementById('trendRevenue');
+  if (trendRevenueEl) {
+    if (lastMonthRev === 0) {
+      trendRevenueEl.innerHTML = `<i class="fa fa-arrow-up"></i> +${thisMonthRev.toFixed(0)} EGP this month`;
+      trendRevenueEl.className = "card-trend trend-up";
+    } else {
+      const pct = ((thisMonthRev - lastMonthRev) / lastMonthRev) * 100;
+      if (pct >= 0) {
+        trendRevenueEl.innerHTML = `<i class="fa fa-arrow-up"></i> ${pct.toFixed(1)}% this month`;
+        trendRevenueEl.className = "card-trend trend-up";
+      } else {
+        trendRevenueEl.innerHTML = `<i class="fa fa-arrow-down"></i> ${Math.abs(pct).toFixed(1)}% this month`;
+        trendRevenueEl.className = "card-trend trend-down";
+      }
+    }
+  }
+
+  // 3. Customers Trend (new this week)
+  const thisWeekUsers = db.users.filter(u => {
+    const d = new Date(u.created);
+    return !isNaN(d) && (now - d) <= 7 * 24 * 60 * 60 * 1000;
+  }).length;
+  const trendUsersEl = document.getElementById('trendUsers');
+  if (trendUsersEl) {
+    trendUsersEl.innerHTML = `<i class="fa fa-arrow-up"></i> +${thisWeekUsers} new this week`;
+    trendUsersEl.className = "card-trend trend-up";
+  }
+
+  // 4. Products Trend (low stock)
+  const lowStockCount = db.products.filter(p => parseInt(p.stock || 0) <= 5).length;
+  const trendProductsEl = document.getElementById('trendProducts');
+  if (trendProductsEl) {
+    if (lowStockCount > 0) {
+      trendProductsEl.innerHTML = `<i class="fa fa-arrow-down"></i> ${lowStockCount} low stock items`;
+      trendProductsEl.className = "card-trend trend-down";
+    } else {
+      trendProductsEl.innerHTML = `<i class="fa fa-arrow-up"></i> All items in stock`;
+      trendProductsEl.className = "card-trend trend-up";
+    }
+  }
+
   // Products
   const pBody = document.getElementById('productsTbody');
   if (pBody) {
