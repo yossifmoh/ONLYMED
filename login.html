@@ -22,7 +22,7 @@
 </head>
 <body>
 
-  <div class="auth-container" id="login-box">
+  <div class="auth-container animate-on-scroll slide-up" id="login-box">
     <div class="auth-logo">ONLYMED</div>
     <div class="auth-title">Welcome Back</div>
     
@@ -43,7 +43,7 @@
     </div>
   </div>
 
-  <div class="auth-container hidden" id="forgot-box">
+  <div class="auth-container hidden animate-on-scroll slide-up" id="forgot-box">
     <div class="auth-logo">ONLYMED</div>
     <div class="auth-title">Reset Password</div>
     <p style="font-size:13px; color:#666; margin-bottom:20px;">Enter your email and phone number to verify your identity.</p>
@@ -83,7 +83,11 @@
     function toggleBox(boxId) {
       document.getElementById('login-box').classList.add('hidden');
       document.getElementById('forgot-box').classList.add('hidden');
-      document.getElementById(boxId).classList.remove('hidden');
+      const target = document.getElementById(boxId);
+      if (target) {
+        target.classList.remove('hidden');
+        target.classList.add('is-visible');
+      }
     }
 
     async function hashStr(str) {
@@ -155,10 +159,14 @@
 
   <script>
     
+function showAuthBox() {
+  const box = document.querySelector('.auth-container:not(.hidden)');
+  if (box) box.classList.add('is-visible');
+}
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => { document.querySelector('.auth-box').classList.add('is-visible'); });
+  document.addEventListener('DOMContentLoaded', showAuthBox);
 } else {
-  document.querySelector('.auth-box').classList.add('is-visible');
+  showAuthBox();
 }
 
   </script>

@@ -12,14 +12,14 @@ function showToast(msg) {
   }
 }
 
-function switchTab(tabId) {
-  document.querySelectorAll('.sidebar-nav .nav-item').forEach(el => el.classList.remove('active'));
-  if (event && event.currentTarget) {
-    event.currentTarget.classList.add('active');
+function switchTab(tabId, element) {
+  document.querySelectorAll('.nav-menu .nav-item').forEach(el => el.classList.remove('active'));
+  if (element) {
+    element.classList.add('active');
   }
-  document.querySelectorAll('.main-content section').forEach(el => el.classList.add('hidden'));
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
   const target = document.getElementById('tab-' + tabId);
-  if (target) target.classList.remove('hidden');
+  if (target) target.classList.add('active');
 }
 
 async function loadDashboard() {
@@ -124,6 +124,30 @@ function renderAll() {
         <td><input type="text" class="input-sm" id="c-en-${i}" value="${c.en}"></td>
         <td><input type="text" class="input-sm" id="c-ar-${i}" value="${c.ar}" dir="rtl"></td>
         <td><select class="input-sm" id="c-st-${i}"><option ${c.status==='Active'?'selected':''}>Active</option><option ${c.status!=='Active'?'selected':''}>Inactive</option></select></td>
+      </tr>
+    `).join('');
+  }
+
+  // Populate Dashboard Tables
+  const recentTbody = document.getElementById('recentOrdersTbody');
+  if (recentTbody && db.orders) {
+    recentTbody.innerHTML = db.orders.slice(0, 5).map(o => {
+      const orderDate = o.date ? new Date(o.date).toLocaleDateString() : '';
+      return `<tr>
+        <td>#${String(o.id)}</td>
+        <td>${o.name || ''}</td>
+        <td>${orderDate}</td>
+        <td><span class="status-badge status-${(o.status || 'Pending').toLowerCase()}">${o.status}</span></td>
+      </tr>`;
+    }).join('');
+  }
+  
+  const topTbody = document.getElementById('topProductsTbody');
+  if (topTbody && db.products) {
+    topTbody.innerHTML = db.products.slice(0, 5).map(p => `
+      <tr>
+        <td>${p.name_en || ''}</td>
+        <td>${p.price} EGP</td>
       </tr>
     `).join('');
   }

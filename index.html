@@ -34,16 +34,17 @@
     <a class="logo" onclick="showPage('home')">
       <img src="assets/ONLYMED Logo RGB AI.png" alt="ONLYMED Logo" style="height: 48px; object-fit: contain;">
     </a>
+    <button class="btn-menu" onclick="toggleMobileMenu()" id="mobileMenuBtn" aria-label="Toggle Menu"><i class="fa fa-bars"></i></button>
     <div class="nav-links" id="navLinks">
       <a onclick="showPage('home')" class="active" data-key="home" id="nav-home">Home</a>
       <a onclick="showPage('products')" data-key="products" id="nav-products">Products</a>
       <a onclick="showPage('about')" data-key="about" id="nav-about">About</a>
-      <a onclick="showPage('contact')" data-key="contact" id="nav-contact" id="footer-link-6">Contact</a>
+      <a onclick="showPage('contact')" data-key="contact" id="nav-contact">Contact</a>
     </div>
     <div class="nav-right">
       <div class="search-wrap">
         <i class="fa fa-search"></i>
-        <input type="text" id="searchInput" id="search-placeholder" placeholder="Search products..." oninput="handleSearch(this.value)">
+        <input type="text" id="searchInput" placeholder="Search products..." oninput="handleSearch(this.value)">
       </div>
       <button class="btn-cart" onclick="toggleCart()" title="Cart">
         <i class="fa fa-shopping-bag"></i>
@@ -67,12 +68,12 @@
         <p class="hero-sub animate-on-scroll slide-up delay-200" id="hero-sub">Premium quality healthcare products for you and your family. Sourced from certified medical suppliers.</p>
         <div class="hero-cta animate-on-scroll slide-up delay-300">
           <button class="btn-primary" onclick="showPage('products')" id="hero-btn1"><i class="fa fa-shopping-bag"></i> Shop Now</button>
-          <button class="btn-outline" onclick="showPage('about')" id="hero-btn2" id="hero-btn-learn">Learn More</button>
+          <button class="btn-outline" onclick="showPage('about')" id="hero-btn2">Learn More</button>
         </div>
         <div class="hero-stats">
-          <div class="stat-item animate-on-scroll zoom-in"><div class="stat-num">50K+</div><div class="stat-lbl" id="stat1" id="hero-stat-1">Happy Customers</div></div>
-          <div class="stat-item animate-on-scroll zoom-in"><div class="stat-num">200+</div><div class="stat-lbl" id="stat2" id="hero-stat-2">Products</div></div>
-          <div class="stat-item animate-on-scroll zoom-in"><div class="stat-num">99%</div><div class="stat-lbl" id="stat3" id="hero-stat-3">Satisfaction Rate</div></div>
+          <div class="stat-item animate-on-scroll zoom-in"><div class="stat-num">50K+</div><div class="stat-lbl" id="stat1">Happy Customers</div></div>
+          <div class="stat-item animate-on-scroll zoom-in"><div class="stat-num">200+</div><div class="stat-lbl" id="stat2">Products</div></div>
+          <div class="stat-item animate-on-scroll zoom-in"><div class="stat-num">99%</div><div class="stat-lbl" id="stat3">Satisfaction Rate</div></div>
         </div>
       </div>
       <div class="hero-visual animate-on-scroll slide-in-right delay-200">
@@ -264,6 +265,7 @@
         <p style="margin-bottom:10px"><strong>Phone:</strong> <span id="prof-v-phone"></span></p>
         <p style="margin-bottom:10px"><strong>Address:</strong> <span id="prof-v-addr"></span></p>
         <button class="btn-primary" style="margin-top: 20px;" onclick="toggleEditProfile()">Edit Profile</button>
+        <button class="btn-outline" style="margin-top: 20px; margin-left: 10px;" id="prof-logout-btn" onclick="doLogout()">Logout</button>
       </div>
 
       <div id="profile-edit" style="display:none; margin-top:20px;">
@@ -441,7 +443,7 @@
     <div class="footer-grid animate-on-scroll slide-up">
       <div class="footer-brand">
         <div class="logo"><div class="logo-icon"><i class="fa fa-heart-pulse"></i></div><div><div class="logo-text">ONLYMED</div></div></div>
-        <p id="foot-desc" id="footer-desc">Your trusted online destination for premium healthcare products. Quality, certified, delivered.</p>
+        <p id="foot-desc">Your trusted online destination for premium healthcare products. Quality, certified, delivered.</p>
       </div>
       <div class="footer-col"><h4 id="foot-shop">Shop</h4><a onclick="showPage('products')" id="footer-link-1">All Products</a><a onclick="showPage('products')" id="footer-link-2">Vitamins</a><a onclick="showPage('products')" id="footer-link-3">Supplements</a><a onclick="showPage('products')" id="footer-link-4">First Aid</a></div>
       <div class="footer-col"><h4 id="foot-company">Company</h4><a onclick="showPage('about')" id="footer-link-5">About Us</a><a onclick="showPage('contact')">Contact</a><a id="footer-link-7">Careers</a><a id="footer-link-8">Blog</a></div>

@@ -105,6 +105,18 @@
     .nav-item { transition: all 0.3s ease; }
     .panel { opacity: 0; animation: fadeInPanel 0.8s ease forwards; }
     @keyframes fadeInPanel { to { opacity: 1; } }
+
+    /* Custom CSS for status badges, action buttons, and small inputs */
+    .status-badge { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; text-transform: capitalize; }
+    .status-badge.status-active, .status-badge.status-delivered, .status-badge.status-completed { background: #e8f5e9; color: #2e7d32; }
+    .status-badge.status-pending, .status-badge.status-processing { background: #fff3e0; color: #ef6c00; }
+    .status-badge.status-cancelled, .status-badge.status-hidden { background: #ffebee; color: #c62828; }
+    
+    .action-btn { background: none; border: none; color: var(--light-text); cursor: pointer; font-size: 16px; padding: 5px; transition: 0.3s; }
+    .action-btn:hover { color: var(--primary); }
+    
+    .input-sm { width: 100%; padding: 6px 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 13px; box-sizing: border-box; }
+    .input-sm:focus { border-color: var(--primary); outline: none; }
   
   </style>
 </head>
@@ -120,12 +132,12 @@
       </div>
     </div>
     <div class="nav-menu">
-      <div class="nav-item active" onclick="switchTab('overview')"><i class="fa fa-th-large"></i> Overview</div>
-      <div class="nav-item" onclick="switchTab('analytics')"><i class="fa fa-chart-line"></i> Analytics</div>
-      <div class="nav-item" onclick="switchTab('orders')"><i class="fa fa-shopping-bag"></i> Orders</div>
-      <div class="nav-item" onclick="switchTab('products')"><i class="fa fa-box"></i> Products</div>
-      <div class="nav-item" onclick="switchTab('users')"><i class="fa fa-users"></i> Users</div>
-      <div class="nav-item" onclick="switchTab('content')"><i class="fa fa-language"></i> Content</div>
+      <div class="nav-item active" onclick="switchTab('overview', this)"><i class="fa fa-th-large"></i> Overview</div>
+      <div class="nav-item" onclick="switchTab('analytics', this)"><i class="fa fa-chart-line"></i> Analytics</div>
+      <div class="nav-item" onclick="switchTab('orders', this)"><i class="fa fa-shopping-bag"></i> Orders</div>
+      <div class="nav-item" onclick="switchTab('products', this)"><i class="fa fa-box"></i> Products</div>
+      <div class="nav-item" onclick="switchTab('users', this)"><i class="fa fa-users"></i> Users</div>
+      <div class="nav-item" onclick="switchTab('content', this)"><i class="fa fa-language"></i> Content</div>
       <div style="margin-top:40px; border-top:1px solid rgba(255,255,255,0.05); padding-top:20px;"></div>
       <a href="index.html" class="nav-item"><i class="fa fa-external-link-alt"></i> View Store</a>
     </div>
@@ -251,10 +263,11 @@
         <div class="panel">
           <div class="table-container">
             <table>
-              <thead><tr><th>Key</th><th>English Value</th><th>Arabic Value</th><th>Actions</th></tr></thead>
+              <thead><tr><th>Key</th><th>English Value</th><th>Arabic Value</th><th>Status</th></tr></thead>
               <tbody id="contentTbody"></tbody>
             </table>
           </div>
+          <button class="btn btn-primary" onclick="saveAllContent()" style="margin-top:20px;"><i class="fa fa-save"></i> Save All Content</button>
         </div>
       </div>
 
@@ -331,9 +344,11 @@ if (document.readyState === 'loading') {
 }
 
   
-    function switchTab(tabId) {
+    function switchTab(tabId, element) {
       document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-      event.currentTarget.classList.add('active');
+      if (element) {
+        element.classList.add('active');
+      }
       document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
       document.getElementById('tab-' + tabId).classList.add('active');
       
@@ -351,14 +366,6 @@ if (document.readyState === 'loading') {
 
     function closeModal(id) {
       document.getElementById(id).classList.remove('active');
-    }
-    
-    // UI Helpers for admin.js to call
-    function openProductModal() {
-      document.getElementById('productModal').classList.add('active');
-    }
-    function openOrderModal() {
-      document.getElementById('orderModal').classList.add('active');
     }
   </script>
 </body>

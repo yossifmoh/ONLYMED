@@ -16,6 +16,16 @@ let detailQty=1;
 let prevPage='home';
 let currentAdmin='overview';
 let chartsInitialized=false;
+const sampleOrders=[
+  {id:'CS-001',customer:'Sarah Johnson',products:'Vitamin C 1000mg × 2',total:49.98,date:'2025-05-28',status:'Completed',payment:'Paid'},
+  {id:'CS-002',customer:'Ahmed Al-Rashid',products:'Omega-3 Fish Oil × 1',total:29.99,date:'2025-05-27',status:'Processing',payment:'Paid'},
+  {id:'CS-003',customer:'Emily Chen',products:'Blood Pressure Monitor × 1',total:79.99,date:'2025-05-26',status:'Completed',payment:'Paid'},
+  {id:'CS-004',customer:'Mohamed Hassan',products:'First Aid Kit Pro × 1',total:49.99,date:'2025-05-25',status:'Pending',payment:'COD'},
+  {id:'CS-005',customer:'Lisa Martinez',products:'Vitamin D3+K2 × 2, Collagen × 1',total:79.97,date:'2025-05-24',status:'Completed',payment:'Paid'},
+  {id:'CS-006',customer:'James Wilson',products:'Thermometer Pro × 1',total:34.99,date:'2025-05-23',status:'Processing',payment:'Paid'},
+  {id:'CS-007',customer:'Fatima Al-Said',products:'Probiotic 50B × 2',total:89.98,date:'2025-05-22',status:'Cancelled',payment:'Refunded'},
+  {id:'CS-008',customer:'David Park',products:'Pulse Oximeter × 1',total:39.99,date:'2025-05-21',status:'Completed',payment:'Paid'},
+];
 let orderCount=sampleOrders.length;
 
 // ================== TRANSLATIONS ==================
@@ -52,6 +62,7 @@ const t={
     orderSumTitle:'Order Summary',aboutHeroTitle:'About ONLYMED',
     aboutHeroSub:'We\'re dedicated to making quality healthcare accessible to everyone, everywhere.',
     sendMsg:'Message sent! We\'ll reply within 24 hours.',
+    loginBtn:'Login',profileBtn:'My Account',logoutBtn:'Logout',
   },
   ar:{
     home:'الرئيسية',products:'المنتجات',about:'عن الشركة',contact:'تواصل معنا',
@@ -85,6 +96,7 @@ const t={
     orderSumTitle:'ملخص الطلب',aboutHeroTitle:'عن ONLYMED',
     aboutHeroSub:'نحن ملتزمون بجعل الرعاية الصحية المتميزة في متناول الجميع.',
     sendMsg:'تم إرسال الرسالة! سنرد خلال 24 ساعة.',
+    loginBtn:'تسجيل الدخول',profileBtn:'حسابي',logoutBtn:'تسجيل الخروج',
   }
 };
 const tr=k=>t[currentLang][k]||t.en[k]||k;
@@ -96,6 +108,8 @@ function showPage(page){
   document.querySelectorAll('#navLinks a').forEach(a=>{
     a.classList.toggle('active',a.getAttribute('data-key')===page);
   });
+  const navLinks = document.getElementById('navLinks');
+  if (navLinks) navLinks.classList.remove('open');
   if(page!=='admin'){document.getElementById('mainFooter').style.display='';document.getElementById('mainNav').style.display='';}
   else{document.getElementById('mainFooter').style.display='none';}
   if(page==='products')renderAllProducts();
@@ -111,9 +125,10 @@ function productCard(p){
   const name=currentLang==='ar'?p.nameAr:p.name;
   const desc=currentLang==='ar'?p.descAr:p.desc;
   const catName=currentLang==='ar'?p.catAr:p.cat;
+  const imgContent = p.image ? `<img src="${p.image}" class="prod-img-element" style="width:100%;height:100%;object-fit:cover;">` : p.emoji;
   return `<div class="prod-card animate-on-scroll slide-up">
     ${p.badge?`<div class="prod-badge">${currentLang==='ar'&&p.badge==='Best Seller'?'الأكثر مبيعاً':currentLang==='ar'&&p.badge==='New'?'جديد':currentLang==='ar'&&p.badge==='Sale'?'خصم':currentLang==='ar'&&p.badge==='Popular'?'شائع':p.badge}</div>`:''}
-    <div class="prod-img">${p.emoji}</div>
+    <div class="prod-img">${imgContent}</div>
     <div class="prod-body">
       <div class="prod-cat">${catName}</div>
       <div class="prod-name">${name}</div>
@@ -192,7 +207,12 @@ function viewProduct(id){
   const desc=currentLang==='ar'?p.descAr:p.desc;
   const catName=currentLang==='ar'?p.catAr:p.cat;
   const bens=currentLang==='ar'?p.benefitsAr:p.benefits;
-  document.getElementById('detailImg').textContent=p.emoji;
+  if (p.image) {
+    document.getElementById('detailImg').innerHTML = `<img src="${p.image}" style="width:100%;height:100%;object-fit:cover;border-radius:var(--r2);">`;
+  } else {
+    document.getElementById('detailImg').innerHTML = '';
+    document.getElementById('detailImg').textContent = p.emoji;
+  }
   document.getElementById('detailCat').textContent=catName;
   document.getElementById('detailName').textContent=name;
   document.getElementById('detailRating').innerHTML='<i class="fa fa-star" style="color:#f59e0b"></i>'.repeat(Math.floor(p.rating))+`<span>${p.rating} (${p.reviews} reviews)</span>`;
@@ -317,18 +337,30 @@ function renderCheckout(){
   document.getElementById('place-btn').textContent=tr('placeOrder');
   document.getElementById('order-sum-title').textContent=tr('orderSumTitle');
   
-  const u=JSON.parse(localStorage.getItem('user'));
+  const u=JSON.parse(localStorage.getItem('onlymed_user'));
   if(u) {
-    document.getElementById('co-name').value=u.name||'';
-    document.getElementById('co-phone').value=u.phone||'';
-    document.getElementById('co-email').value=u.email||'';
-    document.getElementById('co-address').value=u.address||'';
-    if(document.getElementById('co-pass-group')) {
-        document.getElementById('co-pass-group').style.display='none';
+    const nameParts = (u.name || '').split(' ');
+    const fnInput = document.getElementById('fn');
+    if (fnInput) fnInput.value = nameParts[0] || '';
+    const lnInput = document.getElementById('ln');
+    if (lnInput) lnInput.value = nameParts.slice(1).join(' ') || '';
+    
+    const phoneInput = document.getElementById('phone');
+    if (phoneInput) phoneInput.value = u.phone || '';
+    const emailInput = document.getElementById('email');
+    if (emailInput) emailInput.value = u.email || '';
+    
+    const addrInput = document.getElementById('addr');
+    if (addrInput) addrInput.value = u.address || '';
+    
+    const passInput = document.getElementById('password');
+    if (passInput) {
+      const passGroup = passInput.closest('.form-group');
+      if (passGroup) passGroup.style.display = 'none';
     }
   }
 
-  document.getElementById('oscItems').innerHTML=cart.map(i=>`<div class="osc-item"><span class="osc-item-name">${currentLang==='ar'?i.nameAr:i.name} × ${i.qty}</span><span class="osc-item-price">{(i.price*i.qty).toFixed(2)} EGP</span></div>`).join('');
+  document.getElementById('oscItems').innerHTML=cart.map(i=>`<div class="osc-item"><span class="osc-item-name">${currentLang==='ar'?i.nameAr:i.name} × ${i.qty}</span><span class="osc-item-price">${(i.price*i.qty).toFixed(2)} EGP</span></div>`).join('');
   document.getElementById('oscTotals').innerHTML=`
     <div class="osc-row"><span>${tr('subtotal')}</span><span>${subtotal.toFixed(2)} EGP</span></div>
     <div class="osc-row"><span>${tr('shipping')}</span><span>${shipping===0?tr('free'):shipping.toFixed(2)} EGP</span></div>
@@ -411,7 +443,7 @@ async function placeOrder(){
     address: addr + ', ' + city
   };
   localStorage.setItem('onlymed_user', JSON.stringify(currentUser));
-  document.getElementById('navProfileBtn').style.display = 'inline-block';
+  updateAuthNav();
 
   orderCount++;
   const num=`CS-${String(orderCount).padStart(6,'0')}`;
@@ -550,10 +582,14 @@ function applyTranslations(){
     'trust3':'trust3','trust3s':'trust3s','trust4':'trust4','trust4s':'trust4s',
     'foot-desc':'footDesc','foot-shop':'footShop','foot-company':'footCompany','foot-support':'footSupport','foot-copy':'footCopy',
     'about-hero-title':'aboutHeroTitle','about-hero-sub':'aboutHeroSub',
+    'nav-home':'home','nav-products':'products','nav-about':'about','nav-contact':'contact',
   };
   Object.entries(tbl).forEach(([id,key])=>{const el=document.getElementById(id);if(el&&t[currentLang][key])el.textContent=tr(key);});
-  document.getElementById('searchInput').placeholder=tr('searchPh');
+  const si=document.getElementById('searchInput');if(si)si.placeholder=tr('searchPh');
   const pi=document.getElementById('prodSearch');if(pi)pi.placeholder=tr('searchPh');
+  const loginBtn=document.getElementById('navLoginBtn');if(loginBtn)loginBtn.innerHTML=`<i class="fa fa-sign-in-alt"></i> ${tr('loginBtn')}`;
+  const profileBtn=document.getElementById('navProfileBtn');if(profileBtn)profileBtn.innerHTML=`<i class="fa fa-user"></i> ${tr('profileBtn')}`;
+  const logoutBtn=document.getElementById('prof-logout-btn');if(logoutBtn)logoutBtn.textContent=tr('logoutBtn');
 }
 
 // ================== TOAST ==================
@@ -570,10 +606,30 @@ renderFeatured();
 renderBest();
 document.getElementById('admin-date').textContent=new Date().toLocaleDateString();
 
+function updateAuthNav() {
+  const loginBtn = document.getElementById('navLoginBtn');
+  const profileBtn = document.getElementById('navProfileBtn');
+  if (currentUser) {
+    if (loginBtn) loginBtn.style.display = 'none';
+    if (profileBtn) profileBtn.style.display = 'inline-block';
+  } else {
+    if (loginBtn) loginBtn.style.display = 'inline-block';
+    if (profileBtn) profileBtn.style.display = 'none';
+  }
+}
+
+function doLogout() {
+  localStorage.removeItem('onlymed_user');
+  currentUser = null;
+  updateAuthNav();
+  showPage('home');
+  showToast('Logged out successfully.');
+}
+
 // ================== PROFILE ==================
 function renderProfile() {
   if(!currentUser) { showPage('home'); return; }
-  document.getElementById('navProfileBtn').style.display = 'inline-block';
+  updateAuthNav();
   document.getElementById('prof-v-name').textContent = currentUser.name;
   document.getElementById('prof-v-email').textContent = currentUser.email;
   document.getElementById('prof-v-phone').textContent = currentUser.phone;
@@ -643,9 +699,7 @@ async function saveProfile() {
 window.addEventListener("DOMContentLoaded", () => {
   fetchWebsiteContent();
   renderCartBadge();
-  if(currentUser) {
-    document.getElementById('navProfileBtn').style.display = 'inline-block';
-  }
+  updateAuthNav();
 });
 
 
@@ -660,13 +714,52 @@ async function fetchWebsiteContent() {
     
     // Fetch Products
     const pRes = await fetch(GOOGLE_SCRIPT_URL + '?type=products');
-    products = await pRes.json();
+    const rawProducts = await pRes.json();
+    
+    const catTranslations = {
+      'Vitamins': 'الفيتامينات',
+      'Supplements': 'المكملات',
+      'First Aid': 'إسعافات أولية',
+      'Equipment': 'أجهزة طبية',
+      'Skincare': 'العناية بالبشرة'
+    };
+    function getCatEmoji(cat) {
+      const emojis = {
+        'Vitamins': '💊',
+        'Supplements': '🌿',
+        'First Aid': '🩹',
+        'Equipment': '🩺',
+        'Skincare': '💧'
+      };
+      return emojis[cat] || '📦';
+    }
+    
+    products = rawProducts.map(p => ({
+      id: p.id || Math.floor(Math.random() * 10000),
+      name: p.name_en || p.name,
+      nameAr: p.name_ar || p.nameAr || p.name_en || p.name,
+      desc: p.desc_en || p.desc,
+      descAr: p.desc_ar || p.descAr || p.desc_en || p.desc,
+      cat: p.category || p.cat,
+      catAr: catTranslations[p.category || p.cat] || p.category || p.cat,
+      emoji: p.emoji || getCatEmoji(p.category || p.cat),
+      image: p.image,
+      price: parseFloat(p.price) || 0,
+      oldPrice: p.oldPrice ? parseFloat(p.oldPrice) : null,
+      rating: parseFloat(p.rating) || 4.5,
+      reviews: parseInt(p.reviews) || 120,
+      benefits: p.benefits || ['Quality healthcare product', 'Tested & certified'],
+      benefitsAr: p.benefitsAr || ['منتج عالي الجودة', 'معتمد ومختبر'],
+      badge: p.badge,
+      featured: p.featured !== undefined ? p.featured : true,
+      bestSeller: p.bestSeller !== undefined ? p.bestSeller : (p.badge === 'Best Seller')
+    }));
     
     // Auto-generate categories based on products
     let catMap = {};
     products.forEach(p => {
-      if(!catMap[p.category]) catMap[p.category] = { name: p.category, nameAr: p.category, count: 0, emoji: '📦' };
-      catMap[p.category].count++;
+      if(!catMap[p.cat]) catMap[p.cat] = { name: p.cat, nameAr: p.catAr, count: 0, emoji: p.emoji };
+      catMap[p.cat].count++;
     });
     categories = Object.values(catMap);
     
@@ -688,8 +781,14 @@ function applyDynamicContent() {
 
 function toggleLanguage() {
   currentLang = currentLang === 'en' ? 'ar' : 'en';
-  document.getElementById('langBtn').innerText = currentLang === 'en' ? 'عربي' : 'English';
+  const langBtn = document.getElementById('langBtn');
+  if (langBtn) {
+    langBtn.innerText = currentLang === 'en' ? 'عربي' : 'English';
+  }
   document.body.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+  document.documentElement.setAttribute('dir', document.body.dir);
+  document.documentElement.setAttribute('lang', currentLang);
+  applyTranslations();
   applyDynamicContent();
   renderProducts();
 }
@@ -733,5 +832,12 @@ if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => { setTimeout(initScrollAnimations, 100); });
 } else {
   setTimeout(initScrollAnimations, 100);
+}
+
+function toggleMobileMenu(){
+  const navLinks = document.getElementById('navLinks');
+  if (navLinks) {
+    navLinks.classList.toggle('open');
+  }
 }
 
