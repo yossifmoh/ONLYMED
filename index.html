@@ -40,6 +40,16 @@
       <a onclick="showPage('products')" data-key="products" id="nav-products">Products</a>
       <a onclick="showPage('about')" data-key="about" id="nav-about">About</a>
       <a onclick="showPage('contact')" data-key="contact" id="nav-contact">Contact</a>
+      
+      <!-- Mobile-only navigation items -->
+      <div class="mobile-only search-wrap" style="margin: 12px 0 6px 0;">
+        <i class="fa fa-search"></i>
+        <input type="text" id="searchInputMob" placeholder="Search products..." oninput="handleSearch(this.value)" style="width:100%;">
+      </div>
+      <button class="mobile-only btn-lang btn-lang-mob" onclick="toggleLanguage()" style="width:100%; margin-bottom:8px;">عربي</button>
+      <button class="mobile-only btn-outline" id="navLoginBtnMob" onclick="window.location.href='login.html'" style="width:100%; margin-bottom:8px;"><i class="fa fa-sign-in-alt"></i> Login</button>
+      <button class="mobile-only btn-outline" id="navProfileBtnMob" onclick="showPage('profile')" style="width:100%; margin-bottom:8px; display:none;"><i class="fa fa-user"></i> My Account</button>
+      <button class="mobile-only btn-admin" onclick="window.location.href='admin.html'" style="width:100%;">Admin</button>
     </div>
     <div class="nav-right">
       <div class="search-wrap">

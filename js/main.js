@@ -586,9 +586,12 @@ function applyTranslations(){
   };
   Object.entries(tbl).forEach(([id,key])=>{const el=document.getElementById(id);if(el&&t[currentLang][key])el.textContent=tr(key);});
   const si=document.getElementById('searchInput');if(si)si.placeholder=tr('searchPh');
+  const siMob=document.getElementById('searchInputMob');if(siMob)siMob.placeholder=tr('searchPh');
   const pi=document.getElementById('prodSearch');if(pi)pi.placeholder=tr('searchPh');
   const loginBtn=document.getElementById('navLoginBtn');if(loginBtn)loginBtn.innerHTML=`<i class="fa fa-sign-in-alt"></i> ${tr('loginBtn')}`;
+  const loginBtnMob=document.getElementById('navLoginBtnMob');if(loginBtnMob)loginBtnMob.innerHTML=`<i class="fa fa-sign-in-alt"></i> ${tr('loginBtn')}`;
   const profileBtn=document.getElementById('navProfileBtn');if(profileBtn)profileBtn.innerHTML=`<i class="fa fa-user"></i> ${tr('profileBtn')}`;
+  const profileBtnMob=document.getElementById('navProfileBtnMob');if(profileBtnMob)profileBtnMob.innerHTML=`<i class="fa fa-user"></i> ${tr('profileBtn')}`;
   const logoutBtn=document.getElementById('prof-logout-btn');if(logoutBtn)logoutBtn.textContent=tr('logoutBtn');
 }
 
@@ -609,12 +612,18 @@ document.getElementById('admin-date').textContent=new Date().toLocaleDateString(
 function updateAuthNav() {
   const loginBtn = document.getElementById('navLoginBtn');
   const profileBtn = document.getElementById('navProfileBtn');
+  const loginBtnMob = document.getElementById('navLoginBtnMob');
+  const profileBtnMob = document.getElementById('navProfileBtnMob');
   if (currentUser) {
     if (loginBtn) loginBtn.style.display = 'none';
     if (profileBtn) profileBtn.style.display = 'inline-block';
+    if (loginBtnMob) loginBtnMob.style.display = 'none';
+    if (profileBtnMob) profileBtnMob.style.display = 'block';
   } else {
     if (loginBtn) loginBtn.style.display = 'inline-block';
     if (profileBtn) profileBtn.style.display = 'none';
+    if (loginBtnMob) loginBtnMob.style.display = 'block';
+    if (profileBtnMob) profileBtnMob.style.display = 'none';
   }
 }
 
@@ -781,10 +790,9 @@ function applyDynamicContent() {
 
 function toggleLanguage() {
   currentLang = currentLang === 'en' ? 'ar' : 'en';
-  const langBtn = document.getElementById('langBtn');
-  if (langBtn) {
-    langBtn.innerText = currentLang === 'en' ? 'عربي' : 'English';
-  }
+  document.querySelectorAll('.btn-lang').forEach(btn => {
+    btn.innerText = currentLang === 'en' ? 'عربي' : 'English';
+  });
   document.body.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
   document.documentElement.setAttribute('dir', document.body.dir);
   document.documentElement.setAttribute('lang', currentLang);

@@ -117,7 +117,29 @@
     
     .input-sm { width: 100%; padding: 6px 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 13px; box-sizing: border-box; }
     .input-sm:focus { border-color: var(--primary); outline: none; }
-  
+    
+    @media (max-width: 768px) {
+      body { display: flex; flex-direction: column; height: auto; overflow: auto; }
+      .sidebar { width: 100%; height: auto; }
+      .sidebar-logo { padding: 15px; }
+      .nav-menu { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; padding: 12px; }
+      .nav-item { padding: 10px 14px; border-left: none; border-bottom: 3px solid transparent; width: auto; margin-top: 0; }
+      .nav-item:hover, .nav-item.active { border-left-color: transparent; border-bottom-color: var(--primary); }
+      .main-content { width: 100%; height: auto; overflow: visible; }
+      .header { padding: 20px; flex-direction: column; gap: 15px; text-align: center; }
+      .header-right { justify-content: center; width: 100%; }
+      .content-area { padding: 20px 15px; }
+      .cards-grid { grid-template-columns: repeat(2, 1fr); gap: 15px; }
+      .panels-grid { grid-template-columns: 1fr; }
+      .form-grid { grid-template-columns: 1fr; }
+      .form-group.full { grid-column: span 1; }
+      .modal-box { padding: 20px; width: 90%; max-width: 500px; margin: 20px auto; }
+    }
+    @media (max-width: 480px) {
+      .cards-grid { grid-template-columns: 1fr; }
+      .nav-menu { justify-content: flex-start; overflow-x: auto; flex-wrap: nowrap; padding-bottom: 8px; }
+      .nav-item { flex-shrink: 0; }
+    }
   </style>
 </head>
 <body>

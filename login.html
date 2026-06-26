@@ -18,6 +18,10 @@
     .auth-links { margin-top: 20px; font-size: 13px; }
     .auth-links a { color: var(--primary); text-decoration: none; cursor: pointer; }
     .hidden { display: none; }
+    @media (max-width: 480px) {
+      body { height: auto; min-height: 100vh; padding: 20px 0; box-sizing: border-box; align-items: flex-start; }
+      .auth-container { padding: 24px 16px; margin: 16px; width: calc(100% - 32px); }
+    }
   </style>
 </head>
 <body>
