@@ -183,12 +183,8 @@ function openProductModal() {
   const pmTitle = document.getElementById('pmTitle');
   if (pmTitle) pmTitle.innerText = 'Add New Product';
   
-  if (typeof window.openProductModal === 'function') {
-    window.openProductModal();
-  } else {
-    const modal = document.getElementById('productModal');
-    if (modal) modal.classList.add('active');
-  }
+  const modal = document.getElementById('productModal');
+  if (modal) modal.classList.add('active');
 }
 
 function editProduct(id) {
@@ -223,12 +219,8 @@ function editProduct(id) {
   const pmTitle = document.getElementById('pmTitle');
   if (pmTitle) pmTitle.innerText = 'Edit Product';
   
-  if (typeof window.openProductModal === 'function') {
-    window.openProductModal();
-  } else {
-    const modal = document.getElementById('productModal');
-    if (modal) modal.classList.add('active');
-  }
+  const modal = document.getElementById('productModal');
+  if (modal) modal.classList.add('active');
 }
 
 async function saveProduct() {
@@ -319,12 +311,8 @@ function viewOrder(id) {
   const oItems = document.getElementById('o-items');
   if (oItems) oItems.innerHTML = itemsHtml;
   
-  if (typeof window.openOrderModal === 'function') {
-    window.openOrderModal();
-  } else {
-    const modal = document.getElementById('orderModal');
-    if (modal) modal.classList.add('active');
-  }
+  const modal = document.getElementById('orderModal');
+  if (modal) modal.classList.add('active');
 }
 
 async function updateOrderStatus() {
