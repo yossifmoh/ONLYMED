@@ -198,7 +198,7 @@ function renderAll() {
         <td>${o.name} <br><small>${o.email}</small></td>
         <td>${o.total} EGP</td>
         <td><span class="status-badge status-${(o.status || 'Pending').toLowerCase()}">${o.status}</span></td>
-        <td><button class="btn-outline" style="padding:5px 10px; font-size:11px" onclick="viewOrder('${o.id}')">View</button></td>
+        <td><button class="btn-view" onclick="viewOrder('${o.id}')"><i class="fa fa-eye"></i> View</button></td>
       </tr>
     `).join('');
   }
