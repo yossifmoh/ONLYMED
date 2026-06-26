@@ -949,110 +949,165 @@ function showCustomConfirm(options) {
       const style = document.createElement('style');
       style.id = 'customConfirmStyles';
       style.innerHTML = `
-        .custom-confirm-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 99999; backdrop-filter: blur(3px); opacity: 0; transition: opacity 0.3s ease; }
-        .custom-confirm-overlay.active { display: flex; opacity: 1; }
-        .custom-confirm-box { background: white; padding: 40px 30px; border-radius: 12px; width: 90%; max-width: 400px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2); transform: scale(0.9); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        .custom-confirm-overlay.active .custom-confirm-box { transform: scale(1); }
+        @keyframes ccm-overlay-in  { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes ccm-box-in      { from { opacity: 0; transform: scale(0.88) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+        @keyframes ccm-box-out     { from { opacity: 1; transform: scale(1) translateY(0); } to { opacity: 0; transform: scale(0.88) translateY(10px); } }
+
+        .ccm-overlay {
+          position: fixed; inset: 0;
+          background: rgba(10, 10, 10, 0.55);
+          backdrop-filter: blur(4px);
+          display: flex; align-items: center; justify-content: center;
+          z-index: 99999; padding: 16px;
+          animation: ccm-overlay-in 0.22s ease forwards;
+        }
+        .ccm-overlay.closing { animation: none; opacity: 0; transition: opacity 0.2s ease; }
+        .ccm-box {
+          background: #fff; border-radius: 16px;
+          width: 100%; max-width: 380px;
+          box-shadow: 0 8px 32px rgba(0,0,0,0.14), 0 2px 8px rgba(0,0,0,0.07);
+          overflow: hidden;
+          animation: ccm-box-in 0.28s cubic-bezier(0.175, 0.885, 0.32, 1.15) forwards;
+          font-family: 'Inter', 'DM Sans', sans-serif;
+        }
+        .ccm-box.closing { animation: ccm-box-out 0.2s ease forwards; }
+        .ccm-header { display: flex; justify-content: flex-end; padding: 12px 16px 0; }
+        .ccm-close {
+          background: none; border: none; cursor: pointer;
+          color: #aaa; font-size: 18px;
+          width: 28px; height: 28px;
+          display: flex; align-items: center; justify-content: center;
+          border-radius: 50%; transition: background 0.2s, color 0.2s;
+        }
+        .ccm-close:hover { background: #f0f0f0; color: #444; }
+        .ccm-body { padding: 4px 28px 28px; text-align: center; }
+        .ccm-icon-wrap {
+          width: 56px; height: 56px; border-radius: 50%;
+          display: flex; align-items: center; justify-content: center;
+          margin: 0 auto 16px; font-size: 22px;
+        }
+        .ccm-icon-wrap.danger  { background: #fff0f1; color: #d0112b; }
+        .ccm-icon-wrap.info    { background: #e0f7fa; color: #00b4d8; }
+        .ccm-icon-wrap.warning { background: #fff8e1; color: #f59e0b; }
+        .ccm-title { margin: 0 0 6px; font-size: 18px; font-weight: 700; color: #111; font-family: 'Playfair Display', serif; }
+        .ccm-subtitle {
+          margin: 0 0 6px; font-size: 13px; font-weight: 600; color: #555;
+          background: #f5f5f5; display: inline-block;
+          padding: 3px 10px; border-radius: 20px;
+        }
+        .ccm-message { margin: 8px 0 24px; font-size: 14px; line-height: 1.6; color: #777; }
+        .ccm-actions { display: flex; gap: 10px; }
+        .ccm-btn {
+          flex: 1; padding: 11px 16px; border-radius: 8px;
+          font-size: 14px; font-weight: 600; cursor: pointer; border: none;
+          transition: all 0.2s ease;
+          display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+        }
+        .ccm-btn-cancel { background: #f4f4f4; color: #555; }
+        .ccm-btn-cancel:hover { background: #e8e8e8; color: #222; }
+        .ccm-btn-cancel:disabled { opacity: 0.5; cursor: not-allowed; }
+        .ccm-btn-action { color: #fff; }
+        .ccm-btn-action.danger  { background: #d0112b; }
+        .ccm-btn-action.danger:hover  { background: #b00d23; box-shadow: 0 4px 12px rgba(208,17,43,0.3); }
+        .ccm-btn-action.info    { background: #00b4d8; }
+        .ccm-btn-action.info:hover    { background: #0097b8; box-shadow: 0 4px 12px rgba(0,180,216,0.3); }
+        .ccm-btn-action.warning { background: #f59e0b; }
+        .ccm-btn-action.warning:hover { background: #d97706; }
+        .ccm-btn-action:disabled { opacity: 0.6; cursor: not-allowed; box-shadow: none; }
+        @media (max-width: 480px) {
+          .ccm-box { border-radius: 14px; }
+          .ccm-body { padding: 4px 20px 22px; }
+          .ccm-actions { flex-direction: column-reverse; }
+        }
       `;
       document.head.appendChild(style);
     }
 
-    let modal = document.getElementById('globalConfirmModal');
-    if (!modal) {
-      modal = document.createElement('div');
-      modal.id = 'globalConfirmModal';
-      modal.className = 'custom-confirm-overlay';
-      modal.innerHTML = `
-        <div class="custom-confirm-box">
-          <div id="confirmModalIcon" style="font-size: 48px; margin-bottom: 20px;">
-            <i class="fa fa-exclamation-triangle"></i>
-          </div>
-          <h3 id="confirmModalTitle" style="margin: 0 0 10px 0; font-size: 22px; font-family: 'Playfair Display', serif;">Are you sure?</h3>
-          <p id="confirmModalMessage" style="color: var(--light-text, #888); margin-bottom: 30px; font-size: 15px; line-height: 1.5;">This action cannot be undone.</p>
-          <div style="display: flex; gap: 15px; justify-content: center;">
-            <button class="btn-outline" style="flex:1; padding: 10px;" id="confirmModalCancelBtn">Cancel</button>
-            <button class="btn-primary" style="flex:1; padding: 10px;" id="confirmModalActionBtn">Confirm</button>
+    const old = document.getElementById('globalConfirmModal');
+    if (old) old.remove();
+
+    const variant = options.variant || (options.danger === false ? 'info' : 'danger');
+    const defaultIcons = { danger: 'fa fa-trash-alt', info: 'fa fa-info-circle', warning: 'fa fa-exclamation-triangle' };
+    const icon = options.icon || defaultIcons[variant] || 'fa fa-exclamation-triangle';
+
+    const modal = document.createElement('div');
+    modal.id = 'globalConfirmModal';
+    modal.className = 'ccm-overlay';
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-labelledby', 'ccmTitle');
+
+    const subtitleHtml = options.subtitle
+      ? `<div class="ccm-subtitle"><i class="fa fa-tag" style="margin-right:5px;opacity:0.6;"></i>${options.subtitle}</div>`
+      : '';
+
+    modal.innerHTML = `
+      <div class="ccm-box" role="document">
+        <div class="ccm-header">
+          <button class="ccm-close" id="ccmCloseBtn" aria-label="Close">&#x2715;</button>
+        </div>
+        <div class="ccm-body">
+          <div class="ccm-icon-wrap ${variant}"><i class="${icon}"></i></div>
+          <h3 class="ccm-title" id="ccmTitle">${options.title || 'Are you sure?'}</h3>
+          ${subtitleHtml}
+          <p class="ccm-message">${options.message || 'This action cannot be undone.'}</p>
+          <div class="ccm-actions">
+            <button class="ccm-btn ccm-btn-cancel" id="ccmCancelBtn">${options.cancelText || 'Cancel'}</button>
+            <button class="ccm-btn ccm-btn-action ${variant}" id="ccmActionBtn">${options.confirmText || 'Confirm'}</button>
           </div>
         </div>
-      `;
-      document.body.appendChild(modal);
-    }
-    
-    document.getElementById('confirmModalTitle').innerText = options.title || 'Are you sure?';
-    document.getElementById('confirmModalMessage').innerText = options.message || 'This action cannot be undone.';
-    
-    const iconEl = document.getElementById('confirmModalIcon');
-    iconEl.innerHTML = `<i class="${options.icon || 'fa fa-exclamation-triangle'}"></i>`;
-    iconEl.style.color = options.danger === false ? '#00b4d8' : 'var(--primary, #d0112b)';
-    
-    const actionBtn = document.getElementById('confirmModalActionBtn');
-    actionBtn.innerText = options.confirmText || 'Confirm';
-    actionBtn.style.background = options.danger === false ? '#00b4d8' : 'var(--primary, #d0112b)';
-    actionBtn.style.borderColor = options.danger === false ? '#00b4d8' : 'var(--primary, #d0112b)';
-    
-    const cancelBtn = document.getElementById('confirmModalCancelBtn');
-    cancelBtn.innerText = options.cancelText || 'Cancel';
-    
-    const newActionBtn = actionBtn.cloneNode(true);
-    actionBtn.parentNode.replaceChild(newActionBtn, actionBtn);
-    const newCancelBtn = cancelBtn.cloneNode(true);
-    cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
-    
-    let isClosed = false;
-    
-    const closeModal = () => {
+      </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    const actionBtn = modal.querySelector('#ccmActionBtn');
+    const cancelBtn = modal.querySelector('#ccmCancelBtn');
+    const closeBtn  = modal.querySelector('#ccmCloseBtn');
+    const box       = modal.querySelector('.ccm-box');
+    let   isClosed  = false;
+
+    const closeModal = (result) => {
       if (isClosed) return;
       isClosed = true;
-      const box = modal.querySelector('.custom-confirm-box');
-      if (box) box.style.transform = 'scale(0.9)';
-      modal.classList.remove('active');
-      document.removeEventListener('keydown', handleEsc);
+      box.classList.add('closing');
+      modal.classList.add('closing');
+      document.removeEventListener('keydown', handleKey);
+      setTimeout(() => { modal.remove(); resolve(result); }, 200);
     };
-    
-    const handleEsc = (e) => {
-      if (e.key === 'Escape') {
-        closeModal();
-        resolve(false);
+
+    const handleKey = (e) => {
+      if (e.key === 'Escape') closeModal(false);
+      if (e.key === 'Tab') {
+        const focusable = [cancelBtn, actionBtn, closeBtn].filter(b => !b.disabled);
+        const first = focusable[0], last = focusable[focusable.length - 1];
+        if (e.shiftKey) { if (document.activeElement === first) { e.preventDefault(); last.focus(); } }
+        else            { if (document.activeElement === last)  { e.preventDefault(); first.focus(); } }
       }
     };
-    
-    newActionBtn.addEventListener('click', async () => {
-      const originalText = newActionBtn.innerHTML;
-      newActionBtn.disabled = true;
-      newCancelBtn.disabled = true;
-      newActionBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Processing...';
-      
+
+    actionBtn.addEventListener('click', async () => {
+      const originalHtml = actionBtn.innerHTML;
+      actionBtn.disabled = true;
+      cancelBtn.disabled = true;
+      closeBtn.disabled  = true;
+      actionBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Processing...';
       try {
-        if (options.onConfirm) {
-          await options.onConfirm();
-        }
-        closeModal();
-        resolve(true);
+        if (options.onConfirm) await options.onConfirm();
+        closeModal(true);
       } catch(e) {
         console.error(e);
-        newActionBtn.disabled = false;
-        newCancelBtn.disabled = false;
-        newActionBtn.innerHTML = originalText;
+        actionBtn.disabled = false;
+        cancelBtn.disabled = false;
+        closeBtn.disabled  = false;
+        actionBtn.innerHTML = originalHtml;
       }
     });
-    
-    newCancelBtn.addEventListener('click', () => {
-      closeModal();
-      resolve(false);
-    });
-    
-    modal.addEventListener('mousedown', (e) => {
-      if (e.target === modal) {
-        closeModal();
-        resolve(false);
-      }
-    });
-    
-    document.addEventListener('keydown', handleEsc);
-    
-    modal.classList.add('active');
-    setTimeout(() => {
-      newCancelBtn.focus();
-    }, 50);
+
+    cancelBtn.addEventListener('click', () => closeModal(false));
+    closeBtn.addEventListener('click',  () => closeModal(false));
+    modal.addEventListener('mousedown', (e) => { if (e.target === modal) closeModal(false); });
+    document.addEventListener('keydown', handleKey);
+    setTimeout(() => cancelBtn.focus(), 60);
   });
 }
