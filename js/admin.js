@@ -103,7 +103,7 @@ function renderAll() {
     oBody.innerHTML = db.orders.map(o => `
       <tr>
         <td>${o.id}</td>
-        <td>${new Date(o.date).toLocaleDateString()}</td>
+        <td>${(o.date && !isNaN(new Date(o.date))) ? new Date(o.date).toLocaleDateString() : 'N/A'}</td>
         <td>${o.name} <br><small>${o.email}</small></td>
         <td>${o.total} EGP</td>
         <td><span class="status-badge status-${(o.status || 'Pending').toLowerCase()}">${o.status}</span></td>
@@ -120,7 +120,7 @@ function renderAll() {
         <td>${u.name}</td>
         <td>${u.email}</td>
         <td>${u.phone}</td>
-        <td>${new Date(u.created).toLocaleDateString()}</td>
+        <td>${(u.created && !isNaN(new Date(u.created))) ? new Date(u.created).toLocaleDateString() : 'N/A'}</td>
         <td><button class="action-btn" onclick="deleteUser('${u.email}')" style="color:var(--primary)"><i class="fa fa-trash"></i></button></td>
       </tr>
     `).join('');
@@ -143,7 +143,7 @@ function renderAll() {
   const recentTbody = document.getElementById('recentOrdersTbody');
   if (recentTbody && db.orders) {
     recentTbody.innerHTML = db.orders.slice(0, 5).map(o => {
-      const orderDate = o.date ? new Date(o.date).toLocaleDateString() : '';
+      const orderDate = (o.date && !isNaN(new Date(o.date))) ? new Date(o.date).toLocaleDateString() : '';
       return `<tr>
         <td>#${String(o.id)}</td>
         <td>${o.name || ''}</td>
@@ -235,6 +235,13 @@ function editProduct(id) {
 }
 
 async function saveProduct() {
+  const btn = document.querySelector('#productModal button.btn-primary');
+  if (btn) {
+    if (btn.disabled) return; // Prevent duplicate submissions
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Saving...';
+  }
+  
   showToast('Saving product...');
   const data = {
     action: 'adminSaveProduct',
@@ -262,7 +269,7 @@ async function saveProduct() {
         const modal = document.getElementById('productModal');
         if (modal) modal.classList.remove('active');
       }
-      showToast('Product saved!');
+      showToast('Product saved successfully!');
       loadDashboard(); // Refresh
     } else {
       showToast('Error saving product: ' + (result.message || 'Unknown error'));
@@ -270,6 +277,11 @@ async function saveProduct() {
   } catch(e) {
     showToast('Network error saving product');
     console.error(e);
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = 'Save Product';
+    }
   }
 }
 

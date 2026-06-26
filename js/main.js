@@ -14,6 +14,13 @@ function formatDriveImageUrl(url) {
   }
   return url;
 }
+
+async function hashStr(str) {
+  const msgUint8 = new TextEncoder().encode(str);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
 // ================== STATE ==================
 let cart=[];
 let currentUser = JSON.parse(localStorage.getItem('onlymed_user')) || null;
@@ -408,20 +415,28 @@ async function placeOrder(){
   const addr=document.getElementById('addr').value.trim();
   const city=document.getElementById('city').value.trim();
   
-  if(!fn||!phone||!addr||!password){showToast('Please fill in Name, Phone, Address, and Password.');return;}
+  const userLoggedIn = (localStorage.getItem('onlymed_user') !== null);
+  if(!fn||!phone||!addr||(!userLoggedIn && !password)){
+    showToast('Please fill in Name, Phone, Address, and Password.');
+    return;
+  }
   
   const paymentMethod = document.querySelector('input[name="pay"]:checked').value;
   const productsStr = cart.map(i=>`${i.name} x${i.qty}`).join(', ');
   const totalAmount = cart.reduce((s,i)=>s+i.price*i.qty,0) + (cart.reduce((s,i)=>s+i.price*i.qty,0)>=50?0:5.99);
 
+  let pwdHash = "";
+  if (!userLoggedIn && password) {
+    pwdHash = await hashStr(password);
+  }
+
   // Send to Google Sheets
-  
   const orderData = {
     action: 'order',
     name: fn + ' ' + ln,
     phone: phone,
     email: email,
-    password: password,
+    passwordHash: pwdHash,
     address: addr + ', ' + city,
     payment: paymentMethod,
     products: productsStr,
@@ -728,14 +743,37 @@ window.addEventListener("DOMContentLoaded", () => {
 
 async function fetchWebsiteContent() {
   try {
-    // Fetch Content
-    const cRes = await fetch(GOOGLE_SCRIPT_URL + '?type=content');
-    dynamicContent = await cRes.json();
+    // Fetch all data (content and products) via POST action
+    const res = await fetch(GOOGLE_SCRIPT_URL, {
+      method: 'POST',
+      headers: {'Content-Type': 'text/plain'},
+      body: JSON.stringify({ action: 'adminGetDashboardData' })
+    });
+    const result = await res.json();
+    
+    if (result.status !== 'success') {
+      console.error("Dashboard data load failed:", result.message);
+      return;
+    }
+    
+    const data = result.data;
+    
+    // Parse content array to key-value map
+    dynamicContent = {};
+    if (Array.isArray(data.content)) {
+      data.content.forEach(item => {
+        if (item && item.key) {
+          dynamicContent[item.key] = {
+            en: item.en || '',
+            ar: item.ar || ''
+          };
+        }
+      });
+    }
     applyDynamicContent();
     
     // Fetch Products
-    const pRes = await fetch(GOOGLE_SCRIPT_URL + '?type=products');
-    const rawProducts = await pRes.json();
+    const rawProducts = data.products || [];
     
     const catTranslations = {
       'Vitamins': 'الفيتامينات',
