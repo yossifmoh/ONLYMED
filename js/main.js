@@ -581,7 +581,6 @@ function applyTranslations(){
     'trust1':'trust1','trust1s':'trust1s','trust2':'trust2','trust2s':'trust2s',
     'trust3':'trust3','trust3s':'trust3s','trust4':'trust4','trust4s':'trust4s',
     'foot-desc':'footDesc','foot-shop':'footShop','foot-company':'footCompany','foot-support':'footSupport','foot-copy':'footCopy',
-    'about-hero-title':'aboutHeroTitle','about-hero-sub':'aboutHeroSub',
     'nav-home':'home','nav-products':'products','nav-about':'about','nav-contact':'contact',
   };
   Object.entries(tbl).forEach(([id,key])=>{const el=document.getElementById(id);if(el&&t[currentLang][key])el.textContent=tr(key);});
