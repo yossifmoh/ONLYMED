@@ -792,6 +792,17 @@ async function fetchWebsiteContent() {
       };
       return emojis[cat] || '📦';
     }
+
+    function formatDriveImageUrl(url) {
+      if (!url) return '';
+      if (url.includes('drive.google.com')) {
+        const match = url.match(/\/file\/d\/([^\/?&#]+)/) || url.match(/[?&]id=([^&]+)/);
+        if (match && match[1]) {
+          return `https://drive.google.com/uc?export=view&id=${match[1]}`;
+        }
+      }
+      return url;
+    }
     
     products = rawProducts.map(p => ({
       id: p.id || Math.floor(Math.random() * 10000),
@@ -802,7 +813,7 @@ async function fetchWebsiteContent() {
       cat: p.category || p.cat,
       catAr: catTranslations[p.category || p.cat] || p.category || p.cat,
       emoji: p.emoji || getCatEmoji(p.category || p.cat),
-      image: p.image,
+      image: formatDriveImageUrl(p.image),
       price: parseFloat(p.price) || 0,
       oldPrice: p.oldPrice ? parseFloat(p.oldPrice) : null,
       rating: parseFloat(p.rating) || 4.5,
@@ -822,7 +833,10 @@ async function fetchWebsiteContent() {
     });
     categories = Object.values(catMap);
     
-    renderProducts();
+    renderCategories();
+    renderFeatured();
+    renderBest();
+    renderAllProducts();
   } catch (e) {
     console.error("Error fetching dynamic data:", e);
   }
