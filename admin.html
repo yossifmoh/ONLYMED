@@ -318,11 +318,18 @@
   <script src="js/admin.js"></script>
   <script>
 
-    document.addEventListener('DOMContentLoaded', () => {
-      setTimeout(() => {
-        document.querySelectorAll('.animate-on-scroll').forEach(el => el.classList.add('is-visible'));
-      }, 100);
-    });
+    
+function showAdminAnimations() {
+  setTimeout(() => {
+    document.querySelectorAll('.animate-on-scroll').forEach(el => el.classList.add('is-visible'));
+  }, 100);
+}
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', showAdminAnimations);
+} else {
+  showAdminAnimations();
+}
+
   
     function switchTab(tabId) {
       document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));

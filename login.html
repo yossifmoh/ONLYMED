@@ -154,9 +154,13 @@
   </script>
 
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      document.querySelector('.auth-box').classList.add('is-visible');
-    });
+    
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => { document.querySelector('.auth-box').classList.add('is-visible'); });
+} else {
+  document.querySelector('.auth-box').classList.add('is-visible');
+}
+
   </script>
 </body>
 </html>

@@ -718,6 +718,10 @@ function initScrollAnimations() {
 }
 
 // Initialize on load
-document.addEventListener('DOMContentLoaded', () => {
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => { setTimeout(initScrollAnimations, 100); });
+} else {
   setTimeout(initScrollAnimations, 100);
-});
+}
+
