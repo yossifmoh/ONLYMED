@@ -182,7 +182,7 @@ function renderAll() {
         <td><span class="status-badge ${p.status==='Active'?'status-delivered':'status-pending'}">${p.status}</span></td>
         <td>
           <button class="action-btn" onclick="editProduct('${p.id}')"><i class="fa fa-edit"></i></button>
-          <button class="action-btn" onclick="deleteProduct('${p.id}')" style="color:var(--primary)"><i class="fa fa-trash"></i></button>
+          <button class="action-btn" onclick="deleteProduct('${p.id}', this)" style="color:var(--primary)"><i class="fa fa-trash"></i></button>
         </td>
       </tr>
     `).join('');
@@ -212,7 +212,7 @@ function renderAll() {
         <td>${u.email}</td>
         <td>${u.phone}</td>
         <td>${(u.created && !isNaN(new Date(u.created))) ? new Date(u.created).toLocaleDateString() : 'N/A'}</td>
-        <td><button class="action-btn" onclick="deleteUser('${u.email}')" style="color:var(--primary)"><i class="fa fa-trash"></i></button></td>
+        <td><button class="action-btn" onclick="deleteUser('${u.email}', this)" style="color:var(--primary)"><i class="fa fa-trash"></i></button></td>
       </tr>
     `).join('');
   }
@@ -382,8 +382,17 @@ async function saveProduct() {
   }
 }
 
-async function deleteProduct(id) {
+async function deleteProduct(id, btn) {
   if(!confirm('Delete this product?')) return;
+  
+  let originalHtml = '';
+  if (btn) {
+    if (btn.disabled) return;
+    btn.disabled = true;
+    originalHtml = btn.innerHTML;
+    btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i>';
+  }
+
   showToast('Deleting product...');
   try {
     const res = await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', headers: {'Content-Type': 'text/plain'}, body: JSON.stringify({action:'adminDeleteProduct', id}) });
@@ -397,6 +406,11 @@ async function deleteProduct(id) {
   } catch(e) {
     showToast('Network error deleting product');
     console.error(e);
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = originalHtml;
+    }
   }
 }
 
@@ -436,6 +450,15 @@ function viewOrder(id) {
 }
 
 async function updateOrderStatus() {
+  const btn = document.querySelector('#orderModal button.btn-primary');
+  let originalHtml = '';
+  if (btn) {
+    if (btn.disabled) return;
+    btn.disabled = true;
+    originalHtml = btn.innerHTML;
+    btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Updating...';
+  }
+
   const st = document.getElementById('oStatusUpdate').value;
   showToast('Updating order...');
   try {
@@ -456,12 +479,26 @@ async function updateOrderStatus() {
   } catch(e) {
     showToast('Network error updating order status');
     console.error(e);
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = originalHtml;
+    }
   }
 }
 const saveOrderStatus = updateOrderStatus;
 
 // ---- CONTENT ACTIONS ----
 async function saveAllContent() {
+  const btn = document.querySelector('#tab-content button.btn-primary');
+  let originalHtml = '';
+  if (btn) {
+    if (btn.disabled) return;
+    btn.disabled = true;
+    originalHtml = btn.innerHTML;
+    btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Saving...';
+  }
+
   showToast('Saving all content...');
   const newContent = [];
   db.content.forEach((c, i) => {
@@ -490,12 +527,26 @@ async function saveAllContent() {
   } catch(e) {
     showToast('Network error updating content');
     console.error(e);
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = originalHtml;
+    }
   }
 }
 
 // ---- USER ACTIONS ----
-async function deleteUser(email) {
+async function deleteUser(email, btn) {
   if(!confirm('Delete this user?')) return;
+  
+  let originalHtml = '';
+  if (btn) {
+    if (btn.disabled) return;
+    btn.disabled = true;
+    originalHtml = btn.innerHTML;
+    btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i>';
+  }
+
   showToast('Deleting user...');
   try {
     const res = await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', headers: {'Content-Type': 'text/plain'}, body: JSON.stringify({action:'adminDeleteUser', email}) });
@@ -509,6 +560,11 @@ async function deleteUser(email) {
   } catch(e) {
     showToast('Network error deleting user');
     console.error(e);
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = originalHtml;
+    }
   }
 }
 

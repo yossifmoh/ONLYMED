@@ -445,8 +445,12 @@ async function placeOrder(){
 
 
   const placeBtn = document.getElementById('place-btn');
-  placeBtn.textContent = "Processing...";
-  placeBtn.disabled = true;
+  let originalHtml = '';
+  if (placeBtn) {
+    originalHtml = placeBtn.innerHTML;
+    placeBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Processing...';
+    placeBtn.disabled = true;
+  }
 
   try {
     if(GOOGLE_SCRIPT_URL !== "YOUR_GOOGLE_SCRIPT_URL_HERE") {
@@ -461,6 +465,11 @@ async function placeOrder(){
     }
   } catch(e) {
     console.error("Error saving to Google Sheets", e);
+  } finally {
+    if (placeBtn) {
+      placeBtn.disabled = false;
+      placeBtn.innerHTML = originalHtml;
+    }
   }
 
   
@@ -696,8 +705,12 @@ async function saveProfile() {
   if(!newEmail || !newPhone || !newAddr) { showToast('Please fill all fields'); return; }
   
   const saveBtn = document.getElementById('prof-save-btn');
-  saveBtn.textContent = 'Saving...';
-  saveBtn.disabled = true;
+  let originalHtml = '';
+  if (saveBtn) {
+    originalHtml = saveBtn.innerHTML;
+    saveBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Saving...';
+    saveBtn.disabled = true;
+  }
   
   try {
     if(GOOGLE_SCRIPT_URL !== "YOUR_GOOGLE_SCRIPT_URL_HERE") {
@@ -726,10 +739,12 @@ async function saveProfile() {
   } catch(e) {
     console.error("Error updating profile", e);
     showToast('Error updating profile');
+  } finally {
+    if (saveBtn) {
+      saveBtn.innerHTML = originalHtml;
+      saveBtn.disabled = false;
+    }
   }
-  
-  saveBtn.textContent = 'Save Changes';
-  saveBtn.disabled = false;
 }
 
 window.addEventListener("DOMContentLoaded", () => {

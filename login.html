@@ -107,7 +107,12 @@
       if(!email || !pass) return showToast('Please enter email and password');
       
       const btn = document.querySelector('#login-box .btn-auth');
-      btn.innerText = 'Logging in...';
+      let originalHtml = '';
+      if (btn) {
+        originalHtml = btn.innerHTML;
+        btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Logging in...';
+        btn.disabled = true;
+      }
       
       const pwdHash = await hashStr(pass);
       try {
@@ -122,11 +127,14 @@
           window.location.href = 'index.html';
         } else {
           showToast(data.message || 'Login failed');
-          btn.innerText = 'Login';
         }
       } catch(e) {
         showToast('Network error');
-        btn.innerText = 'Login';
+      } finally {
+        if (btn) {
+          btn.innerHTML = originalHtml;
+          btn.disabled = false;
+        }
       }
     }
 
@@ -137,7 +145,12 @@
       if(!email || !phone || !pass) return showToast('Please fill all fields');
       
       const btn = document.querySelector('#forgot-box .btn-auth');
-      btn.innerText = 'Resetting...';
+      let originalHtml = '';
+      if (btn) {
+        originalHtml = btn.innerHTML;
+        btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Resetting...';
+        btn.disabled = true;
+      }
       
       const pwdHash = await hashStr(pass);
       try {
@@ -153,10 +166,13 @@
         } else {
           showToast(data.message || 'Reset failed');
         }
-        btn.innerText = 'Reset Password';
       } catch(e) {
         showToast('Network error');
-        btn.innerText = 'Reset Password';
+      } finally {
+        if (btn) {
+          btn.innerHTML = originalHtml;
+          btn.disabled = false;
+        }
       }
     }
   </script>
