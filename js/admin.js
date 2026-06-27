@@ -567,113 +567,451 @@ async function deleteUser(email) {
 // Init
 window.onload = loadDashboard;
 
-// ---- ANALYTICS CHARTS ----
+// ---- ANALYTICS DASHBOARD ----
+let currentAnalyticsFilter = 'month';
+let customStartDate = '';
+let customEndDate = '';
+
 let revenueChartInstance = null;
 let categoryChartInstance = null;
+let paymentChartInstance = null;
+let statusChartInstance = null;
+let topSellingChartInstance = null;
 
-function initAnalytics() {
+// Global methods for filter switching
+window.setAnalyticsFilter = function(filter, btn) {
+  currentAnalyticsFilter = filter;
+  document.querySelectorAll('.btn-filter').forEach(el => el.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+
+  const customWrap = document.getElementById('customDateRangeWrap');
+  if (customWrap) {
+    customWrap.style.display = filter === 'custom' ? 'flex' : 'none';
+  }
+
+  if (filter !== 'custom') {
+    initAnalytics();
+  }
+};
+
+window.applyCustomDateRange = function() {
+  customStartDate = document.getElementById('analyticsStart').value;
+  customEndDate = document.getElementById('analyticsEnd').value;
+  if (!customStartDate || !customEndDate) {
+    showToast('Please select both start and end dates');
+    return;
+  }
+  initAnalytics();
+};
+
+async function initAnalytics() {
   if (typeof Chart === 'undefined') {
     console.warn("Chart.js is not loaded.");
     return;
   }
-  
-  // Destroy old instances to prevent redraw glitch on hover
-  if (revenueChartInstance) revenueChartInstance.destroy();
-  if (categoryChartInstance) categoryChartInstance.destroy();
 
-  // 1. Group completed orders by date for Revenue Trend
-  const salesByDate = {};
-  const completedOrders = (db.orders || []).filter(o => o.status === 'Completed' || o.status === 'Delivered');
+  showAnalyticsLoading();
+
+  let analyticsData = null;
+
+  // 1. Attempt to fetch analytics server-side
+  try {
+    const res = await fetch(GOOGLE_SCRIPT_URL, {
+      method: 'POST',
+      headers: {'Content-Type': 'text/plain'},
+      body: JSON.stringify({
+        action: 'adminGetAnalytics',
+        dateFilter: currentAnalyticsFilter,
+        startDate: customStartDate,
+        endDate: customEndDate
+      })
+    });
+    const result = await res.json();
+    if (result.status === 'success') {
+      analyticsData = result.data;
+      console.log('[Analytics] Loaded server-side stats successfully');
+    }
+  } catch (e) {
+    console.warn('[Analytics] Server-side endpoint failed or not yet deployed. Falling back to client-side calculations.', e);
+  }
+
+  // 2. Fall back to client-side calculation if server-side is not available
+  if (!analyticsData) {
+    analyticsData = calculateAnalyticsClientSide(currentAnalyticsFilter, customStartDate, customEndDate);
+  }
+
+  // 3. Render Dashboard Elements
+  renderAnalyticsDashboard(analyticsData);
+}
+
+function showAnalyticsLoading() {
+  // Insert Loading Skeletons in KPIs
+  const kpisWrap = document.getElementById('analyticsKpis');
+  if (kpisWrap) {
+    kpisWrap.innerHTML = Array(6).fill('<div class="card"><div class="skeleton-card skeleton-pulse"></div></div>').join('');
+  }
+
+  const inventoryWrap = document.getElementById('inventoryAnalyticsWrap');
+  if (inventoryWrap) {
+    inventoryWrap.innerHTML = '<div style="height:150px;"><div class="skeleton-pulse" style="height:100%"></div></div>';
+  }
+
+  const customerWrap = document.getElementById('customerAnalyticsWrap');
+  if (customerWrap) {
+    customerWrap.innerHTML = '<div style="height:150px;"><div class="skeleton-pulse" style="height:100%"></div></div>';
+  }
+
+  const activityWrap = document.getElementById('recentActivityWrap');
+  if (activityWrap) {
+    activityWrap.innerHTML = '<div style="height:150px;"><div class="skeleton-pulse" style="height:100%"></div></div>';
+  }
+}
+
+function calculateAnalyticsClientSide(filter, customStart, customEnd) {
+  const now = new Date();
+  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  let startLimit = null;
+  let endLimit = null;
+
+  if (filter === 'today') {
+    startLimit = startOfToday;
+  } else if (filter === 'week') {
+    startLimit = new Date(startOfToday.getTime() - now.getDay() * 24 * 60 * 60 * 1000);
+  } else if (filter === 'month') {
+    startLimit = new Date(now.getFullYear(), now.getMonth(), 1);
+  } else if (filter === 'year') {
+    startLimit = new Date(now.getFullYear(), 0, 1);
+  } else if (filter === 'custom') {
+    if (customStart) {
+      startLimit = new Date(customStart);
+      startLimit.setHours(0,0,0,0);
+    }
+    if (customEnd) {
+      endLimit = new Date(customEnd);
+      endLimit.setHours(23,59,59,999);
+    }
+  }
+
+  function isInRange(dateStr) {
+    if (!dateStr) return false;
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return false;
+    if (startLimit && d < startLimit) return false;
+    if (endLimit && d > endLimit) return false;
+    return true;
+  }
+
+  function parseOrderProducts(productsStr) {
+    const items = [];
+    if (!productsStr) return items;
+    if (productsStr.startsWith('[') && productsStr.endsWith(']')) {
+      try { return JSON.parse(productsStr); } catch (e) {}
+    }
+    const parts = productsStr.split(',');
+    parts.forEach(part => {
+      const trimmed = part.trim();
+      if (!trimmed) return;
+      const lastX = trimmed.lastIndexOf(' x');
+      let name = trimmed;
+      let qty = 1;
+      if (lastX !== -1) {
+        name = trimmed.substring(0, lastX).trim();
+        qty = parseInt(trimmed.substring(lastX + 2).trim()) || 1;
+      }
+      items.push({ name, qty });
+    });
+    return items;
+  }
+
+  // Filter lists
+  const filteredOrders = (db.orders || []).filter(o => isInRange(o.date));
+  const completedOrdersInRange = filteredOrders.filter(o => o.status === 'Completed' || o.status === 'Delivered');
+
+  // KPI Calculations
+  const totalRevenue = completedOrdersInRange.reduce((sum, o) => sum + (parseFloat(o.total) || 0), 0);
   
-  // Sort by date ascending
-  const sortedOrders = [...completedOrders].sort((a,b) => new Date(a.date) - new Date(b.date));
-  
-  sortedOrders.forEach(o => {
-    if (!o.date) return;
-    const d = new Date(o.date);
-    if (isNaN(d)) return;
-    const dateStr = d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
-    salesByDate[dateStr] = (salesByDate[dateStr] || 0) + (parseFloat(o.total) || 0);
+  // Previous Period Revenue for Growth Calculation
+  let prevPeriodStart = null;
+  let prevPeriodEnd = null;
+  if (filter === 'month') {
+    prevPeriodStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    prevPeriodEnd = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59, 999);
+  } else if (filter === 'week') {
+    prevPeriodStart = new Date(startLimit.getTime() - 7 * 24 * 60 * 60 * 1000);
+    prevPeriodEnd = new Date(startLimit.getTime() - 1);
+  }
+
+  let previousRevenue = 0;
+  if (prevPeriodStart && prevPeriodEnd) {
+    previousRevenue = (db.orders || []).filter(o => {
+      const d = new Date(o.date);
+      return (o.status === 'Completed' || o.status === 'Delivered') && d >= prevPeriodStart && d <= prevPeriodEnd;
+    }).reduce((sum, o) => sum + (parseFloat(o.total) || 0), 0);
+  }
+
+  let growthPct = 0;
+  if (previousRevenue > 0) {
+    growthPct = ((totalRevenue - previousRevenue) / previousRevenue) * 100;
+  } else if (totalRevenue > 0) {
+    growthPct = 100;
+  }
+
+  // Payment methods breakdown
+  const paymentMethods = {};
+  filteredOrders.forEach(o => {
+    const pay = (o.payment || 'COD').toUpperCase();
+    paymentMethods[pay] = (paymentMethods[pay] || 0) + 1;
   });
 
-  const dates = Object.keys(salesByDate);
-  const revenues = Object.values(salesByDate);
+  // Order status breakdown
+  const orderStatuses = {};
+  filteredOrders.forEach(o => {
+    const st = o.status || 'Pending';
+    orderStatuses[st] = (orderStatuses[st] || 0) + 1;
+  });
 
-  const displayDates = dates.length ? dates : ['No Data'];
-  const displayRevenues = revenues.length ? revenues : [0];
+  // Sales by Category & Top Products
+  const categorySales = {};
+  const productSales = {};
+  completedOrdersInRange.forEach(o => {
+    const items = parseOrderProducts(o.products);
+    const orderTotal = parseFloat(o.total) || 0;
+    items.forEach(item => {
+      const p = db.products.find(x => x.name_en === item.name || x.id === item.id);
+      const cat = p ? p.category : 'Vitamins';
+      const price = p ? parseFloat(p.price) : (orderTotal / items.length);
+      const itemTotal = price * item.qty;
 
+      categorySales[cat] = (categorySales[cat] || 0) + itemTotal;
+      
+      productSales[item.name] = productSales[item.name] || { name: item.name, qty: 0, revenue: 0 };
+      productSales[item.name].qty += item.qty;
+      productSales[item.name].revenue += itemTotal;
+    });
+  });
+
+  const topSelling = Object.values(productSales).sort((a,b) => b.revenue - a.revenue).slice(0, 5);
+
+  // Revenue Trend Over Time
+  const revenueOverTime = {};
+  completedOrdersInRange.sort((a,b) => new Date(a.date) - new Date(b.date)).forEach(o => {
+    const dateLabel = new Date(o.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    revenueOverTime[dateLabel] = (revenueOverTime[dateLabel] || 0) + (parseFloat(o.total) || 0);
+  });
+
+  // Inventory Metrics
+  let lowStockCount = 0;
+  let outOfStockCount = 0;
+  let totalInventoryValue = 0;
+  (db.products || []).forEach(p => {
+    const stock = parseInt(p.stock) || 0;
+    const price = parseFloat(p.price) || 0;
+    if (stock === 0) {
+      outOfStockCount++;
+    } else if (stock <= 5) {
+      lowStockCount++;
+    }
+    totalInventoryValue += stock * price;
+  });
+
+  // Customer Analytics (Unique Buyers in date range)
+  const uniqueBuyers = {};
+  const buyerCounts = {};
+  filteredOrders.forEach(o => {
+    const email = o.email || o.name;
+    uniqueBuyers[email] = true;
+    buyerCounts[email] = (buyerCounts[email] || 0) + 1;
+  });
+
+  const buyerEmails = Object.keys(uniqueBuyers);
+  let returningCount = 0;
+  let newCount = 0;
+  buyerEmails.forEach(email => {
+    if (buyerCounts[email] > 1) {
+      returningCount++;
+    } else {
+      newCount++;
+    }
+  });
+
+  const repeatRate = buyerEmails.length > 0 ? (returningCount / buyerEmails.length) * 100 : 0;
+
+  // Timeline activities
+  const activity = [];
+  filteredOrders.forEach(o => {
+    activity.push({
+      type: 'order',
+      title: 'New Order Received',
+      desc: `${o.name} placed order ${o.id} for EGP ${parseFloat(o.total).toFixed(2)}`,
+      date: o.date
+    });
+  });
+  (db.users || []).forEach(u => {
+    if (isInRange(u.created)) {
+      activity.push({
+        type: 'user',
+        title: 'New Customer Registered',
+        desc: `${u.name} (${u.email}) joined ONLYMED`,
+        date: u.created
+      });
+    }
+  });
+  (db.products || []).forEach(p => {
+    if (isInRange(p.created)) {
+      activity.push({
+        type: 'product',
+        title: 'New Product Added',
+        desc: `${p.name_en} added to category ${p.category} (Stock: ${p.stock})`,
+        date: p.created
+      });
+    }
+  });
+
+  activity.sort((a,b) => new Date(b.date) - new Date(a.date));
+
+  return {
+    kpis: {
+      totalRevenue,
+      totalOrders: filteredOrders.length,
+      totalCustomers: buyerEmails.length,
+      totalProducts: (db.products || []).length,
+      aov: completedOrdersInRange.length > 0 ? (totalRevenue / completedOrdersInRange.length) : 0,
+      growth: growthPct
+    },
+    charts: {
+      revenueOverTime: {
+        labels: Object.keys(revenueOverTime),
+        data: Object.values(revenueOverTime)
+      },
+      paymentMethods: {
+        labels: Object.keys(paymentMethods),
+        data: Object.values(paymentMethods)
+      },
+      orderStatuses: {
+        labels: Object.keys(orderStatuses),
+        data: Object.values(orderStatuses)
+      },
+      categorySales: {
+        labels: Object.keys(categorySales),
+        data: Object.values(categorySales)
+      },
+      topSelling: {
+        labels: topSelling.map(x => x.name),
+        qty: topSelling.map(x => x.qty),
+        revenue: topSelling.map(x => x.revenue)
+      }
+    },
+    inventory: {
+      lowStock: lowStockCount,
+      outOfStock: outOfStockCount,
+      totalValue: totalInventoryValue
+    },
+    customers: {
+      new: newCount,
+      returning: returningCount,
+      repeatRate
+    },
+    activity: activity.slice(0, 15)
+  };
+}
+
+function renderAnalyticsDashboard(data) {
+  // Theme Color Configurations
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const textColor = isDark ? '#cbd5e1' : '#111111';
+  const gridColor = isDark ? '#2d3148' : '#e5e7eb';
+  const chartFont = { family: "'DM Sans', sans-serif", size: 12 };
+
+  // 1. KPI Cards
+  const kpisWrap = document.getElementById('analyticsKpis');
+  if (kpisWrap) {
+    const k = data.kpis;
+    const growthTrend = k.growth >= 0 ? 'trend-up' : 'trend-down';
+    const growthIcon = k.growth >= 0 ? 'fa-arrow-up' : 'fa-arrow-down';
+    const growthSign = k.growth >= 0 ? '+' : '';
+
+    kpisWrap.innerHTML = `
+      <div class="card">
+        <div class="analytics-metric-val">${parseFloat(k.totalRevenue).toFixed(2)} EGP</div>
+        <div class="analytics-metric-lbl">Total Revenue</div>
+        <div class="metric-trend ${growthTrend}" style="font-size:11px; margin-top:5px; font-weight:600;">
+          <i class="fa ${growthIcon}"></i> ${growthSign}${k.growth.toFixed(1)}% vs prev period
+        </div>
+      </div>
+      <div class="card">
+        <div class="analytics-metric-val">${k.totalOrders}</div>
+        <div class="analytics-metric-lbl">Total Orders</div>
+      </div>
+      <div class="card">
+        <div class="analytics-metric-val">${k.totalCustomers}</div>
+        <div class="analytics-metric-lbl">Unique Customers</div>
+      </div>
+      <div class="card">
+        <div class="analytics-metric-val">${k.totalProducts}</div>
+        <div class="analytics-metric-lbl">Total Products</div>
+      </div>
+      <div class="card">
+        <div class="analytics-metric-val">${parseFloat(k.aov).toFixed(2)} EGP</div>
+        <div class="analytics-metric-lbl">Avg Order Value (AOV)</div>
+      </div>
+      <div class="card">
+        <div class="analytics-metric-val">${growthSign}${k.growth.toFixed(1)}%</div>
+        <div class="analytics-metric-lbl">Revenue Growth</div>
+      </div>
+    `;
+  }
+
+  // Destroy Existing Chart Instances
+  if (revenueChartInstance) revenueChartInstance.destroy();
+  if (categoryChartInstance) categoryChartInstance.destroy();
+  if (paymentChartInstance) paymentChartInstance.destroy();
+  if (statusChartInstance) statusChartInstance.destroy();
+  if (topSellingChartInstance) topSellingChartInstance.destroy();
+
+  // Handle Chart Empty States
+  const c = data.charts;
+
+  // Chart 1: Revenue Line Chart
   const ctxRev = document.getElementById('revenueChart');
   if (ctxRev) {
     revenueChartInstance = new Chart(ctxRev, {
       type: 'line',
       data: {
-        labels: displayDates,
+        labels: c.revenueOverTime.labels.length ? c.revenueOverTime.labels : ['No Sales in Period'],
         datasets: [{
           label: 'Revenue (EGP)',
-          data: displayRevenues,
-          borderColor: '#d0112b',
-          backgroundColor: 'rgba(208, 17, 43, 0.1)',
+          data: c.revenueOverTime.data.length ? c.revenueOverTime.data : [0],
+          borderColor: '#E51D2A',
+          backgroundColor: 'rgba(229, 29, 42, 0.1)',
           fill: true,
           tension: 0.3,
           borderWidth: 2,
           pointRadius: 4,
-          pointBackgroundColor: '#d0112b'
+          pointBackgroundColor: '#E51D2A'
         }]
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        plugins: {
-          legend: { display: false }
-        },
+        plugins: { legend: { display: false } },
         scales: {
-          y: {
-            beginAtZero: true,
-            grid: { color: 'rgba(0,0,0,0.05)' }
-          },
-          x: {
-            grid: { display: false }
-          }
+          y: { beginAtZero: true, grid: { color: gridColor }, ticks: { color: textColor, font: chartFont } },
+          x: { grid: { display: false }, ticks: { color: textColor, font: chartFont } }
         }
       }
     });
   }
 
-  // 2. Category Sales Breakdown
-  const catSales = {};
-  const categoriesList = ['Vitamins', 'Supplements', 'First Aid', 'Equipment', 'Skincare'];
-  categoriesList.forEach(c => catSales[c] = 0);
-
-  completedOrders.forEach(o => {
-    if (!o.products) return;
-    let items = [];
-    try {
-      items = JSON.parse(o.products);
-    } catch(e) {
-      // If products field is not JSON array (e.g. plain text string), skip or parse
-    }
-    
-    if (Array.isArray(items)) {
-      items.forEach(item => {
-        const p = db.products.find(x => x.name_en === item.name || x.id === item.id);
-        const cat = p ? p.category : 'Vitamins';
-        catSales[cat] = (catSales[cat] || 0) + (parseFloat(item.price || 0) * (parseInt(item.qty || 1)));
-      });
-    }
-  });
-
-  const catLabels = Object.keys(catSales);
-  const catValues = Object.values(catSales);
-
+  // Chart 2: Category Doughnut Chart
   const ctxCat = document.getElementById('categoryChart');
   if (ctxCat) {
     categoryChartInstance = new Chart(ctxCat, {
       type: 'doughnut',
       data: {
-        labels: catLabels,
+        labels: c.categorySales.labels.length ? c.categorySales.labels : ['No Categories'],
         datasets: [{
-          data: catValues,
-          backgroundColor: ['#e8547a', '#f07fa0', '#14b8a6', '#f59e0b', '#8b5cf6'],
+          data: c.categorySales.data.length ? c.categorySales.data : [0],
+          backgroundColor: ['#E51D2A', '#ff4d4d', '#14b8a6', '#f59e0b', '#8b5cf6'],
           borderWidth: 0
         }]
       },
@@ -681,15 +1019,149 @@ function initAnalytics() {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-          legend: { position: 'bottom' }
+          legend: { position: 'bottom', labels: { color: textColor, font: chartFont } }
         }
       }
     });
+  }
+
+  // Chart 3: Payment Method Doughnut Chart
+  const ctxPay = document.getElementById('paymentChart');
+  if (ctxPay) {
+    paymentChartInstance = new Chart(ctxPay, {
+      type: 'doughnut',
+      data: {
+        labels: c.paymentMethods.labels.length ? c.paymentMethods.labels : ['No Data'],
+        datasets: [{
+          data: c.paymentMethods.data.length ? c.paymentMethods.data : [0],
+          backgroundColor: ['#E51D2A', '#14b8a6', '#8b5cf6', '#f59e0b'],
+          borderWidth: 0
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'bottom', labels: { color: textColor, font: chartFont } }
+        }
+      }
+    });
+  }
+
+  // Chart 4: Order Status Pie Chart
+  const ctxStatus = document.getElementById('statusChart');
+  if (ctxStatus) {
+    statusChartInstance = new Chart(ctxStatus, {
+      type: 'pie',
+      data: {
+        labels: c.orderStatuses.labels.length ? c.orderStatuses.labels : ['No Data'],
+        datasets: [{
+          data: c.orderStatuses.data.length ? c.orderStatuses.data : [0],
+          backgroundColor: ['#f59e0b', '#10b981', '#ef4444', '#3b82f6'],
+          borderWidth: 0
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'bottom', labels: { color: textColor, font: chartFont } }
+        }
+      }
+    });
+  }
+
+  // Chart 5: Top Selling Horizontal Bar Chart
+  const ctxTop = document.getElementById('topSellingChart');
+  if (ctxTop) {
+    topSellingChartInstance = new Chart(ctxTop, {
+      type: 'bar',
+      data: {
+        labels: c.topSelling.labels.length ? c.topSelling.labels.map(l => l.substring(0, 15) + '...') : ['No Sales'],
+        datasets: [{
+          label: 'Revenue (EGP)',
+          data: c.topSelling.revenue.length ? c.topSelling.revenue : [0],
+          backgroundColor: '#ff4d4d',
+          borderRadius: 4
+        }]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { beginAtZero: true, grid: { color: gridColor }, ticks: { color: textColor, font: chartFont } },
+          y: { grid: { display: false }, ticks: { color: textColor, font: chartFont } }
+        }
+      }
+    });
+  }
+
+  // 3. Inventory Insights Panel
+  const inv = data.inventory;
+  const inventoryWrap = document.getElementById('inventoryAnalyticsWrap');
+  if (inventoryWrap) {
+    inventoryWrap.innerHTML = `
+      <div class="stat-row">
+        <span class="stat-label"><span style="color:#ef4444;">●</span> Out of Stock Products</span>
+        <span class="stat-value" style="${inv.outOfStock > 0 ? 'color:#ef4444' : ''}">${inv.outOfStock} items</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label"><span style="color:#f59e0b;">●</span> Low Stock Products</span>
+        <span class="stat-value" style="${inv.lowStock > 0 ? 'color:#f59e0b' : ''}">${inv.lowStock} items</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label"><span style="color:#10b981;">●</span> Total Inventory Value</span>
+        <span class="stat-value">${parseFloat(inv.totalValue).toFixed(2)} EGP</span>
+      </div>
+    `;
+  }
+
+  // 4. Customer Insights Panel
+  const cust = data.customers;
+  const customerWrap = document.getElementById('customerAnalyticsWrap');
+  if (customerWrap) {
+    customerWrap.innerHTML = `
+      <div class="stat-row">
+        <span class="stat-label">New Customers (1 order)</span>
+        <span class="stat-value">${cust.new}</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Returning Customers</span>
+        <span class="stat-value">${cust.returning}</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label" style="font-weight:600; color:var(--text-main);">Repeat Purchase Rate</span>
+        <span class="stat-value" style="color:var(--primary); font-size:16px;">${cust.repeatRate.toFixed(1)}%</span>
+      </div>
+    `;
+  }
+
+  // 5. Activity Timeline
+  const activityWrap = document.getElementById('recentActivityWrap');
+  if (activityWrap) {
+    if (!data.activity.length) {
+      activityWrap.innerHTML = '<div style="text-align:center; padding:40px 10px; color:var(--text-muted); font-size:13px;">No recent activities found in this period.</div>';
+    } else {
+      activityWrap.innerHTML = `
+        <ul class="timeline-list">
+          ${data.activity.map(act => `
+            <li class="timeline-item ${act.type}">
+              <div class="timeline-item-title">${act.title}</div>
+              <div class="timeline-item-desc">${act.desc}</div>
+              <div class="timeline-item-time">${new Date(act.date).toLocaleString()}</div>
+            </li>
+          `).join('')}
+        </ul>
+      `;
+    }
   }
 }
 
 // Make initAnalytics available globally
 window.initAnalytics = initAnalytics;
+
 
 // ================== GLOBAL CONFIRM MODAL ==================
 function showCustomConfirm(options) {
