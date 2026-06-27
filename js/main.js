@@ -75,7 +75,7 @@ const t={
     orderThank:'Thank you for your purchase. Your order has been confirmed and will be delivered soon.',
     continueShopping:'Continue Shopping',emptyCart:'Your cart is empty',
     emptyCartSub:'Browse our products to get started',shopNow:'Shop Now',
-    free:'FREE',hcSub:'Healthcare & Wellness',heroTitle:'Your Health, Our Priority',
+    free:'FREE',hcSub:'Healthcare & Wellness',heroTitle:'Your Health, <span style="color:var(--pk)">Our Priority</span>',
     heroSub:'Premium quality healthcare products for you and your family.',
     heroBadge:'Trusted Healthcare Products',stat1:'Happy Customers',stat2:'Products',stat3:'Satisfaction Rate',
     catTitle:'Shop by Category',catSub:'Find what you need quickly',
@@ -109,7 +109,7 @@ const t={
     orderThank:'شكراً لشرائكم. تم تأكيد طلبكم وسيتم توصيله قريباً.',
     continueShopping:'متابعة التسوق',emptyCart:'السلة فارغة',
     emptyCartSub:'تصفح منتجاتنا للبدء',shopNow:'تسوق الآن',
-    free:'مجاني',hcSub:'الرعاية الصحية والعافية',heroTitle:'صحتك، أولويتنا',
+    free:'مجاني',hcSub:'الرعاية الصحية والعافية',heroTitle:'صحتك، <span style="color:var(--pk)">أولويتنا</span>',
     heroSub:'منتجات صحية عالية الجودة لك ولعائلتك.',
     heroBadge:'منتجات صحية موثوقة',stat1:'عميل سعيد',stat2:'منتج',stat3:'نسبة الرضا',
     catTitle:'تسوق حسب الفئة',catSub:'ابحث عن ما تحتاجه بسرعة',
@@ -635,7 +635,16 @@ function applyTranslations(){
     'foot-desc':'footDesc','foot-shop':'footShop','foot-company':'footCompany','foot-support':'footSupport','foot-copy':'footCopy',
     'nav-home':'home','nav-products':'products','nav-about':'about','nav-contact':'contact',
   };
-  Object.entries(tbl).forEach(([id,key])=>{const el=document.getElementById(id);if(el&&t[currentLang][key])el.textContent=tr(key);});
+  Object.entries(tbl).forEach(([id,key])=>{
+    const el=document.getElementById(id);
+    if(el&&t[currentLang][key]) {
+      if (id === 'hero-title') {
+        el.innerHTML = tr(key);
+      } else {
+        el.textContent = tr(key);
+      }
+    }
+  });
   const si=document.getElementById('searchInput');if(si)si.placeholder=tr('searchPh');
   const siMob=document.getElementById('searchInputMob');if(siMob)siMob.placeholder=tr('searchPh');
   const pi=document.getElementById('prodSearch');if(pi)pi.placeholder=tr('searchPh');

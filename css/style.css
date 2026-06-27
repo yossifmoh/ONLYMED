@@ -648,11 +648,11 @@ footer{background:var(--bg-footer);color:rgba(255,255,255,0.7);padding:48px 24px
 }
 
 [data-theme="dark"] .btn-outline {
-  border-color: rgba(255, 255, 255, 0.15) !important;
-  color: var(--text-main) !important;
+  border-color: var(--pk) !important;
+  color: var(--pk) !important;
 }
 [data-theme="dark"] .btn-outline:hover {
-  background: rgba(255, 255, 255, 0.04) !important;
-  border-color: rgba(255, 255, 255, 0.3) !important;
+  background: var(--pk3) !important;
+  border-color: var(--pk2) !important;
 }
 
