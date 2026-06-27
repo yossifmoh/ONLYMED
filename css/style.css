@@ -121,8 +121,8 @@ html[dir="rtl"] .search-wrap i{left:auto;right:12px}
 .hero-inner{max-width:1280px;margin:0 auto;display:flex;align-items:center;gap:60px}
 .hero-text{flex:1;z-index:1;position:relative}
 .hero-badge{display:inline-flex;align-items:center;gap:6px;background:var(--wh);border:1.5px solid var(--pk3);border-radius:20px;padding:6px 14px;font-size:12px;font-weight:600;color:var(--pk);letter-spacing:.5px;text-transform:uppercase;margin-bottom:24px}
-.hero-title{font-family:'Playfair Display',serif;font-size:clamp(36px,5vw,58px);font-weight:600;line-height:1.15;color:var(--dark);margin-bottom:16px}
-.hero-title span{color:var(--pk)}
+.hero-title{font-family:'Playfair Display',serif;font-size:clamp(36px,5vw,58px);font-weight:600;line-height:1.15;color:var(--pk);margin-bottom:16px}
+.hero-title span{color:inherit}
 .hero-sub{font-size:16px;color:var(--gray);line-height:1.7;margin-bottom:32px;max-width:480px}
 .hero-cta{display:flex;gap:12px;flex-wrap:wrap}
 .btn-primary{background:var(--pk);color:#fff;border:none;border-radius:var(--r);padding:14px 28px;font-size:15px;font-weight:600;cursor:pointer;transition:all .25s;font-family:'DM Sans',sans-serif;box-shadow:0 4px 20px rgba(232,84,122,0.35)}

@@ -75,7 +75,7 @@ const t={
     orderThank:'Thank you for your purchase. Your order has been confirmed and will be delivered soon.',
     continueShopping:'Continue Shopping',emptyCart:'Your cart is empty',
     emptyCartSub:'Browse our products to get started',shopNow:'Shop Now',
-    free:'FREE',hcSub:'Healthcare & Wellness',heroTitle:'Your Health, <span style="color:var(--pk)">Our Priority</span>',
+    free:'FREE',hcSub:'Healthcare & Wellness',heroTitle:'Your Health, Our Priority',
     heroSub:'Premium quality healthcare products for you and your family.',
     heroBadge:'Trusted Healthcare Products',stat1:'Happy Customers',stat2:'Products',stat3:'Satisfaction Rate',
     catTitle:'Shop by Category',catSub:'Find what you need quickly',
@@ -109,7 +109,7 @@ const t={
     orderThank:'شكراً لشرائكم. تم تأكيد طلبكم وسيتم توصيله قريباً.',
     continueShopping:'متابعة التسوق',emptyCart:'السلة فارغة',
     emptyCartSub:'تصفح منتجاتنا للبدء',shopNow:'تسوق الآن',
-    free:'مجاني',hcSub:'الرعاية الصحية والعافية',heroTitle:'صحتك، <span style="color:var(--pk)">أولويتنا</span>',
+    free:'مجاني',hcSub:'الرعاية الصحية والعافية',heroTitle:'صحتك، أولويتنا',
     heroSub:'منتجات صحية عالية الجودة لك ولعائلتك.',
     heroBadge:'منتجات صحية موثوقة',stat1:'عميل سعيد',stat2:'منتج',stat3:'نسبة الرضا',
     catTitle:'تسوق حسب الفئة',catSub:'ابحث عن ما تحتاجه بسرعة',
@@ -900,15 +900,8 @@ function applyDynamicContent() {
   for (const key in dynamicContent) {
     const el = document.getElementById(key);
     if (el && dynamicContent[key]) {
-      let val = dynamicContent[key][currentLang];
+      const val = dynamicContent[key][currentLang];
       if (val !== undefined && val !== null) {
-        if (key === 'hero-title') {
-          const comma = val.includes('،') ? '،' : ',';
-          const parts = val.split(comma);
-          if (parts.length > 1) {
-            val = parts[0] + comma + ` <span style="color:var(--pk)">${parts.slice(1).join(comma).trim()}</span>`;
-          }
-        }
         el.innerHTML = val;
       }
     }
