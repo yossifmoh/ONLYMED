@@ -780,18 +780,104 @@ async function saveProfile() {
   }
 }
 
-window.addEventListener("DOMContentLoaded", () => {
-  fetchWebsiteContent();
-  renderCartBadge();
-  updateAuthNav();
-});
+function hideGlobalLoader() {
+  const loader = document.getElementById('global-loader');
+  if (loader) {
+    loader.classList.add('hidden');
+    const styleEl = document.getElementById('instant-hide-loader');
+    if (styleEl) styleEl.remove();
+  }
+}
 
+function processAndRenderData(data) {
+  if (!data) return;
+  
+  dynamicContent = {};
+  if (Array.isArray(data.content)) {
+    data.content.forEach(item => {
+      if (item && item.key) {
+        dynamicContent[item.key] = {
+          en: item.en || '',
+          ar: item.ar || ''
+        };
+      }
+    });
+  }
+  applyDynamicContent();
 
-// ================== WEBSITE CONTENT MANAGEMENT ==================
+  const rawProducts = data.products || [];
+  
+  const catTranslations = {
+    'Vitamins': 'الفيتامينات',
+    'Supplements': 'المكملات',
+    'First Aid': 'إسعافات أولية',
+    'Equipment': 'أجهزة طبية',
+    'Skincare': 'العناية بالبشرة'
+  };
+  
+  function getCatEmoji(cat) {
+    const emojis = {
+      'Vitamins': '💊',
+      'Supplements': '🌿',
+      'First Aid': '🩹',
+      'Equipment': '🩺',
+      'Skincare': '💧'
+    };
+    return emojis[cat] || '📦';
+  }
+
+  function formatDriveImageUrl(url) {
+    if (!url || url.trim() === '') return '';
+    const raw = url.trim();
+    const idMatch =
+      raw.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) ||
+      raw.match(/[?&]id=([a-zA-Z0-9_-]+)/) ||
+      raw.match(/\/d\/([a-zA-Z0-9_-]+)/);
+    if (raw.includes('drive.google.com') && idMatch && idMatch[1]) {
+      const fileId = idMatch[1];
+      const finalUrl = `https://drive.google.com/thumbnail?id=${fileId}&sz=w800-h800`;
+      console.log('[Image][Content] Drive ID:', fileId, '=> URL:', finalUrl);
+      return finalUrl;
+    }
+    return raw;
+  }
+
+  products = rawProducts.map(p => ({
+    id: p.id || Math.floor(Math.random() * 10000),
+    name: p.name_en || p.name,
+    nameAr: p.name_ar || p.nameAr || p.name_en || p.name,
+    desc: p.desc_en || p.desc,
+    descAr: p.desc_ar || p.descAr || p.desc_en || p.desc,
+    cat: p.category || p.cat,
+    catAr: catTranslations[p.category || p.cat] || p.category || p.cat,
+    emoji: p.emoji || getCatEmoji(p.category || p.cat),
+    image: formatDriveImageUrl(p.image),
+    price: parseFloat(p.price) || 0,
+    oldPrice: p.oldPrice ? parseFloat(p.oldPrice) : null,
+    rating: parseFloat(p.rating) || 4.5,
+    reviews: parseInt(p.reviews) || 120,
+    benefits: p.benefits || ['Quality healthcare product', 'Tested & certified'],
+    benefitsAr: p.benefitsAr || ['منتج عالي الجودة', 'معتمد ومختبر'],
+    badge: p.badge,
+    featured: p.featured !== undefined ? p.featured : true,
+    bestSeller: p.bestSeller !== undefined ? p.bestSeller : (p.badge === 'Best Seller')
+  }));
+
+  let catMap = {};
+  products.forEach(p => {
+    if(!catMap[p.cat]) catMap[p.cat] = { name: p.cat, nameAr: p.catAr, count: 0, emoji: p.emoji };
+    catMap[p.cat].count++;
+  });
+  categories = Object.values(catMap);
+
+  renderCategories();
+  renderFeatured();
+  renderBest();
+  renderAllProducts();
+}
 
 async function fetchWebsiteContent() {
   try {
-    // Fetch all data (content and products) via POST action
     const res = await fetch(GOOGLE_SCRIPT_URL, {
       method: 'POST',
       headers: {'Content-Type': 'text/plain'},
@@ -801,99 +887,43 @@ async function fetchWebsiteContent() {
     
     if (result.status !== 'success') {
       console.error("Dashboard data load failed:", result.message);
+      hideGlobalLoader();
       return;
     }
+
+    const newData = result.data;
+    const cachedStr = localStorage.getItem('onlymed_cache');
     
-    const data = result.data;
-    
-    // Parse content array to key-value map
-    dynamicContent = {};
-    if (Array.isArray(data.content)) {
-      data.content.forEach(item => {
-        if (item && item.key) {
-          dynamicContent[item.key] = {
-            en: item.en || '',
-            ar: item.ar || ''
-          };
-        }
-      });
-    }
-    applyDynamicContent();
-    
-    // Fetch Products
-    const rawProducts = data.products || [];
-    
-    const catTranslations = {
-      'Vitamins': 'الفيتامينات',
-      'Supplements': 'المكملات',
-      'First Aid': 'إسعافات أولية',
-      'Equipment': 'أجهزة طبية',
-      'Skincare': 'العناية بالبشرة'
-    };
-    function getCatEmoji(cat) {
-      const emojis = {
-        'Vitamins': '💊',
-        'Supplements': '🌿',
-        'First Aid': '🩹',
-        'Equipment': '🩺',
-        'Skincare': '💧'
-      };
-      return emojis[cat] || '📦';
+    if (cachedStr && JSON.stringify(JSON.parse(cachedStr)) === JSON.stringify(newData)) {
+      console.log('ONLYMED: Fetched content is identical to cached content. No refresh needed.');
+      hideGlobalLoader();
+      return;
     }
 
-    function formatDriveImageUrl(url) {
-      if (!url || url.trim() === '') return '';
-      const raw = url.trim();
-      const idMatch =
-        raw.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) ||
-        raw.match(/[?&]id=([a-zA-Z0-9_-]+)/) ||
-        raw.match(/\/d\/([a-zA-Z0-9_-]+)/);
-      if (raw.includes('drive.google.com') && idMatch && idMatch[1]) {
-        const fileId = idMatch[1];
-        const finalUrl = `https://drive.google.com/thumbnail?id=${fileId}&sz=w800-h800`;
-        console.log('[Image][Content] Drive ID:', fileId, '=> URL:', finalUrl);
-        return finalUrl;
-      }
-      return raw;
-    }
-    
-    products = rawProducts.map(p => ({
-      id: p.id || Math.floor(Math.random() * 10000),
-      name: p.name_en || p.name,
-      nameAr: p.name_ar || p.nameAr || p.name_en || p.name,
-      desc: p.desc_en || p.desc,
-      descAr: p.desc_ar || p.descAr || p.desc_en || p.desc,
-      cat: p.category || p.cat,
-      catAr: catTranslations[p.category || p.cat] || p.category || p.cat,
-      emoji: p.emoji || getCatEmoji(p.category || p.cat),
-      image: formatDriveImageUrl(p.image),
-      price: parseFloat(p.price) || 0,
-      oldPrice: p.oldPrice ? parseFloat(p.oldPrice) : null,
-      rating: parseFloat(p.rating) || 4.5,
-      reviews: parseInt(p.reviews) || 120,
-      benefits: p.benefits || ['Quality healthcare product', 'Tested & certified'],
-      benefitsAr: p.benefitsAr || ['منتج عالي الجودة', 'معتمد ومختبر'],
-      badge: p.badge,
-      featured: p.featured !== undefined ? p.featured : true,
-      bestSeller: p.bestSeller !== undefined ? p.bestSeller : (p.badge === 'Best Seller')
-    }));
-    
-    // Auto-generate categories based on products
-    let catMap = {};
-    products.forEach(p => {
-      if(!catMap[p.cat]) catMap[p.cat] = { name: p.cat, nameAr: p.catAr, count: 0, emoji: p.emoji };
-      catMap[p.cat].count++;
-    });
-    categories = Object.values(catMap);
-    
-    renderCategories();
-    renderFeatured();
-    renderBest();
-    renderAllProducts();
+    localStorage.setItem('onlymed_cache', JSON.stringify(newData));
+    window.onlymedCachedData = newData;
+    processAndRenderData(newData);
+    hideGlobalLoader();
   } catch (e) {
     console.error("Error fetching dynamic data:", e);
+    hideGlobalLoader();
   }
 }
+
+// Immediately load cache synchronously if available (elements exist because main.js is at bottom of body)
+if (window.onlymedCachedData) {
+  processAndRenderData(window.onlymedCachedData);
+}
+
+window.addEventListener("DOMContentLoaded", () => {
+  if (window.onlymedCachedData) {
+    processAndRenderData(window.onlymedCachedData);
+    hideGlobalLoader();
+  }
+  fetchWebsiteContent();
+  renderCartBadge();
+  updateAuthNav();
+});
 
 function applyDynamicContent() {
   if (!dynamicContent) return;

@@ -13,6 +13,23 @@
     document.documentElement.setAttribute('data-theme', t);
   })();
 </script>
+<!-- Instant cache loader: populates cache data before page rendering to ensure zero fallback flash -->
+<script>
+  (function(){
+    try {
+      var cached = localStorage.getItem('onlymed_cache');
+      if (cached) {
+        window.onlymedCachedData = JSON.parse(cached);
+        var style = document.createElement('style');
+        style.id = 'instant-hide-loader';
+        style.innerHTML = '#global-loader { display: none !important; opacity: 0 !important; visibility: hidden !important; pointer-events: none !important; }';
+        document.head.appendChild(style);
+      }
+    } catch (e) {
+      console.warn('Failed to load cached ONLYMED data:', e);
+    }
+  })();
+</script>
 <style>
   html { background-color: #fdf6f8; }
   html[data-theme="dark"] { background-color: #050508; }
@@ -24,6 +41,19 @@
 <link rel="stylesheet" href="css/style.css?v=1.0.3">
 </head>
 <body>
+
+<!-- GLOBAL PREMIUM BRANDED LOADER -->
+<div id="global-loader" style="position:fixed; top:0; left:0; right:0; bottom:0; background:#050508; display:flex; flex-direction:column; justify-content:center; align-items:center; z-index:10000; transition:opacity 0.4s ease, visibility 0.4s;">
+  <div style="display:flex; flex-direction:column; align-items:center; gap:20px;">
+    <div style="color:#d0112b; font-family:'Playfair Display', serif; font-size:32px; font-weight:700; letter-spacing:1px; animation: pulseLogo 1.5s infinite ease-in-out;">ONLYMED</div>
+    <div style="width:40px; height:40px; border:3px solid rgba(208,17,43,0.1); border-top-color:#d0112b; border-radius:50%; animation: spin 1s infinite linear;"></div>
+  </div>
+</div>
+<style>
+  @keyframes pulseLogo { 0%, 100% { opacity: 0.6; transform: scale(0.98); } 50% { opacity: 1; transform: scale(1.02); } }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  #global-loader.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+</style>
 
 <!-- TOAST -->
 <div class="toast" id="toast"><i class="fa fa-check-circle"></i><span id="toast-msg">Added to cart!</span></div>
