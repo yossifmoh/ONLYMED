@@ -38,20 +38,20 @@
     }
     [data-theme="dark"] {
       --gray: #13131f;
-      --text: #e2e8f0;
+      --text: #f8fafc;
       --light-text: #94a3b8;
-      --red-light: #3a0a10;
+      --red-light: #2d070b;
       --cyan-light: #0a2025;
       --orange-light: #1f1200;
       --purple-light: #1a0f2e;
-      --bg-page: #13131f;
-      --bg-card: #1e1e2e;
-      --bg-input: #252537;
-      --bg-nav: #1a1a2e;
-      --bg-sidebar: #0f0f1a;
-      --bg-stripe: #181828;
-      --border: #2d3148;
-      --text-main: #e2e8f0;
+      --bg-page: #050508;
+      --bg-card: rgba(255, 255, 255, 0.03);
+      --bg-input: rgba(255, 255, 255, 0.02);
+      --bg-nav: rgba(5, 5, 8, 0.75);
+      --bg-sidebar: #09090d;
+      --bg-stripe: rgba(255, 255, 255, 0.015);
+      --border: rgba(255, 255, 255, 0.07);
+      --text-main: #f8fafc;
       --text-muted: #94a3b8;
     }
     body { margin: 0; font-family: 'Inter', sans-serif; background: var(--bg-page); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; transition: background-color 0.25s, color 0.2s; }
@@ -178,6 +178,78 @@
       .cards-grid { grid-template-columns: 1fr; }
       .nav-menu { justify-content: flex-start; overflow-x: auto; flex-wrap: nowrap; padding-bottom: 8px; }
       .nav-item { flex-shrink: 0; }
+    }
+
+    /* ── PREMIUM DARK MODE SPECIFIC OVERRIDES ── */
+    [data-theme="dark"] .sidebar {
+      background: var(--bg-sidebar) !important;
+      border-right: 1px solid var(--border) !important;
+    }
+    [data-theme="dark"] .header {
+      background: var(--bg-nav) !important;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border) !important;
+    }
+    [data-theme="dark"] .card,
+    [data-theme="dark"] .panel,
+    [data-theme="dark"] .modal-box {
+      background: linear-gradient(135deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.005) 100%) !important;
+      border: 1px solid var(--border) !important;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.6) !important;
+    }
+    [data-theme="dark"] .nav-item {
+      color: #94a3b8 !important;
+    }
+    [data-theme="dark"] .nav-item:hover,
+    [data-theme="dark"] .nav-item.active {
+      color: #ffffff !important;
+      background: rgba(255, 255, 255, 0.04) !important;
+    }
+    [data-theme="dark"] input,
+    [data-theme="dark"] select,
+    [data-theme="dark"] textarea {
+      border: 1px solid var(--border) !important;
+      background: var(--bg-input) !important;
+      color: var(--text-main) !important;
+    }
+    [data-theme="dark"] input:focus,
+    [data-theme="dark"] select:focus,
+    [data-theme="dark"] textarea:focus {
+      border-color: var(--primary) !important;
+      box-shadow: 0 0 0 2px rgba(208, 17, 43, 0.2), 0 0 10px rgba(208, 17, 43, 0.15) !important;
+      background: rgba(255,255,255,0.04) !important;
+    }
+    [data-theme="dark"] table th {
+      background: rgba(255, 255, 255, 0.015) !important;
+      border-bottom: 1px solid var(--border) !important;
+      color: var(--text-muted) !important;
+    }
+    [data-theme="dark"] table td {
+      border-bottom: 1px solid var(--border) !important;
+      color: var(--text-main) !important;
+    }
+    [data-theme="dark"] tr:hover td {
+      background: rgba(255, 255, 255, 0.02) !important;
+    }
+    [data-theme="dark"] .status-badge.status-active,
+    [data-theme="dark"] .status-badge.status-delivered,
+    [data-theme="dark"] .status-badge.status-completed {
+      background: rgba(16, 185, 129, 0.1) !important;
+      color: #34d399 !important;
+      border: 1px solid rgba(16, 185, 129, 0.15) !important;
+    }
+    [data-theme="dark"] .status-badge.status-pending,
+    [data-theme="dark"] .status-badge.status-processing {
+      background: rgba(245, 158, 11, 0.1) !important;
+      color: #fbbf24 !important;
+      border: 1px solid rgba(245, 158, 11, 0.15) !important;
+    }
+    [data-theme="dark"] .status-badge.status-cancelled,
+    [data-theme="dark"] .status-badge.status-hidden {
+      background: rgba(239, 68, 68, 0.1) !important;
+      color: #f87171 !important;
+      border: 1px solid rgba(239, 68, 68, 0.15) !important;
     }
   </style>
 </head>
