@@ -5,18 +5,27 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ONLYMED - Login</title>
   <link rel="stylesheet" href="css/style.css">
+  <!-- Theme FOUC prevention -->
+  <script>
+    (function(){
+      var t = localStorage.getItem('onlymed_theme');
+      if (!t && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) t = 'dark';
+      if (t === 'dark') document.documentElement.setAttribute('data-theme','dark');
+    })();
+  </script>
   <style>
-    body { background-color: #f9f9f9; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; font-family: 'Inter', sans-serif; }
-    .auth-container { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); width: 100%; max-width: 400px; text-align: center; }
-    .auth-logo { color: var(--primary); font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 700; margin-bottom: 30px; }
-    .auth-title { font-size: 20px; font-weight: 600; margin-bottom: 20px; color: #333; }
+    body { background-color: var(--bg-page, #f9f9f9); display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; font-family: 'Inter', sans-serif; transition: background-color 0.25s; }
+    .auth-container { background: var(--bg-card, white); padding: 40px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); width: 100%; max-width: 400px; text-align: center; border: 1px solid var(--border, #e5e7eb); }
+    .auth-logo { color: #d0112b; font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 700; margin-bottom: 30px; }
+    .auth-title { font-size: 20px; font-weight: 600; margin-bottom: 20px; color: var(--text-main, #333); }
     .form-group { text-align: left; margin-bottom: 15px; }
-    .form-group label { display: block; margin-bottom: 5px; font-size: 13px; color: #666; }
-    .form-control { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; box-sizing: border-box; }
+    .form-group label { display: block; margin-bottom: 5px; font-size: 13px; color: var(--text-muted, #666); }
+    .form-control { width: 100%; padding: 12px; border: 1px solid var(--border, #ddd); border-radius: 8px; font-size: 14px; box-sizing: border-box; background: var(--bg-input, white); color: var(--text-main, #333); transition: border-color 0.2s, background-color 0.25s; }
+    .form-control:focus { border-color: #d0112b; outline: none; }
     .btn-auth { width: 100%; padding: 12px; background: #d0112b; color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 10px; transition: 0.3s; }
-    .btn-auth:hover { background: #d0112b; }
-    .auth-links { margin-top: 20px; font-size: 13px; }
-    .auth-links a { color: var(--primary); text-decoration: none; cursor: pointer; }
+    .btn-auth:hover { background: #b00d23; }
+    .auth-links { margin-top: 20px; font-size: 13px; color: var(--text-muted, #666); }
+    .auth-links a { color: #d0112b; text-decoration: none; cursor: pointer; }
     .hidden { display: none; }
     @media (max-width: 480px) {
       body { height: auto; min-height: 100vh; padding: 20px 0; box-sizing: border-box; align-items: flex-start; }
@@ -190,5 +199,6 @@ if (document.readyState === 'loading') {
 }
 
   </script>
+<script src="js/theme.js"></script>
 </body>
 </html>
