@@ -1,18 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <!-- Theme initializer: runs synchronously before any styles parse to prevent FOUC -->
+  <script>
+    (function(){
+      var t = localStorage.getItem('onlymed_theme');
+      if (!t) {
+        var systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        t = systemDark ? 'dark' : 'light';
+        localStorage.setItem('onlymed_theme', t);
+      }
+      document.documentElement.setAttribute('data-theme', t);
+    })();
+  </script>
+  <style>
+    html { background-color: #f4f7f6; }
+    html[data-theme="dark"] { background-color: #050508; }
+  </style>
   <meta charset="UTF-8">
   <title>ONLYMED - Admin Dashboard</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-  <!-- Theme initializer: synchronous FOUC prevention -->
-  <script>
-    (function(){
-      var t = localStorage.getItem('onlymed_theme');
-      if (!t && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) t = 'dark';
-      if (t === 'dark') document.documentElement.setAttribute('data-theme','dark');
-    })();
-  </script>
   <style>
     :root {
       --primary: #d0112b;
