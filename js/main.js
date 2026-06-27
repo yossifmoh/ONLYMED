@@ -5,14 +5,25 @@ let categories = [];
 let dynamicContent = {}; // Stores {key: {en, ar}}
 
 function formatDriveImageUrl(url) {
-  if (!url) return '';
-  if (url.includes('drive.google.com')) {
-    const match = url.match(/\/file\/d\/([^\/?&#]+)/) || url.match(/[?&]id=([^&]+)/);
-    if (match && match[1]) {
-      return `https://drive.google.com/uc?export=view&id=${match[1]}`;
-    }
+  if (!url || url.trim() === '') return '';
+  const raw = url.trim();
+
+  const idMatch =
+    raw.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) ||
+    raw.match(/[?&]id=([a-zA-Z0-9_-]+)/) ||
+    raw.match(/\/d\/([a-zA-Z0-9_-]+)/);
+
+  if (raw.includes('drive.google.com') && idMatch && idMatch[1]) {
+    const fileId = idMatch[1];
+    const finalUrl = `https://drive.google.com/thumbnail?id=${fileId}&sz=w800-h800`;
+    console.log('[Image] Raw URL from API:', raw);
+    console.log('[Image] Extracted Drive ID:', fileId);
+    console.log('[Image] Final <img> src:', finalUrl);
+    return finalUrl;
   }
-  return url;
+
+  console.log('[Image] Non-Drive URL, used as-is:', raw);
+  return raw;
 }
 
 async function hashStr(str) {
@@ -144,7 +155,9 @@ function productCard(p){
   const desc=currentLang==='ar'?p.descAr:p.desc;
   const catName=currentLang==='ar'?p.catAr:p.cat;
   const formattedImg = formatDriveImageUrl(p.image);
-  const imgContent = formattedImg ? `<img src="${formattedImg}" class="prod-img-element" style="width:100%;height:100%;object-fit:cover;">` : p.emoji;
+  const imgContent = formattedImg
+    ? `<img src="${formattedImg}" class="prod-img-element" style="width:100%;height:100%;object-fit:cover;" onerror="console.warn('[Image] Failed to load:', this.src); this.onerror=null; this.src=''; this.style.display='none'; this.closest('.prod-img').textContent='${p.emoji || '📦'}'">`
+    : (p.emoji || '📦');
   return `<div class="prod-card animate-on-scroll slide-up">
     ${p.badge?`<div class="prod-badge">${currentLang==='ar'&&p.badge==='Best Seller'?'الأكثر مبيعاً':currentLang==='ar'&&p.badge==='New'?'جديد':currentLang==='ar'&&p.badge==='Sale'?'خصم':currentLang==='ar'&&p.badge==='Popular'?'شائع':p.badge}</div>`:''}
     <div class="prod-img">${imgContent}</div>
@@ -228,7 +241,9 @@ function viewProduct(id){
   const catName=currentLang==='ar'?p.catAr:p.cat;
   const bens=currentLang==='ar'?p.benefitsAr:p.benefits;
   if (p.image) {
-    document.getElementById('detailImg').innerHTML = `<img src="${formatDriveImageUrl(p.image)}" style="width:100%;height:100%;object-fit:cover;border-radius:var(--r2);">`;
+    const imgSrc = formatDriveImageUrl(p.image);
+    console.log('[Detail] Rendering product image src:', imgSrc);
+    document.getElementById('detailImg').innerHTML = `<img src="${imgSrc}" style="width:100%;height:100%;object-fit:cover;border-radius:var(--r2);" onerror="console.warn('[Image] Detail page failed to load:', this.src); this.onerror=null; this.parentElement.textContent='${p.emoji || '📦'}'">` ;
   } else {
     document.getElementById('detailImg').innerHTML = '';
     document.getElementById('detailImg').textContent = p.emoji;
@@ -818,14 +833,19 @@ async function fetchWebsiteContent() {
     }
 
     function formatDriveImageUrl(url) {
-      if (!url) return '';
-      if (url.includes('drive.google.com')) {
-        const match = url.match(/\/file\/d\/([^\/?&#]+)/) || url.match(/[?&]id=([^&]+)/);
-        if (match && match[1]) {
-          return `https://drive.google.com/uc?export=view&id=${match[1]}`;
-        }
+      if (!url || url.trim() === '') return '';
+      const raw = url.trim();
+      const idMatch =
+        raw.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) ||
+        raw.match(/[?&]id=([a-zA-Z0-9_-]+)/) ||
+        raw.match(/\/d\/([a-zA-Z0-9_-]+)/);
+      if (raw.includes('drive.google.com') && idMatch && idMatch[1]) {
+        const fileId = idMatch[1];
+        const finalUrl = `https://drive.google.com/thumbnail?id=${fileId}&sz=w800-h800`;
+        console.log('[Image][Content] Drive ID:', fileId, '=> URL:', finalUrl);
+        return finalUrl;
       }
-      return url;
+      return raw;
     }
     
     products = rawProducts.map(p => ({

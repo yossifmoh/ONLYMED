@@ -2,14 +2,28 @@ const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwv1vuPsTUNXz
 let db = { products: [], orders: [], users: [], content: [] };
 
 function formatDriveImageUrl(url) {
-  if (!url) return '';
-  if (url.includes('drive.google.com')) {
-    const match = url.match(/\/file\/d\/([^\/?&#]+)/) || url.match(/[?&]id=([^&]+)/);
-    if (match && match[1]) {
-      return `https://drive.google.com/uc?export=view&id=${match[1]}`;
-    }
+  if (!url || url.trim() === '') return '';
+  const raw = url.trim();
+
+  // Already a thumbnail or uc URL — try to still extract the ID and re-format
+  const idMatch =
+    raw.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) ||
+    raw.match(/[?&]id=([a-zA-Z0-9_-]+)/) ||
+    raw.match(/\/d\/([a-zA-Z0-9_-]+)/);
+
+  if (raw.includes('drive.google.com') && idMatch && idMatch[1]) {
+    const fileId = idMatch[1];
+    // Use thumbnail URL — works publicly without auth, bypasses virus-scan page
+    const finalUrl = `https://drive.google.com/thumbnail?id=${fileId}&sz=w800-h800`;
+    console.log('[Image] Raw stored URL:', raw);
+    console.log('[Image] Extracted Drive ID:', fileId);
+    console.log('[Image] Final rendered URL:', finalUrl);
+    return finalUrl;
   }
-  return url;
+
+  // Not a Drive URL — return as-is (could be a direct http URL)
+  console.log('[Image] Non-Drive URL, using as-is:', raw);
+  return raw;
 }
 
 function showToast(msg) {
@@ -174,7 +188,7 @@ function renderAll() {
   if (pBody) {
     pBody.innerHTML = db.products.map(p => `
       <tr>
-        <td><img src="${formatDriveImageUrl(p.image)}" width="40" style="border-radius:6px"></td>
+        <td><img src="${formatDriveImageUrl(p.image)}" width="40" height="40" style="border-radius:6px; object-fit:cover;" onerror="this.style.display='none'; this.parentElement.innerHTML='<span style=font-size:20px>📦</span>'"></td>
         <td>${p.name_en}</td>
         <td>${p.category}</td>
         <td>${p.price} EGP</td>
