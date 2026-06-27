@@ -5,7 +5,7 @@
   transition: background-color 0.25s ease, border-color 0.25s ease, color 0.2s ease, box-shadow 0.25s ease;
 }
 /* Exclude elements where transitions cause visual glitches */
-img, .prod-img, .hero::before, .hero::after, .logo-icon, .btn-primary, .btn-outline, .btn-cart,
+img, .prod-img, .hero, .hero::before, .hero::after, .about-hero, .logo-icon, .btn-primary, .btn-outline, .btn-cart,
 .animate-on-scroll, .float-card, .cart-panel, .cart-overlay { transition: none; }
 .btn-primary, .btn-outline, .btn-cart { transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease !important; }
 .cart-panel { transition: transform 0.35s cubic-bezier(.4,0,.2,1) !important; }
@@ -548,6 +548,18 @@ footer{background:var(--bg-footer);color:rgba(255,255,255,0.7);padding:48px 24px
   background: rgba(18, 18, 29, 0.8) !important;
   border: 1px solid rgba(255, 255, 255, 0.08) !important;
   backdrop-filter: blur(10px);
+}
+[data-theme="dark"] .fc1 .fc-icon {
+  background: rgba(229, 29, 42, 0.15) !important;
+  color: var(--pk) !important;
+}
+[data-theme="dark"] .fc2 .fc-icon {
+  background: rgba(16, 185, 129, 0.15) !important;
+  color: #34d399 !important;
+}
+[data-theme="dark"] .fc3 .fc-icon {
+  background: rgba(124, 58, 237, 0.15) !important;
+  color: #a78bfa !important;
 }
 
 [data-theme="dark"] input,

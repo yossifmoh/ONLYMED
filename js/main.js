@@ -900,8 +900,15 @@ function applyDynamicContent() {
   for (const key in dynamicContent) {
     const el = document.getElementById(key);
     if (el && dynamicContent[key]) {
-      const val = dynamicContent[key][currentLang];
+      let val = dynamicContent[key][currentLang];
       if (val !== undefined && val !== null) {
+        if (key === 'hero-title') {
+          const comma = val.includes('،') ? '،' : ',';
+          const parts = val.split(comma);
+          if (parts.length > 1) {
+            val = parts[0] + comma + ` <span style="color:var(--pk)">${parts.slice(1).join(comma).trim()}</span>`;
+          }
+        }
         el.innerHTML = val;
       }
     }
