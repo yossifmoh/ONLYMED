@@ -39,6 +39,15 @@
       body { height: auto; min-height: 100vh; padding: 20px 0; box-sizing: border-box; align-items: flex-start; }
       .auth-container { padding: 24px 16px; margin: 16px; width: calc(100% - 32px); }
     }
+
+    /* ── SMOOTH ROTATING LOADER ANIMATION ── */
+    @keyframes fa-spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .fa-spin {
+      animation: fa-spin 1s infinite linear !important;
+    }
   </style>
 </head>
 <body>
@@ -127,7 +136,7 @@
       let originalHtml = '';
       if (btn) {
         originalHtml = btn.innerHTML;
-        btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Logging in...';
+        btn.innerHTML = '<i class="fa fa-circle-notch fa-spin"></i> Logging in...';
         btn.disabled = true;
       }
       
@@ -165,7 +174,7 @@
       let originalHtml = '';
       if (btn) {
         originalHtml = btn.innerHTML;
-        btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Resetting...';
+        btn.innerHTML = '<i class="fa fa-circle-notch fa-spin"></i> Resetting...';
         btn.disabled = true;
       }
       

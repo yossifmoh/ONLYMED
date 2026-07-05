@@ -269,6 +269,15 @@
       color: #f87171 !important;
       border: 1px solid rgba(239, 68, 68, 0.15) !important;
     }
+
+    /* ── SMOOTH ROTATING LOADER ANIMATION ── */
+    @keyframes fa-spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .fa-spin {
+      animation: fa-spin 1s infinite linear !important;
+    }
   </style>
 </head>
 <body>

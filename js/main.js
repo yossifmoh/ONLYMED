@@ -467,7 +467,7 @@ async function placeOrder(){
   let originalHtml = '';
   if (placeBtn) {
     originalHtml = placeBtn.innerHTML;
-    placeBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Processing...';
+    placeBtn.innerHTML = '<i class="fa fa-circle-notch fa-spin"></i> Processing...';
     placeBtn.disabled = true;
   }
 
@@ -748,7 +748,7 @@ async function saveProfile() {
   let originalHtml = '';
   if (saveBtn) {
     originalHtml = saveBtn.innerHTML;
-    saveBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Saving...';
+    saveBtn.innerHTML = '<i class="fa fa-circle-notch fa-spin"></i> Saving...';
     saveBtn.disabled = true;
   }
   
@@ -1181,7 +1181,7 @@ function showCustomConfirm(options) {
       actionBtn.disabled = true;
       cancelBtn.disabled = true;
       closeBtn.disabled  = true;
-      actionBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Processing...';
+      actionBtn.innerHTML = '<i class="fa fa-circle-notch fa-spin"></i> Processing...';
       try {
         if (options.onConfirm) await options.onConfirm();
         closeModal(true);

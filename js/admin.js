@@ -407,7 +407,7 @@ async function saveProduct() {
   if (btn) {
     if (btn.disabled) return; // Prevent duplicate submissions
     btn.disabled = true;
-    btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Saving...';
+    btn.innerHTML = '<i class="fa fa-circle-notch fa-spin"></i> Saving...';
   }
   
   showToast('Saving product...');
@@ -518,7 +518,7 @@ async function updateOrderStatus() {
     if (btn.disabled) return;
     btn.disabled = true;
     originalHtml = btn.innerHTML;
-    btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Updating...';
+    btn.innerHTML = '<i class="fa fa-circle-notch fa-spin"></i> Updating...';
   }
 
   const st = document.getElementById('oStatusUpdate').value;
@@ -558,7 +558,7 @@ async function saveAllContent() {
     if (btn.disabled) return;
     btn.disabled = true;
     originalHtml = btn.innerHTML;
-    btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Saving...';
+    btn.innerHTML = '<i class="fa fa-circle-notch fa-spin"></i> Saving...';
   }
 
   showToast('Saving all content...');
@@ -1410,7 +1410,7 @@ function showCustomConfirm(options) {
       actionBtn.disabled = true;
       cancelBtn.disabled = true;
       closeBtn.disabled  = true;
-      actionBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Processing...';
+      actionBtn.innerHTML = '<i class="fa fa-circle-notch fa-spin"></i> Processing...';
       try {
         if (options.onConfirm) await options.onConfirm();
         closeModal(true);
