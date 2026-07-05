@@ -175,6 +175,7 @@ html[dir="rtl"] .search-wrap i{left:auto;right:12px}
 .prod-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:auto;padding-top: 20px}
 .prod-actions .btn-buy{grid-column:span 2}
 .btn-sm{padding:10px 8px;border-radius:var(--r3);font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif;white-space:nowrap;width:100%;display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box}
+.btn-sm i, .btn-primary i, .btn-outline i{margin-inline-end:8px}
 .btn-view{background:var(--pk3);color:var(--pk);border:1.5px solid var(--pk3)}
 .btn-view:hover{background:var(--pk);color:#fff}
 .btn-cart-sm{background:var(--pk);color:#fff;border:1.5px solid var(--pk)}
