@@ -127,10 +127,16 @@
     /* MODALS */
     .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 1000; }
     .modal-overlay.active { display: flex; }
+    .modal-overlay, .modal-box, .modal-header, .modal-body, .modal-footer, .form-grid, .form-group { box-sizing: border-box; }
     .modal-box { background: var(--bg-card); padding: 30px; border-radius: 12px; width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; border: 1px solid var(--border); color: var(--text-main); }
     .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 15px; }
     .modal-header h3 { margin: 0; font-size: 18px; color: var(--text-main); }
     .close-btn { background: none; border: none; font-size: 20px; cursor: pointer; color: var(--text-muted); }
+    .modal-body { flex: 1; overflow-y: auto; }
+    .modal-body::-webkit-scrollbar { width: 6px; }
+    .modal-body::-webkit-scrollbar-track { background: transparent; }
+    .modal-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    .modal-body::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
     
     /* FORMS */
     .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
@@ -540,53 +546,70 @@
 
   <!-- PRODUCT MODAL -->
   <div class="modal-overlay" id="productModal">
-    <div class="modal-box">
-      <div class="modal-header">
-        <h3 id="pmTitle">Add/Edit Product</h3>
+    <div class="modal-box" style="display: flex; flex-direction: column; max-height: 85vh; padding: 24px;">
+      <div class="modal-header" style="margin-bottom: 16px; padding-bottom: 12px; flex-shrink: 0;">
+        <h3 id="pmTitle" style="font-size: 20px; font-weight: 600; margin: 0; color: var(--text-main);">Add/Edit Product</h3>
         <button class="close-btn" onclick="closeModal('productModal')">&times;</button>
       </div>
-      <div class="form-grid">
-        <input type="hidden" id="pId">
-        <div class="form-group"><label>Image URL</label><input type="text" id="pImage" class="form-control"></div>
-        <div class="form-group"><label>Category</label><input type="text" id="pCat" class="form-control"></div>
-        <div class="form-group"><label>Name (EN)</label><input type="text" id="pNameEn" class="form-control"></div>
-        <div class="form-group"><label>Name (AR)</label><input type="text" id="pNameAr" class="form-control"></div>
-        <div class="form-group"><label>Price (EGP)</label><input type="number" id="pPrice" class="form-control"></div>
-        <div class="form-group"><label>Old Price (EGP)</label><input type="number" id="pOldPrice" class="form-control"></div>
-        <div class="form-group"><label>Stock</label><input type="number" id="pStock" class="form-control"></div>
-        <div class="form-group"><label>Badge</label><input type="text" id="pBadge" class="form-control"></div>
-        <div class="form-group full">
-          <label>Status</label>
-          <select id="pStatus" class="form-control">
-            <option value="Active">Active</option>
-            <option value="Hidden">Hidden</option>
-          </select>
+      <div class="modal-body" style="flex: 1; overflow-y: auto; padding-right: 8px; margin-bottom: 16px;">
+        <div class="form-grid">
+          <input type="hidden" id="pId">
+          <div class="form-group"><label>Image URL</label><input type="text" id="pImage" class="form-control"></div>
+          <div class="form-group text-field-group">
+            <label>Category</label>
+            <select id="pCat" class="form-control">
+              <option value="Vitamins">Vitamins</option>
+              <option value="Supplements">Supplements</option>
+              <option value="Equipment">Equipment</option>
+              <option value="First Aid">First Aid</option>
+              <option value="Skincare">Skincare</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Name (EN)</label><input type="text" id="pNameEn" class="form-control"></div>
+          <div class="form-group"><label>Name (AR)</label><input type="text" id="pNameAr" class="form-control"></div>
+          <div class="form-group"><label>Price (EGP)</label><input type="number" id="pPrice" class="form-control"></div>
+          <div class="form-group"><label>Old Price (EGP)</label><input type="number" id="pOldPrice" class="form-control"></div>
+          <div class="form-group"><label>Stock</label><input type="number" id="pStock" class="form-control"></div>
+          <div class="form-group"><label>Badge</label><input type="text" id="pBadge" class="form-control"></div>
+          <div class="form-group full">
+            <label>Status</label>
+            <select id="pStatus" class="form-control">
+              <option value="Active">Active</option>
+              <option value="Hidden">Hidden</option>
+            </select>
+          </div>
+          <div class="form-group full"><label>Description (EN)</label><textarea id="pDescEn" class="form-control" rows="3"></textarea></div>
+          <div class="form-group full"><label>Description (AR)</label><textarea id="pDescAr" class="form-control" rows="3"></textarea></div>
         </div>
-        <div class="form-group full"><label>Description (EN)</label><textarea id="pDescEn" class="form-control" rows="3"></textarea></div>
-        <div class="form-group full"><label>Description (AR)</label><textarea id="pDescAr" class="form-control" rows="3"></textarea></div>
       </div>
-      <button class="btn btn-primary" style="width:100%; margin-top:15px;" onclick="saveProduct()">Save Product</button>
+      <div class="modal-footer" style="flex-shrink: 0; border-top: 1px solid var(--border); padding-top: 16px;">
+        <button class="btn btn-primary" style="width:100%; margin: 0;" onclick="saveProduct()">Save Product</button>
+      </div>
     </div>
   </div>
 
   <!-- ORDER MODAL -->
   <div class="modal-overlay" id="orderModal">
-    <div class="modal-box">
-      <div class="modal-header">
-        <h3>Order Details</h3>
+    <div class="modal-box" style="display: flex; flex-direction: column; max-height: 85vh; padding: 24px;">
+      <div class="modal-header" style="margin-bottom: 16px; padding-bottom: 12px; flex-shrink: 0;">
+        <h3 style="font-size: 20px; font-weight: 600; margin: 0; color: var(--text-main);">Order Details</h3>
         <button class="close-btn" onclick="closeModal('orderModal')">&times;</button>
       </div>
-      <div id="orderDetailsContent" style="margin-bottom:20px; font-size:14px; line-height:1.6;"></div>
-      <div class="form-group">
-        <label>Update Status</label>
-        <select id="oStatusUpdate" class="form-control">
-          <option value="Pending">Pending</option>
-          <option value="Processing">Processing</option>
-          <option value="Completed">Completed</option>
-          <option value="Cancelled">Cancelled</option>
-        </select>
+      <div class="modal-body" style="flex: 1; overflow-y: auto; padding-right: 4px; margin-bottom: 16px;">
+        <div id="orderDetailsContent" style="margin-bottom:20px; font-size:14px; line-height:1.6;"></div>
+        <div class="form-group">
+          <label>Update Status</label>
+          <select id="oStatusUpdate" class="form-control">
+            <option value="Pending">Pending</option>
+            <option value="Processing">Processing</option>
+            <option value="Completed">Completed</option>
+            <option value="Cancelled">Cancelled</option>
+          </select>
+        </div>
       </div>
-      <button class="btn btn-primary" style="width:100%;" onclick="updateOrderStatus()">Update Order</button>
+      <div class="modal-footer" style="flex-shrink: 0; border-top: 1px solid var(--border); padding-top: 16px;">
+        <button class="btn btn-primary" style="width:100%; margin: 0;" onclick="updateOrderStatus()">Update Order</button>
+      </div>
     </div>
   </div>
 
