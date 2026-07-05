@@ -799,7 +799,7 @@ function processAndRenderData(data) {
         dynamicContent[item.key] = {
           en: item.en || '',
           ar: item.ar || '',
-          status: item.status || 'Active'
+          status: (item.status && item.status.trim().toLowerCase() === 'inactive') ? 'Inactive' : 'Active'
         };
       }
     });

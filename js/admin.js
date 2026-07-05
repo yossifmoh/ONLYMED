@@ -248,6 +248,8 @@ function renderAll() {
 
     db.content.forEach((c, index) => {
       c._origIndex = index;
+      // Normalize status value to capitalized Active/Inactive
+      c.status = (c.status && c.status.trim().toLowerCase() === 'inactive') ? 'Inactive' : 'Active';
       let matched = false;
       for (const g of groupDefs) {
         if (g.keys.includes(c.key)) {
@@ -280,9 +282,9 @@ function renderAll() {
               <td><input type="text" class="input-sm" id="c-en-${idx}" value="${c.en}"></td>
               <td><input type="text" class="input-sm" id="c-ar-${idx}" value="${c.ar}" dir="rtl"></td>
               <td>
-                <select class="input-sm" id="c-st-${idx}">
-                  <option ${c.status==='Active'?'selected':''}>Active</option>
-                  <option ${c.status!=='Active'?'selected':''}>Inactive</option>
+                <select class="input-sm" id="c-st-${idx}" onchange="saveAllContent()">
+                  <option value="Active" ${c.status==='Active'?'selected':''}>Active</option>
+                  <option value="Inactive" ${c.status==='Inactive'?'selected':''}>Inactive</option>
                 </select>
               </td>
             </tr>
