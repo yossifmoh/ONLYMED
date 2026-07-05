@@ -171,7 +171,7 @@ function productCard(p){
       <div class="prod-desc">${desc}</div>
       <div class="prod-stars">${'<i class="fa fa-star"></i>'.repeat(Math.floor(p.rating))}<span>${p.rating} (${p.reviews})</span></div>
       <div class="prod-footer">
-        <div><span class="prod-price">${p.price.toFixed(2)} EGP</span>${p.oldPrice?`<span class="prod-old">${p.oldPrice.toFixed(2)} EGP</span>`:''}</div>
+        <div><span class="prod-price">${p.price.toFixed(2)} EGP</span>${p.oldPrice && parseFloat(p.oldPrice) > parseFloat(p.price) ?`<span class="prod-old">${p.oldPrice.toFixed(2)} EGP</span>`:''}</div>
       </div>
       <div class="prod-actions" style="display:flex;gap:6px;flex-wrap:wrap">
         <button class="btn-sm btn-view" onclick="viewProduct('${p.id}')">${tr('viewDetails')}</button>
@@ -255,7 +255,7 @@ function viewProduct(id){
   document.getElementById('detailCat').textContent=catName;
   document.getElementById('detailName').textContent=name;
   document.getElementById('detailRating').innerHTML='<i class="fa fa-star" style="color:#f59e0b"></i>'.repeat(Math.floor(p.rating))+`<span>${p.rating} (${p.reviews} reviews)</span>`;
-  document.getElementById('detailPrice').innerHTML=`<span class="price">${p.price.toFixed(2)} EGP</span>${p.oldPrice?`<span class="old">${p.oldPrice.toFixed(2)} EGP</span>`:''}`;
+  document.getElementById('detailPrice').innerHTML=`<span class="price">${p.price.toFixed(2)} EGP</span>${p.oldPrice && parseFloat(p.oldPrice) > parseFloat(p.price) ?`<span class="old">${p.oldPrice.toFixed(2)} EGP</span>`:''}`;
   document.getElementById('detailDesc').textContent=desc;
   document.getElementById('detailBenefits').innerHTML=bens.map(b=>`<li><i class="fa fa-check-circle"></i>${b}</li>`).join('');
   document.getElementById('detailQty').textContent=detailQty;
@@ -571,7 +571,7 @@ function renderAdminProducts(){
   document.getElementById('adminProdsBody').innerHTML=products.map(p=>`<tr>
     <td><span style="font-size:20px">${p.emoji}</span> <strong>${p.name}</strong></td>
     <td><span style="background:var(--pk3);color:var(--pk);padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600">${p.cat}</span></td>
-    <td><strong>${p.price.toFixed(2)} EGP</strong>${p.oldPrice?` <span style="color:var(--gray2);font-size:12px;text-decoration:line-through">${p.oldPrice.toFixed(2)} EGP</span>`:''}</td>
+    <td><strong>${p.price.toFixed(2)} EGP</strong>${p.oldPrice && parseFloat(p.oldPrice) > parseFloat(p.price) ?` <span style="color:var(--gray2);font-size:12px;text-decoration:line-through">${p.oldPrice.toFixed(2)} EGP</span>`:''}</td>
     <td>⭐ ${p.rating} (${p.reviews})</td>
     <td><div class="tbl-actions"><button class="tbl-btn tbl-edit" onclick="showToast('Edit product: ${p.name}')"><i class="fa fa-pen"></i> Edit</button><button class="tbl-btn tbl-del" onclick="showToast('Product deleted (demo mode)')"><i class="fa fa-trash"></i></button></div></td>
   </tr>`).join('');
