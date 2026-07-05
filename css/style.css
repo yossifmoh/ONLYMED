@@ -570,6 +570,10 @@ footer{background:var(--bg-footer);color:rgba(255,255,255,0.7);padding:48px 24px
   color: var(--text-main) !important;
   transition: all 0.25s ease !important;
 }
+[data-theme="dark"] select option {
+  background: #12121a !important;
+  color: #f8fafc !important;
+}
 [data-theme="dark"] input:focus,
 [data-theme="dark"] select:focus,
 [data-theme="dark"] textarea:focus {
