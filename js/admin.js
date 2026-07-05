@@ -234,14 +234,63 @@ function renderAll() {
   // Content
   const cBody = document.getElementById('contentTbody');
   if (cBody) {
-    cBody.innerHTML = db.content.map((c, i) => `
-      <tr>
-        <td><code style="background:#eee;padding:3px 6px;border-radius:4px">${c.key}</code></td>
-        <td><input type="text" class="input-sm" id="c-en-${i}" value="${c.en}"></td>
-        <td><input type="text" class="input-sm" id="c-ar-${i}" value="${c.ar}" dir="rtl"></td>
-        <td><select class="input-sm" id="c-st-${i}"><option ${c.status==='Active'?'selected':''}>Active</option><option ${c.status!=='Active'?'selected':''}>Inactive</option></select></td>
-      </tr>
-    `).join('');
+    const grouped = {};
+    const groupDefs = [
+      { name: 'Navbar Settings (إعدادات شريط التنقل العلوي)', keys: ['nav-tagline'] },
+      { name: 'Hero Banner Section (قسم الواجهة الرئيسي - الهيرو)', keys: ['hero-badge-text', 'hero-title', 'hero-sub', 'hero-btn1', 'hero-btn2'] },
+      { name: 'Home Sections Header (عناوين أقسام الصفحة الرئيسية)', keys: ['sec-cats-title', 'sec-cats-sub', 'sec-feat-title', 'sec-feat-sub', 'sec-best-title', 'sec-best-sub'] },
+      { name: 'About Page Section (قسم صفحة من نحن)', keys: ['about-hero-title', 'about-hero-sub'] }
+    ];
+
+    groupDefs.forEach(g => { grouped[g.name] = []; });
+    const otherGroupName = 'Other Settings (إعدادات أخرى)';
+    grouped[otherGroupName] = [];
+
+    db.content.forEach((c, index) => {
+      c._origIndex = index;
+      let matched = false;
+      for (const g of groupDefs) {
+        if (g.keys.includes(c.key)) {
+          grouped[g.name].push(c);
+          matched = true;
+          break;
+        }
+      }
+      if (!matched) {
+        grouped[otherGroupName].push(c);
+      }
+    });
+
+    let html = '';
+    for (const groupName in grouped) {
+      const items = grouped[groupName];
+      if (items.length > 0) {
+        html += `
+          <tr class="content-group-header" style="background: rgba(208, 17, 43, 0.05); font-weight: 600;">
+            <td colspan="4" style="color: var(--primary); padding: 12px 15px; font-size: 14px; text-align: left; border-left: 4px solid var(--primary);">
+              <i class="fa fa-folder-open" style="margin-right: 8px;"></i> ${groupName}
+            </td>
+          </tr>
+        `;
+        items.forEach(c => {
+          const idx = c._origIndex;
+          html += `
+            <tr>
+              <td style="padding-left: 25px;"><code style="background:var(--bg-hover);padding:3px 6px;border-radius:4px;border:1px solid var(--border);">${c.key}</code></td>
+              <td><input type="text" class="input-sm" id="c-en-${idx}" value="${c.en}"></td>
+              <td><input type="text" class="input-sm" id="c-ar-${idx}" value="${c.ar}" dir="rtl"></td>
+              <td>
+                <select class="input-sm" id="c-st-${idx}">
+                  <option ${c.status==='Active'?'selected':''}>Active</option>
+                  <option ${c.status!=='Active'?'selected':''}>Inactive</option>
+                </select>
+              </td>
+            </tr>
+          `;
+        });
+      }
+    }
+    cBody.innerHTML = html;
   }
 
   // Populate Dashboard Tables
