@@ -86,12 +86,14 @@ const t={
     langBtn:'عربي',trust1:'Free Shipping',trust1s:'On orders over $50',trust2:'Certified Products',trust2s:'FDA Approved',
     trust3:'30 Day Returns',trust3s:'Easy returns policy',trust4:'24/7 Support',trust4s:'Always here to help',
     footDesc:'Your trusted online destination for premium healthcare products.',
-    footShop:'Shop',footCompany:'Company',footSupport:'Support',footCopy:'© 2025 ONLYMED. All rights reserved.',
+    footShop:'Shop',footCompany:'About',footSupport:'Support',footCopy:'© 2025 ONLYMED. All rights reserved.',
     payCardSub:'Visa, Mastercard, Amex',payCODSub:'Pay when you receive',payWalletSub:'PayPal, Apple Pay, Google Pay',
     orderSumTitle:'Order Summary',aboutHeroTitle:'About ONLYMED',
     aboutHeroSub:'We\'re dedicated to making quality healthcare accessible to everyone, everywhere.',
     sendMsg:'Message sent! We\'ll reply within 24 hours.',
     loginBtn:'Login',profileBtn:'My Account',logoutBtn:'Logout',
+    catVitamins:'Vitamins',catSupplements:'Supplements',aboutUs:'About Us',supportLink:'Support',
+    supportModalTitle:'Contact Support',supportModalSub:'Choose your preferred channel to chat with us:',
   },
   ar:{
     home:'الرئيسية',products:'المنتجات',about:'عن الشركة',contact:'تواصل معنا',
@@ -120,12 +122,14 @@ const t={
     langBtn:'English',trust1:'شحن مجاني',trust1s:'للطلبات أعلى من $50',trust2:'منتجات معتمدة',trust2s:'معتمدة FDA',
     trust3:'إرجاع لمدة 30 يوم',trust3s:'سياسة إرجاع سهلة',trust4:'دعم 24/7',trust4s:'دائماً هنا للمساعدة',
     footDesc:'وجهتك الموثوقة للمنتجات الصحية المتميزة.',
-    footShop:'التسوق',footCompany:'الشركة',footSupport:'الدعم',footCopy:'© 2025 ONLYMED. جميع الحقوق محفوظة.',
+    footShop:'التسوق',footCompany:'من نحن',footSupport:'الدعم',footCopy:'© 2025 ONLYMED. جميع الحقوق محفوظة.',
     payCardSub:'فيزا، ماستركارد، أمريكان إكسبريس',payCODSub:'ادفع عند الاستلام',payWalletSub:'PayPal، Apple Pay، Google Pay',
     orderSumTitle:'ملخص الطلب',aboutHeroTitle:'عن ONLYMED',
     aboutHeroSub:'نحن ملتزمون بجعل الرعاية الصحية المتميزة في متناول الجميع.',
     sendMsg:'تم إرسال الرسالة! سنرد خلال 24 ساعة.',
     loginBtn:'تسجيل الدخول',profileBtn:'حسابي',logoutBtn:'تسجيل الخروج',
+    catVitamins:'الفيتامينات',catSupplements:'المكملات',aboutUs:'من نحن',supportLink:'الدعم',
+    supportModalTitle:'تواصل مع الدعم',supportModalSub:'اختر قناتك المفضلة للتحدث معنا:',
   }
 };
 const tr=k=>t[currentLang][k]||t.en[k]||k;
@@ -634,6 +638,9 @@ function applyTranslations(){
     'trust3':'trust3','trust3s':'trust3s','trust4':'trust4','trust4s':'trust4s',
     'foot-desc':'footDesc','foot-shop':'footShop','foot-company':'footCompany','foot-support':'footSupport','foot-copy':'footCopy',
     'nav-home':'home','nav-products':'products','nav-about':'about','nav-contact':'contact',
+    'footer-link-1':'prodPageTitle','footer-link-2':'catVitamins','footer-link-3':'catSupplements','footer-link-4':'prodPageTitle',
+    'footer-link-5':'aboutUs','footer-link-9':'supportLink',
+    'support-modal-title':'supportModalTitle','support-modal-sub':'supportModalSub',
   };
   Object.entries(tbl).forEach(([id,key])=>{
     const el=document.getElementById(id);
@@ -1193,4 +1200,13 @@ function showCustomConfirm(options) {
     document.addEventListener('keydown', handleKey);
     setTimeout(() => cancelBtn.focus(), 60);
   });
+}
+
+function openSupportModal() {
+  const modal = document.getElementById('supportModal');
+  if (modal) modal.classList.add('active');
+}
+function closeModal(id) {
+  const modal = document.getElementById(id);
+  if (modal) modal.classList.remove('active');
 }

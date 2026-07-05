@@ -86,7 +86,6 @@
       <a onclick="showPage('home')" class="active" data-key="home" id="nav-home">Home</a>
       <a onclick="showPage('products')" data-key="products" id="nav-products">Products</a>
       <a onclick="showPage('about')" data-key="about" id="nav-about">About</a>
-      <a onclick="showPage('contact')" data-key="contact" id="nav-contact">Contact</a>
       
       <!-- Mobile-only navigation items -->
       <div class="mobile-only search-wrap" style="margin: 12px 0 6px 0;">
@@ -481,6 +480,28 @@
   </div>
 </div>
 
+<!-- SUPPORT MODAL -->
+<div class="modal-overlay" id="supportModal">
+  <div class="modal-box" style="max-width: 400px; text-align: center; padding: 32px 24px; position: relative;">
+    <div class="modal-header" style="justify-content: center; border-bottom: none; padding-bottom: 0; margin-bottom: 16px;">
+      <h3 id="support-modal-title" style="font-family:'Playfair Display',serif; font-size: 24px; font-weight: 600; color: var(--text-main);">Contact Support</h3>
+      <button class="close-btn" onclick="closeModal('supportModal')" style="position: absolute; right: 20px; top: 20px;">&times;</button>
+    </div>
+    <p id="support-modal-sub" style="color: var(--text-muted); font-size: 14px; margin-bottom: 24px; line-height: 1.5;">Choose your preferred channel to chat with us:</p>
+    
+    <div style="display: flex; flex-direction: column; gap: 12px;">
+      <a href="https://wa.me/201234567890" target="_blank" class="btn-primary" style="display: flex; align-items: center; justify-content: center; gap: 10px; background: #25D366; border-color: #25D366; color: #fff; padding: 12px; border-radius: var(--r); text-decoration: none; font-weight: 600; cursor: pointer; transition: all 0.2s;">
+        <i class="fab fa-whatsapp" style="font-size: 20px;"></i>
+        <span>WhatsApp</span>
+      </a>
+      <a href="https://m.me/onlymed" target="_blank" class="btn-primary" style="display: flex; align-items: center; justify-content: center; gap: 10px; background: #0084FF; border-color: #0084FF; color: #fff; padding: 12px; border-radius: var(--r); text-decoration: none; font-weight: 600; cursor: pointer; transition: all 0.2s;">
+        <i class="fab fa-facebook-messenger" style="font-size: 20px;"></i>
+        <span>Messenger</span>
+      </a>
+    </div>
+  </div>
+</div>
+
 <!-- FOOTER -->
 <footer id="mainFooter">
   <div class="footer-inner">
@@ -489,9 +510,9 @@
         <div class="logo"><div class="logo-icon"><i class="fa fa-heart-pulse"></i></div><div><div class="logo-text">ONLYMED</div></div></div>
         <p id="foot-desc">Your trusted online destination for premium healthcare products. Quality, certified, delivered.</p>
       </div>
-      <div class="footer-col"><h4 id="foot-shop">Shop</h4><a onclick="showPage('products')" id="footer-link-1">All Products</a><a onclick="showPage('products')" id="footer-link-2">Vitamins</a><a onclick="showPage('products')" id="footer-link-3">Supplements</a><a onclick="showPage('products')" id="footer-link-4">First Aid</a></div>
-      <div class="footer-col"><h4 id="foot-company">Company</h4><a onclick="showPage('about')" id="footer-link-5">About Us</a><a onclick="showPage('contact')">Contact</a><a id="footer-link-7">Careers</a><a id="footer-link-8">Blog</a></div>
-      <div class="footer-col"><h4 id="foot-support">Support</h4><a id="footer-link-9">FAQ</a><a id="footer-link-10">Shipping Info</a><a id="footer-link-11">Returns</a><a id="footer-link-12">Track Order</a></div>
+      <div class="footer-col"><h4 id="foot-shop">Shop</h4><a onclick="showPage('products')" id="footer-link-1">All Products</a><a onclick="showPage('products')" id="footer-link-2">Vitamins</a><a onclick="showPage('products')" id="footer-link-3">Supplements</a><a onclick="showPage('products')" id="footer-link-4">All Products</a></div>
+      <div class="footer-col"><h4 id="foot-company">Company</h4><a onclick="showPage('about')" id="footer-link-5">About Us</a></div>
+      <div class="footer-col"><h4 id="foot-support">Support</h4><a onclick="openSupportModal()" style="cursor: pointer;" id="footer-link-9">Support</a></div>
     </div>
     <div class="footer-bottom">
       <span id="foot-copy">© 2025 ONLYMED. All rights reserved.</span>
