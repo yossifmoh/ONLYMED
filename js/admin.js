@@ -45,6 +45,12 @@ function switchTab(tabId, element) {
   document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
   const target = document.getElementById('tab-' + tabId);
   if (target) target.classList.add('active');
+  
+  if (tabId === 'analytics') {
+    if (typeof initAnalytics === 'function') {
+      initAnalytics();
+    }
+  }
 }
 
 async function loadDashboard() {
