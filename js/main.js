@@ -941,6 +941,9 @@ function applyDynamicContent() {
         if (key === 'hero-badge-text') {
           const badgeEl = el.closest('.hero-badge');
           if (badgeEl) badgeEl.style.display = 'none';
+        } else if (key === 'sec-cats-title' || key === 'sec-feat-title' || key === 'sec-best-title') {
+          const sectionEl = el.closest('.section');
+          if (sectionEl) sectionEl.style.display = 'none';
         } else {
           el.style.display = 'none';
         }
@@ -948,6 +951,9 @@ function applyDynamicContent() {
         if (key === 'hero-badge-text') {
           const badgeEl = el.closest('.hero-badge');
           if (badgeEl) badgeEl.style.display = '';
+        } else if (key === 'sec-cats-title' || key === 'sec-feat-title' || key === 'sec-best-title') {
+          const sectionEl = el.closest('.section');
+          if (sectionEl) sectionEl.style.display = '';
         } else {
           el.style.display = '';
         }
