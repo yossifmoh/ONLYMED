@@ -798,7 +798,8 @@ function processAndRenderData(data) {
       if (item && item.key) {
         dynamicContent[item.key] = {
           en: item.en || '',
-          ar: item.ar || ''
+          ar: item.ar || '',
+          status: item.status || 'Active'
         };
       }
     });
@@ -933,6 +934,23 @@ function applyDynamicContent() {
       const val = dynamicContent[key][currentLang];
       if (val !== undefined && val !== null) {
         el.innerHTML = val;
+      }
+      
+      const status = dynamicContent[key].status || 'Active';
+      if (status === 'Inactive') {
+        if (key === 'hero-badge-text') {
+          const badgeEl = el.closest('.hero-badge');
+          if (badgeEl) badgeEl.style.display = 'none';
+        } else {
+          el.style.display = 'none';
+        }
+      } else {
+        if (key === 'hero-badge-text') {
+          const badgeEl = el.closest('.hero-badge');
+          if (badgeEl) badgeEl.style.display = '';
+        } else {
+          el.style.display = '';
+        }
       }
     }
   }
