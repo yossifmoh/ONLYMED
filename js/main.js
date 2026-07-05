@@ -173,7 +173,7 @@ function productCard(p){
       <div class="prod-footer">
         <div><span class="prod-price">${p.price.toFixed(2)} EGP</span>${p.oldPrice && parseFloat(p.oldPrice) > parseFloat(p.price) ?`<span class="prod-old">${p.oldPrice.toFixed(2)} EGP</span>`:''}</div>
       </div>
-      <div class="prod-actions" style="display:flex;gap:6px;flex-wrap:wrap">
+      <div class="prod-actions">
         <button class="btn-sm btn-view" onclick="viewProduct('${p.id}')">${tr('viewDetails')}</button>
         <button class="btn-sm btn-cart-sm" onclick="addToCart('${p.id}')"><i class="fa fa-bag-shopping"></i> ${tr('addToCart')}</button>
         <button class="btn-sm btn-buy" onclick="viewProduct('${p.id}');setTimeout(buyNow,200)">${tr('buyNow')}</button>
