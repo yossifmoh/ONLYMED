@@ -111,8 +111,9 @@ html[dir="rtl"] .search-wrap i{left:auto;right:12px}
 [data-theme="dark"] .btn-theme:hover{border-color:#f1c40f;color:#f1c40f;background:rgba(241,196,15,0.1)}
 
 /* PAGES */
-.page{display:none;min-height:calc(100vh - 68px)}
+.page{display:none;min-height:calc(100vh - 68px);padding-bottom:60px}
 .page.active{display:block}
+#page-home{padding-bottom:0 !important}
 
 /* HERO */
 .hero{background:linear-gradient(135deg,#fff0f4 0%,#ffe4ec 50%,#fce8ee 100%);padding:80px 24px;position:relative;overflow:hidden}
@@ -375,7 +376,7 @@ html[dir="rtl"] .toast{right:auto;left:24px}
 .contact-form-card h3{font-size:17px;font-weight:600;color:var(--dark);margin-bottom:20px}
 
 /* FOOTER */
-footer{background:var(--bg-footer);color:rgba(255,255,255,0.7);padding:48px 24px 24px;margin-top:60px}
+footer{background:var(--bg-footer);color:rgba(255,255,255,0.7);padding:48px 24px 24px;margin-top:0}
 .footer-inner{max-width:1280px;margin:0 auto}
 .footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:32px;margin-bottom:40px}
 .footer-brand .logo-text{color:var(--pk2)}
