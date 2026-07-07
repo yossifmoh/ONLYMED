@@ -638,7 +638,7 @@ function applyTranslations(){
     'trust3':'trust3','trust3s':'trust3s','trust4':'trust4','trust4s':'trust4s',
     'foot-desc':'footDesc','foot-shop':'footShop','foot-company':'footCompany','foot-support':'footSupport','foot-copy':'footCopy',
     'nav-home':'home','nav-products':'products','nav-about':'about','nav-contact':'contact',
-    'footer-link-1':'prodPageTitle','footer-link-2':'catVitamins','footer-link-3':'catSupplements','footer-link-4':'prodPageTitle',
+    'footer-link-1':'prodPageTitle','footer-link-2':'catVitamins','footer-link-3':'catSupplements',
     'footer-link-5':'aboutUs','footer-link-9':'supportLink',
     'support-modal-title':'supportModalTitle','support-modal-sub':'supportModalSub',
   };
