@@ -765,24 +765,7 @@ function buyAgain(productId) {
   const product = products.find(p => p.id == productId);
   if (!product) return;
   
-  const existing = cart.find(item => item.id == productId);
-  if (existing) {
-    existing.qty++;
-  } else {
-    cart.push({
-      id: product.id,
-      name: product.name,
-      nameAr: product.nameAr,
-      price: product.price,
-      image: product.image,
-      qty: 1
-    });
-  }
-  
-  renderCartBadge();
-  saveCartLocally();
-  showToast(currentLang === 'ar' ? 'تمت إضافة المنتج إلى السلة!' : 'Added to cart!');
-  
+  addToCart(product.id, true);
   toggleCart();
 }
 
