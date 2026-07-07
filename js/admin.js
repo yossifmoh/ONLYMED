@@ -320,7 +320,7 @@ function renderAll() {
     topTbody.innerHTML = db.products.slice(0, 5).map(p => `
       <tr>
         <td>${p.name_en || ''}</td>
-        <td>${p.price} EGP</td>
+        <td style="white-space: nowrap;">${p.price} EGP</td>
       </tr>
     `).join('');
   }
