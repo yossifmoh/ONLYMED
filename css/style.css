@@ -25,7 +25,7 @@ img, .prod-img, .hero, .hero::before, .hero::after, .about-hero, .logo-icon, .bt
   --bg-page:    #fdf6f8;
   --bg-card:    #ffffff;
   --bg-input:   #ffffff;
-  --bg-nav:     #ffffff;
+  --bg-nav:     rgba(255, 255, 255, 0.75);
   --bg-sidebar: #111111;
   --bg-footer:  #111111;
   --bg-hover:   #ffebee;
@@ -76,7 +76,7 @@ body { background: var(--bg-page); color: var(--text-main); min-height: 100vh; o
 html[dir="rtl"] body { font-family:'DM Sans',sans-serif; }
 
 /* NAV */
-nav{background:var(--bg-nav);border-bottom:1px solid var(--border-nav);position:sticky;top:0;z-index:1000;box-shadow:0 2px 12px rgba(232,84,122,0.08)}
+nav{background:var(--bg-nav);border-bottom:1px solid var(--border-nav);position:sticky;top:0;z-index:1000;box-shadow:0 2px 12px rgba(232,84,122,0.08);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
 .nav-inner{max-width:1280px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:68px;gap:16px}
 .logo{display:flex;align-items:center;gap:10px;text-decoration:none;flex-shrink:0}
 .logo-dark{display:none;}
