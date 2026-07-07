@@ -67,8 +67,8 @@
     
     /* SIDEBAR */
     .sidebar { width: 260px; background: var(--bg-sidebar); color: white; display: flex; flex-direction: column; transition: background-color 0.25s; }
-    .sidebar-logo { padding: 25px; font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); }
-    .sidebar-logo span { color: white; font-size: 10px; font-family: 'Inter', sans-serif; letter-spacing: 1px; text-transform: uppercase; margin-top: 5px; }
+    .sidebar-logo { padding: 25px; font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 700; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .sidebar-logo .admin-lbl { color: white; font-size: 10px; font-family: 'Inter', sans-serif; letter-spacing: 1px; text-transform: uppercase; margin-top: 5px; display: block; }
     .nav-menu { padding: 20px 0; flex: 1; }
     .nav-item { padding: 15px 25px; display: flex; align-items: center; gap: 15px; color: #aaa; text-decoration: none; font-size: 14px; font-weight: 500; cursor: pointer; transition: 0.3s; border-left: 3px solid transparent; }
     .nav-item:hover, .nav-item.active { color: white; background: rgba(255,255,255,0.05); border-left-color: var(--primary); }
@@ -286,10 +286,9 @@
   <!-- SIDEBAR -->
   <div class="sidebar">
     <div class="sidebar-logo">
-      <i class="fa fa-heartbeat"></i>
       <div>
-        ONLYMED<br>
-        <span>Admin Panel</span>
+        <span style="color:#d0112b">ONLY</span><span style="color:#ffffff">MED</span><br>
+        <span class="admin-lbl">Admin Panel</span>
       </div>
     </div>
     <div class="nav-menu">
