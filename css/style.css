@@ -84,6 +84,10 @@ nav{background:var(--bg-nav);border-bottom:1px solid var(--border-nav);position:
 .logo-text{font-family:'Playfair Display',serif;font-size:20px;font-weight:600;color:var(--pk)}
 .logo-sub{font-size:10px;color:var(--gray);letter-spacing:1.5px;text-transform:uppercase;display:block;margin-top:-4px}
 
+.header-logo.logo-light { height: 48px; object-fit: contain; }
+.header-logo.logo-dark { height: 28px; object-fit: contain; }
+.footer-logo { height: 22px !important; object-fit: contain; }
+
 [data-theme="dark"] .logo-light { display: none !important; }
 [data-theme="dark"] .logo-dark { display: block !important; mix-blend-mode: screen; }
 .nav-links{display:flex;align-items:center;gap:4px}
@@ -415,7 +419,8 @@ footer{background:var(--bg-footer);color:rgba(255,255,255,0.7);padding:48px 24px
   .about-grid,.contact-grid{grid-template-columns:1fr;gap:24px}
 }
 @media(max-width:600px){
-  .logo img{height:36px !important}
+  .header-logo.logo-light{height:36px !important}
+  .header-logo.logo-dark{height:21px !important}
   .nav-inner{padding:0 16px;gap:8px}
   .btn-menu{display:flex;order:3}
   .nav-right{display:flex;order:2;margin-left:auto;gap:8px}
