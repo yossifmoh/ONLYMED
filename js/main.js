@@ -92,7 +92,7 @@ const t={
     aboutHeroSub:'We\'re dedicated to making quality healthcare accessible to everyone, everywhere.',
     sendMsg:'Message sent! We\'ll reply within 24 hours.',
     loginBtn:'Login',profileBtn:'My Account',logoutBtn:'Logout',
-    catVitamins:'Vitamins',catSupplements:'Supplements',aboutUs:'About Us',supportLink:'Support',
+    catVitamins:'Vitamins',catSupplements:'Supplements',aboutUs:'About Us',supportLink:'Support',contactUs:'Contact Us',faq:'FAQ',
     supportModalTitle:'Contact Support',supportModalSub:'Choose your preferred channel to chat with us:',
   },
   ar:{
@@ -128,7 +128,7 @@ const t={
     aboutHeroSub:'نحن ملتزمون بجعل الرعاية الصحية المتميزة في متناول الجميع.',
     sendMsg:'تم إرسال الرسالة! سنرد خلال 24 ساعة.',
     loginBtn:'تسجيل الدخول',profileBtn:'حسابي',logoutBtn:'تسجيل الخروج',
-    catVitamins:'الفيتامينات',catSupplements:'المكملات',aboutUs:'من نحن',supportLink:'الدعم',
+    catVitamins:'الفيتامينات',catSupplements:'المكملات',aboutUs:'من نحن',supportLink:'الدعم',contactUs:'تواصل معنا',faq:'الأسئلة الشائعة',
     supportModalTitle:'تواصل مع الدعم',supportModalSub:'اختر قناتك المفضلة للتحدث معنا:',
   }
 };
@@ -639,7 +639,7 @@ function applyTranslations(){
     'foot-desc':'footDesc','foot-shop':'footShop','foot-company':'footCompany','foot-support':'footSupport','foot-copy':'footCopy',
     'nav-home':'home','nav-products':'products','nav-about':'about','nav-contact':'contact',
     'footer-link-1':'prodPageTitle','footer-link-2':'catVitamins','footer-link-3':'catSupplements',
-    'footer-link-5':'aboutUs','footer-link-9':'supportLink',
+    'footer-link-5':'aboutUs','footer-link-8':'contactUs','footer-link-9':'faq',
     'support-modal-title':'supportModalTitle','support-modal-sub':'supportModalSub',
   };
   Object.entries(tbl).forEach(([id,key])=>{
