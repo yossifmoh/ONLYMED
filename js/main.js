@@ -639,7 +639,7 @@ function applyTranslations(){
     'foot-desc':'footDesc','foot-shop':'footShop','foot-company':'footCompany','foot-support':'footSupport','foot-copy':'footCopy',
     'nav-home':'home','nav-products':'products','nav-about':'about','nav-contact':'contact',
     'footer-link-1':'prodPageTitle','footer-link-2':'catVitamins','footer-link-3':'catSupplements',
-    'footer-link-5':'aboutUs','footer-link-8':'contactUs','footer-link-9':'faq',
+    'footer-link-5':'aboutUs','footer-link-8':'contactUs',
     'support-modal-title':'supportModalTitle','support-modal-sub':'supportModalSub',
   };
   Object.entries(tbl).forEach(([id,key])=>{
