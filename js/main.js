@@ -323,7 +323,7 @@ function renderCartPanel(){
   items.innerHTML=cart.map(item=>{
     const name=currentLang==='ar'?item.nameAr:item.name;
     return `<div class="cart-item">
-      <div class="ci-img">${item.emoji}</div>
+      <img src="${item.image}" alt="${name}" class="ci-img" style="object-fit: cover; border: 1px solid var(--border); background: #fdf6f8;">
       <div class="ci-info">
         <div class="ci-name">${name}</div>
         <div class="ci-price">${(item.price*item.qty).toFixed(2)} EGP</div>
