@@ -112,7 +112,7 @@
         <i class="fa fa-moon" id="themeIcon"></i>
       </button>
       <button class="btn-outline" style="padding: 7px 14px; font-size: 13px; margin-right: 5px;" id="navLoginBtn" onclick="window.location.href='login.html'"><i class="fa fa-sign-in-alt"></i> Login</button>
-      <button class="btn-outline" style="padding: 7px 14px; font-size: 13px; margin-right: 5px; display:none;" id="navProfileBtn" onclick="showPage('profile')"><i class="fa fa-user"></i> My Account</button>
+      <button class="btn-profile" style="display:none;" id="navProfileBtn" onclick="showPage('profile')" title="My Account"><i class="fa fa-user"></i></button>
       <button class="btn-admin" onclick="window.location.href='admin.html'">Admin</button>
     </div>
   </div>
@@ -300,35 +300,45 @@
 <!-- ===================== PROFILE PAGE ===================== -->
 <div class="page" id="page-profile">
   <div class="checkout-wrap">
-    <h2 style="font-family:'Playfair Display',serif;font-size:28px;margin-bottom:28px;color:var(--dark)">My Account</h2>
-    <div class="form-section" style="max-width: 600px; margin: 0 auto;">
-      <h3>Profile Information</h3>
+    <h2 style="font-family:'Playfair Display',serif;font-size:28px;margin-bottom:28px;color:var(--dark)" id="prof-page-title-lbl">My Account</h2>
+    
+    <!-- Profile Info Box -->
+    <div class="form-section" style="max-width: 800px; margin: 0 auto;">
+      <h3 id="prof-info-sec-title">Profile Information</h3>
       <div id="profile-view">
         <p style="margin-bottom:10px"><strong>Name:</strong> <span id="prof-v-name"></span></p>
         <p style="margin-bottom:10px"><strong>Email:</strong> <span id="prof-v-email"></span></p>
         <p style="margin-bottom:10px"><strong>Phone:</strong> <span id="prof-v-phone"></span></p>
         <p style="margin-bottom:10px"><strong>Address:</strong> <span id="prof-v-addr"></span></p>
-        <button class="btn-primary" style="margin-top: 20px;" onclick="toggleEditProfile()">Edit Profile</button>
+        <button class="btn-primary" style="margin-top: 20px;" onclick="toggleEditProfile()" id="prof-edit-btn">Edit Profile</button>
         <button class="btn-outline" style="margin-top: 20px; margin-left: 10px;" id="prof-logout-btn" onclick="doLogout()">Logout</button>
       </div>
 
       <div id="profile-edit" style="display:none; margin-top:20px;">
         <div class="form-group">
-          <label>Email Address</label>
+          <label id="prof-lbl-email">Email Address</label>
           <input type="email" id="prof-e-email">
         </div>
         <div class="form-group">
-          <label>Phone Number</label>
+          <label id="prof-lbl-phone">Phone Number</label>
           <input type="text" id="prof-e-phone">
         </div>
         <div class="form-group">
-          <label>Address</label>
+          <label id="prof-lbl-addr">Address</label>
           <input type="text" id="prof-e-addr">
         </div>
         <div style="display:flex; gap:10px; margin-top:20px;">
           <button class="btn-primary" onclick="saveProfile()" id="prof-save-btn">Save Changes</button>
-          <button class="btn-outline" onclick="toggleEditProfile()">Cancel</button>
+          <button class="btn-outline" onclick="toggleEditProfile()" id="prof-cancel-btn">Cancel</button>
         </div>
+      </div>
+    </div>
+
+    <!-- Purchases / Order History Box -->
+    <div class="form-section" style="max-width: 800px; margin: 30px auto 0 auto; padding-top: 24px; border-top: 1px solid var(--border);">
+      <h3 style="margin-bottom: 20px;" id="prof-orders-sec-title">Order History</h3>
+      <div id="profile-orders-list" class="profile-orders-list">
+        <!-- Rendered dynamically -->
       </div>
     </div>
   </div>

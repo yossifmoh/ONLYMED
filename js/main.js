@@ -94,6 +94,8 @@ const t={
     loginBtn:'Login',profileBtn:'My Account',logoutBtn:'Logout',
     catVitamins:'Vitamins',catSupplements:'Supplements',aboutUs:'About Us',supportLink:'Support',contactUs:'Contact Us',faq:'FAQ',
     supportModalTitle:'Contact Support',supportModalSub:'Choose your preferred channel to chat with us:',
+    profileTitlePage:'My Account',profileInfoSec:'Profile Information',orderHistorySec:'Order History',
+    editProfileBtn:'Edit Profile',saveChangesBtn:'Save Changes',cancelBtn:'Cancel',
   },
   ar:{
     home:'الرئيسية',products:'المنتجات',about:'عن الشركة',contact:'تواصل معنا',
@@ -130,6 +132,8 @@ const t={
     loginBtn:'تسجيل الدخول',profileBtn:'حسابي',logoutBtn:'تسجيل الخروج',
     catVitamins:'الفيتامينات',catSupplements:'المكملات',aboutUs:'من نحن',supportLink:'الدعم',contactUs:'تواصل معنا',faq:'الأسئلة الشائعة',
     supportModalTitle:'تواصل مع الدعم',supportModalSub:'اختر قناتك المفضلة للتحدث معنا:',
+    profileTitlePage:'حسابي',profileInfoSec:'بيانات الحساب',orderHistorySec:'سجل المشتريات',
+    editProfileBtn:'تعديل البيانات',saveChangesBtn:'حفظ التغييرات',cancelBtn:'إلغاء',
   }
 };
 const tr=k=>t[currentLang][k]||t.en[k]||k;
@@ -641,6 +645,15 @@ function applyTranslations(){
     'footer-link-1':'prodPageTitle','footer-link-2':'catVitamins','footer-link-3':'catSupplements',
     'footer-link-5':'aboutUs','footer-link-8':'contactUs',
     'support-modal-title':'supportModalTitle','support-modal-sub':'supportModalSub',
+    'prof-page-title-lbl':'profileTitlePage',
+    'prof-info-sec-title':'profileInfoSec',
+    'prof-orders-sec-title':'orderHistorySec',
+    'prof-edit-btn':'editProfileBtn',
+    'prof-save-btn':'saveChangesBtn',
+    'prof-cancel-btn':'cancelBtn',
+    'prof-lbl-email':'email',
+    'prof-lbl-phone':'phone',
+    'prof-lbl-addr':'address',
   };
   Object.entries(tbl).forEach(([id,key])=>{
     const el=document.getElementById(id);
@@ -657,7 +670,7 @@ function applyTranslations(){
   const pi=document.getElementById('prodSearch');if(pi)pi.placeholder=tr('searchPh');
   const loginBtn=document.getElementById('navLoginBtn');if(loginBtn)loginBtn.innerHTML=`<i class="fa fa-sign-in-alt"></i> ${tr('loginBtn')}`;
   const loginBtnMob=document.getElementById('navLoginBtnMob');if(loginBtnMob)loginBtnMob.innerHTML=`<i class="fa fa-sign-in-alt"></i> ${tr('loginBtn')}`;
-  const profileBtn=document.getElementById('navProfileBtn');if(profileBtn)profileBtn.innerHTML=`<i class="fa fa-user"></i> ${tr('profileBtn')}`;
+  const profileBtn=document.getElementById('navProfileBtn');if(profileBtn){profileBtn.title=tr('profileBtn');profileBtn.setAttribute('aria-label', tr('profileBtn'));}
   const profileBtnMob=document.getElementById('navProfileBtnMob');if(profileBtnMob)profileBtnMob.innerHTML=`<i class="fa fa-user"></i> ${tr('profileBtn')}`;
   const logoutBtn=document.getElementById('prof-logout-btn');if(logoutBtn)logoutBtn.textContent=tr('logoutBtn');
 }
@@ -723,6 +736,173 @@ function renderProfile() {
   document.getElementById('prof-e-email').value = currentUser.email;
   document.getElementById('prof-e-phone').value = currentUser.phone;
   document.getElementById('prof-e-addr').value = currentUser.address;
+  
+  renderProfileOrders();
+}
+
+function parseOrderProducts(productsStr) {
+  const items = [];
+  if (!productsStr) return items;
+  const parts = productsStr.split(', ');
+  parts.forEach(part => {
+    const match = part.match(/(.+?)\s*[x×]\s*(\d+)/i) || part.match(/(\d+)\s*[x×]\s*(.+)/i);
+    if (match) {
+      let name = match[1].trim();
+      let qty = parseInt(match[2]);
+      if (isNaN(qty)) {
+        qty = parseInt(match[1]);
+        name = match[2].trim();
+      }
+      items.push({ name, qty });
+    } else {
+      items.push({ name: part.trim(), qty: 1 });
+    }
+  });
+  return items;
+}
+
+function buyAgain(productId) {
+  const product = products.find(p => p.id == productId);
+  if (!product) return;
+  
+  const existing = cart.find(item => item.id == productId);
+  if (existing) {
+    existing.qty++;
+  } else {
+    cart.push({
+      id: product.id,
+      name: product.name,
+      nameAr: product.nameAr,
+      price: product.price,
+      image: product.image,
+      qty: 1
+    });
+  }
+  
+  renderCartBadge();
+  saveCartLocally();
+  showToast(currentLang === 'ar' ? 'تمت إضافة المنتج إلى السلة!' : 'Added to cart!');
+  
+  toggleCart();
+}
+
+function renderProfileOrders() {
+  const container = document.getElementById('profile-orders-list');
+  if (!container) return;
+  
+  if (!currentUser) {
+    container.innerHTML = `<p style="color: var(--text-muted); text-align: center;">Please log in to see your orders.</p>`;
+    return;
+  }
+  
+  const userOrders = (window.onlymedOrders || []).filter(o => 
+    (o.email && o.email.toLowerCase().trim() === currentUser.email.toLowerCase().trim()) || 
+    (o.phone && o.phone.toLowerCase().trim() === currentUser.phone.toLowerCase().trim())
+  );
+  
+  if (userOrders.length === 0) {
+    container.innerHTML = `
+      <div style="text-align: center; padding: 40px 20px; color: var(--text-muted);">
+        <i class="fa fa-shopping-bag" style="font-size: 40px; margin-bottom: 12px; color: var(--border);"></i>
+        <p>${currentLang === 'ar' ? 'لم تقم بأي طلبات بعد.' : 'No orders found yet.'}</p>
+      </div>
+    `;
+    return;
+  }
+  
+  userOrders.sort((a, b) => {
+    const dateA = new Date(a.date);
+    const dateB = new Date(b.date);
+    if (!isNaN(dateA) && !isNaN(dateB)) {
+      return dateB - dateA;
+    }
+    return b.id.localeCompare(a.id);
+  });
+  
+  let html = '';
+  userOrders.forEach(o => {
+    const items = parseOrderProducts(o.products);
+    const dateStr = (o.date && !isNaN(new Date(o.date))) ? new Date(o.date).toLocaleDateString(currentLang === 'ar' ? 'ar-EG' : 'en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : 'N/A';
+    
+    const status = (o.status || 'Pending').trim();
+    let statusClass = 'status-pending';
+    let statusLabel = status;
+    if (status === 'Completed' || status === 'Delivered') {
+      statusClass = 'status-completed';
+      statusLabel = currentLang === 'ar' ? 'مكتمل' : 'Completed';
+    } else if (status === 'Processing') {
+      statusClass = 'status-processing';
+      statusLabel = currentLang === 'ar' ? 'قيد التنفيذ' : 'Processing';
+    } else if (status === 'Cancelled') {
+      statusClass = 'status-cancelled';
+      statusLabel = currentLang === 'ar' ? 'ملغي' : 'Cancelled';
+    } else {
+      statusClass = 'status-pending';
+      statusLabel = currentLang === 'ar' ? 'معلق' : 'Pending';
+    }
+    
+    html += `
+      <div class="order-card" style="border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 24px; background: var(--bg-card); box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
+        <div class="order-card-header" style="background: var(--bg-stripe); padding: 12px 20px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); gap: 12px; font-size: 13px; color: var(--text-muted);">
+          <div style="display: flex; gap: 24px; flex-wrap: wrap;">
+            <div>
+              <span style="display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;">${currentLang === 'ar' ? 'تاريخ الطلب' : 'Order Placed'}</span>
+              <strong style="color: var(--text-main);">${dateStr}</strong>
+            </div>
+            <div>
+              <span style="display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;">${currentLang === 'ar' ? 'الإجمالي' : 'Total'}</span>
+              <strong style="color: var(--text-main);">${o.total} EGP</strong>
+            </div>
+          </div>
+          <div style="text-align: right;">
+            <span style="display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;">${currentLang === 'ar' ? 'رقم الطلب' : 'Order ID'}</span>
+            <strong style="color: var(--text-main); font-family: monospace;">#${o.id}</strong>
+          </div>
+        </div>
+        
+        <div class="order-card-body" style="padding: 20px;">
+          <div style="margin-bottom: 12px;">
+            <span class="status-badge ${statusClass}" style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; text-transform: capitalize;">
+              <span style="width: 6px; height: 6px; border-radius: 50%; background: currentColor;"></span>
+              ${statusLabel}
+            </span>
+          </div>
+          
+          <div style="display: flex; flex-direction: column; gap: 16px;">
+            ${items.map(item => {
+              const product = products.find(p => p.name.toLowerCase() === item.name.toLowerCase() || p.nameAr.toLowerCase() === item.name.toLowerCase());
+              const nameToShow = currentLang === 'ar' ? (product ? product.nameAr : item.name) : (product ? product.name : item.name);
+              const imgUrl = product ? product.image : 'https://images.unsplash.com/photo-1584017911766-d451b3d0e843?w=100&auto=format&fit=crop&q=60';
+              const priceUnit = product ? product.price : (parseFloat(o.total) / item.qty);
+              
+              return `
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; border-bottom: 1px dashed var(--border); padding-bottom: 16px; flex-wrap: wrap;">
+                  <div style="display: flex; align-items: center; gap: 16px;">
+                    <img src="${imgUrl}" alt="${nameToShow}" style="width: 70px; height: 70px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border); background: #fdf6f8;">
+                    <div>
+                      <h4 style="font-size: 15px; font-weight: 600; margin: 0 0 4px 0; color: var(--text-main);">${nameToShow}</h4>
+                      <p style="font-size: 13px; color: var(--text-muted); margin: 0;">
+                        ${currentLang === 'ar' ? 'الكمية:' : 'Qty:'} ${item.qty} &bull; ${priceUnit} EGP
+                      </p>
+                    </div>
+                  </div>
+                  <div>
+                    ${product ? `
+                      <button class="btn-primary" onclick="buyAgain('${product.id}')" style="padding: 6px 16px; font-size: 12px; border-radius: var(--r); font-weight: 600;">
+                        <i class="fa fa-redo" style="margin-right: 4px;"></i> ${currentLang === 'ar' ? 'شراء مرة أخرى' : 'Buy again'}
+                      </button>
+                    ` : ''}
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      </div>
+    `;
+  });
+  
+  container.innerHTML = html;
 }
 
 function toggleEditProfile() {
@@ -798,6 +978,8 @@ function hideGlobalLoader() {
 
 function processAndRenderData(data) {
   if (!data) return;
+  
+  window.onlymedOrders = data.orders || [];
   
   dynamicContent = {};
   if (Array.isArray(data.content)) {

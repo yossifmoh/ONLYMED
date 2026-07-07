@@ -111,6 +111,8 @@ html[dir="rtl"] .search-wrap i{left:auto;right:12px}
 /* THEME TOGGLE */
 .btn-theme{background:none;border:1.5px solid var(--border);border-radius:50%;width:38px;height:38px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-muted);font-size:15px;transition:all .25s;flex-shrink:0}
 .btn-theme:hover{border-color:var(--pk);color:var(--pk);background:var(--pk3)}
+.btn-profile{background:none;border:1.5px solid var(--border);border-radius:50%;width:38px;height:38px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-muted);font-size:15px;transition:all .25s;flex-shrink:0;margin-right:5px}
+.btn-profile:hover{border-color:var(--pk);color:var(--pk);background:var(--pk3)}
 [data-theme="dark"] .btn-theme{color:#f1c40f}
 [data-theme="dark"] .btn-theme:hover{border-color:#f1c40f;color:#f1c40f;background:rgba(241,196,15,0.1)}
 
